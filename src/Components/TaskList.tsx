@@ -9,7 +9,7 @@ const TaskList = (props: { tasks: Task[] }) => {
       {props.tasks.map((task, index) => (
         <View style={[css.task_container, index > 0 && css.task_divider]} key={task.id}>
           <View style={css.status}>
-    
+
           </View>
           <View style={css.status_divider} />
           <Text style={css.title}>{task.title}</Text>
@@ -34,7 +34,7 @@ const css = StyleSheet.create({
   },
   status_divider: {
     width: style.border_width,
-    backgroundColor: colors.dark,
+    backgroundColor: colors.main_dark,
   },
   title: {
     color: colors.light,
