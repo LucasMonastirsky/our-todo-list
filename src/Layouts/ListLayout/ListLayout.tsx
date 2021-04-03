@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Dimensions, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import TaskAddButton from '../../Components/TaskAddButton'
 import TaskView from '../../Components/TaskView'
 import { Task, TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
+import ListTab from './ListTab'
 
 const debug_lists: TodoList[] = [
   new TodoList({
@@ -63,6 +64,7 @@ const ListLayout = () => {
           <Text style={css.list_title}>{current_list.title}</Text>
         </TouchableOpacity>
       </View>
+      <ListTab {...{lists}} onSelect={onSelectList} />
       {selecting_list &&
         <View style={css.list_select_container}>
           {lists.map((list, index) =>
