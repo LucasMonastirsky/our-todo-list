@@ -5,6 +5,7 @@ class Task {
   id: string
   creator_id: string
   completer_id?: string
+  position: number
 
   constructor(properties: {
     title?: string,
@@ -13,6 +14,7 @@ class Task {
     id: string,
     creator_id: string,
     completer_id?: string,
+    position: number,
   }){
     this.title = properties.title ?? 'Untitled Task'
     this.status = properties.status ?? TASK_STATUS.PENDING
@@ -20,6 +22,7 @@ class Task {
     this.id = properties.id
     this.creator_id = properties.creator_id
     this.completer_id = properties.completer_id
+    this.position = properties.position
   }
   
 }

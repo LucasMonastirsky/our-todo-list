@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import { TaskList } from '../../Components'
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import TaskAddButton from '../../Components/TaskAddButton'
+import TaskView from '../../Components/TaskView'
 import { Task, TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
 
@@ -11,12 +11,12 @@ const debug_lists: TodoList[] = [
     description: 'Tasks for our home!',
     id: '0',
     tasks: [
-      new Task({title: 'Wash Dishes', creator_id: 'Laura', id: '0'}),
-      new Task({title: 'Buy Tofu', creator_id: 'Josh', id: '1'}),
-      new Task({title: 'Fill Hole in the Wall', creator_id: 'Laura', id: '2'}),
-      new Task({title: 'Take Dog for a Walk', creator_id: 'Laura', id: '3'}),
-      new Task({title: 'Develop App', creator_id: 'Josh', id: '4'}),
-      new Task({title: 'I Ran out of Ideas', creator_id: 'Laura', id: '5'}),
+      new Task({title: 'Wash Dishes', creator_id: 'Laura', id: '0', position: 0}),
+      new Task({title: 'Buy Tofu', creator_id: 'Josh', id: '1', position: 1}),
+      new Task({title: 'Fill Hole in the Wall', creator_id: 'Laura', id: '2', position: 2}),
+      new Task({title: 'Take Dog for a Walk', creator_id: 'Laura', id: '3', position: 3}),
+      new Task({title: 'Develop App', creator_id: 'Josh', id: '4', position: 4}),
+      new Task({title: 'I Ran out of Ideas', creator_id: 'Laura', id: '5', position: 5}),
     ]
   }),
   new TodoList({
@@ -24,12 +24,12 @@ const debug_lists: TodoList[] = [
     description: 'Things to do before going on vacation',
     id: '1',
     tasks: [
-      new Task({title: 'Choose Destination', creator_id: 'Laura', id: '6'}),
-      new Task({title: 'Book Tickets', creator_id: 'Josh', id: '7'}),
-      new Task({title: 'Plan Activities', creator_id: 'Laura', id: '8'}),
-      new Task({title: 'Find Someone to Take Care of the Dog', creator_id: 'Laura', id: '9'}),
-      new Task({title: 'Ask for vacation at work', creator_id: 'Josh', id: '10'}),
-      new Task({title: 'I Ran out of Ideas, yet again...', creator_id: 'Laura', id: '11'}),
+      new Task({title: 'Choose Destination', creator_id: 'Laura', id: '6', position: 0}),
+      new Task({title: 'Book Tickets', creator_id: 'Josh', id: '7', position: 1}),
+      new Task({title: 'Plan Activities', creator_id: 'Laura', id: '8', position: 2}),
+      new Task({title: 'Find Someone to Take Care of the Dog', creator_id: 'Laura', id: '9', position: 3}),
+      new Task({title: 'Ask for vacation at work', creator_id: 'Josh', id: '10', position: 4}),
+      new Task({title: 'I Ran out of Ideas, yet again...', creator_id: 'Laura', id: '11', position: 5}),
     ]
   }),
 ]
@@ -44,7 +44,7 @@ const ListLayout = () => {
   const addTask = () => {
     const updated_list = {...current_list, tasks: [
       ...current_list.tasks,
-      new Task({ id: `${current_list.tasks.length}`, creator_id: 'Josh' })
+      new Task({ id: `${current_list.tasks.length}`, creator_id: 'Josh', position: current_list.tasks.length })
     ]}
     const updated_lists = [...lists]
     updated_lists.splice(current_list_index, 1, updated_list)
@@ -66,13 +66,19 @@ const ListLayout = () => {
       {selecting_list &&
         <View style={css.list_select_container}>
           {lists.map((list, index) =>
-            <TouchableOpacity style={css.list_select_item} onPress={()=>onSelectList(index)}>
+            <TouchableOpacity style={css.list_select_item} onPress={()=>onSelectList(index)} key={index}>
               <Text style={css.list_select_item_text}>{list.title}</Text>
             </TouchableOpacity>
           )}
         </View>
       }
-      <TaskList tasks={current_list.tasks} />
+      <FlatList
+        data={current_list.tasks}
+        renderItem={({item})=>(
+          <TaskView task={item} />
+        )}
+        ItemSeparatorComponent={()=><View style={css.item_divider} />}
+      />
       <TaskAddButton onTouch={addTask} />
     </View>
   )
@@ -110,6 +116,9 @@ const css = StyleSheet.create({
   list_select_item_text: {
     fontSize: style.font_size_med,
     color: colors.light,
+  },
+  item_divider: {
+    height: 2,
   },
 })
 

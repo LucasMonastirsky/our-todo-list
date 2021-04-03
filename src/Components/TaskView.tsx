@@ -10,9 +10,9 @@ const TaskView = (props: { task: Task }) => {
   return (
     <TouchableOpacity onPress={() => setModalActive(true)}>
       <View style={css.container}>
-        <View style={css.status}>
+        <TouchableOpacity style={css.status} onPress={()=>{/* set status as pending */ }}>
 
-        </View>
+        </TouchableOpacity>
         <View style={css.status_divider} />
         <Text style={css.title}>{props.task.title}</Text>
       </View>
