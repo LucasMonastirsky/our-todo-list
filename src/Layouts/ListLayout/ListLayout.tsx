@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import TaskAddButton from '../../Components/TaskAddButton'
 import TaskView from '../../Components/TaskView'
 import { Task, TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
 import ListTab from './ListTab'
 import Drawer from 'react-native-drawer'
-import { FadeContent } from '../../Components'
+import { DrawerIcon, FadeContent } from '../../Components'
 
 const debug_lists: TodoList[] = [
   new TodoList({
@@ -78,9 +78,7 @@ const ListLayout = () => {
     >
       <View style={css.container}>
         <View style={css.header}>
-          <TouchableOpacity style={css.options_button_container} onPress={()=>setDrawerActive(true)}>
-            <Text style={css.options_button}>Options</Text>
-          </TouchableOpacity>
+          <DrawerIcon onPress={()=>setDrawerActive(true)} />
           <TouchableOpacity style={css.list_title_container} onPress={()=>console.log('pressed members button')}>
           </TouchableOpacity>
         </View>
@@ -114,7 +112,7 @@ const css = StyleSheet.create({
     flex: 1,
   },
   header: {
-    height: 50,
+    height: 45,
     backgroundColor: colors.main,
     padding: style.padding,
     flexDirection: 'row',
@@ -143,9 +141,6 @@ const css = StyleSheet.create({
   },
   item_divider: {
     height: 2,
-  },
-  options_button_container: {
-
   },
   options_button: {
     color: colors.light,

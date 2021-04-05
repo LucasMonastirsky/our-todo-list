@@ -7,7 +7,7 @@ const FadeContent = (props: {active: boolean}) => {
   React.useEffect(() => {
     Animated.timing(anim, {
         toValue: props.active ? 1 : 0,
-        duration: 500,
+        duration: 300,
         useNativeDriver: false,
       }
     ).start();
