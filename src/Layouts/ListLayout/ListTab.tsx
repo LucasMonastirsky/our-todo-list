@@ -3,7 +3,7 @@ import { View, FlatList, StyleSheet, Dimensions, Text } from 'react-native'
 import { TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
 
-const ListTab = (props: { lists: TodoList[], onSelect: (index: number)=>void }) => {
+const ListTab = (props: { lists: TodoList[], onSelect: (index: number)=>void, onPress?: ()=>void }) => {
   const [index, setIndex] = useState(0)
 
   const onScroll = (pos: number) => {

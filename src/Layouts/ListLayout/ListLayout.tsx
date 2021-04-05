@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
-import { Dimensions, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import TaskAddButton from '../../Components/TaskAddButton'
 import TaskView from '../../Components/TaskView'
 import { Task, TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
 import ListTab from './ListTab'
+import Drawer from 'react-native-drawer'
+import { FadeContent } from '../../Components'
 
 const debug_lists: TodoList[] = [
   new TodoList({
@@ -39,6 +41,7 @@ const ListLayout = () => {
   const [lists, setLists] = useState(debug_lists)
   const [current_list_index, setCurrentListIndex] = useState(0)
   const [selecting_list, setSelectingList] = useState(false)
+  const [drawer_active, setDrawerActive] = useState(false)
 
   const current_list = lists[current_list_index]
 
@@ -57,32 +60,51 @@ const ListLayout = () => {
     setSelectingList(false)
   }
 
-  return (
-    <View style={css.container}>
-      <View style={css.header}>
-        <TouchableOpacity style={css.list_title_container} onPress={()=>setSelectingList(!selecting_list)}>
-          <Text style={css.list_title}>{current_list.title}</Text>
-        </TouchableOpacity>
+  const DrawerContent = () => {
+    return (
+      <View style={css.drawer_container}>
+        <Text>Drawer!</Text>
       </View>
-      <ListTab {...{lists}} onSelect={onSelectList} />
-      {selecting_list &&
-        <View style={css.list_select_container}>
-          {lists.map((list, index) =>
-            <TouchableOpacity style={css.list_select_item} onPress={()=>onSelectList(index)} key={index}>
-              <Text style={css.list_select_item_text}>{list.title}</Text>
-            </TouchableOpacity>
-          )}
+    )
+  }
+
+  return (
+    <Drawer
+      type="overlay"
+      openDrawerOffset={0.5}
+      open={drawer_active}
+      onCloseStart={()=>setDrawerActive(false)}
+      content={<DrawerContent />}
+    >
+      <View style={css.container}>
+        <View style={css.header}>
+          <TouchableOpacity style={css.options_button_container} onPress={()=>setDrawerActive(true)}>
+            <Text style={css.options_button}>Options</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={css.list_title_container} onPress={()=>console.log('pressed members button')}>
+          </TouchableOpacity>
         </View>
-      }
-      <FlatList
-        data={current_list.tasks}
-        renderItem={({item})=>(
-          <TaskView task={item} />
-        )}
-        ItemSeparatorComponent={()=><View style={css.item_divider} />}
-      />
-      <TaskAddButton onTouch={addTask} />
-    </View>
+        <ListTab {...{lists}} onSelect={onSelectList} />
+        {selecting_list &&
+          <View style={css.list_select_container}>
+            {lists.map((list, index) =>
+              <TouchableOpacity style={css.list_select_item} onPress={()=>onSelectList(index)} key={index}>
+                <Text style={css.list_select_item_text}>{list.title}</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        }
+        <FlatList
+          data={current_list.tasks}
+          renderItem={({item})=>(
+            <TaskView task={item} />
+          )}
+          ItemSeparatorComponent={()=><View style={css.item_divider} />}
+        />
+        <TaskAddButton onTouch={addTask} />
+      </View>
+      <FadeContent active={drawer_active} />
+    </Drawer>
   )
 }
 
@@ -121,6 +143,23 @@ const css = StyleSheet.create({
   },
   item_divider: {
     height: 2,
+  },
+  options_button_container: {
+
+  },
+  options_button: {
+    color: colors.light,
+    fontSize: style.font_size_med,
+  },
+  drawer_container: {
+    backgroundColor: colors.main,
+    height: '100%',
+  },
+  content_fade: {
+    position: 'absolute',
+    height: '100%',
+    width: '100%',
+    backgroundColor: '#000000aa'
   },
 })
 
