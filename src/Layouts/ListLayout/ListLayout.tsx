@@ -1,12 +1,11 @@
 import React, { useState } from 'react'
-import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import TaskAddButton from '../../Components/TaskAddButton'
 import TaskView from '../../Components/TaskView'
 import { Task, TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
 import ListTab from './ListTab'
-import Drawer from 'react-native-drawer'
-import { DrawerIcon, FadeContent } from '../../Components'
+import { CustomDrawer } from '../../Components'
 
 const debug_lists: TodoList[] = [
   new TodoList({
@@ -41,7 +40,6 @@ const ListLayout = () => {
   const [lists, setLists] = useState(debug_lists)
   const [current_list_index, setCurrentListIndex] = useState(0)
   const [selecting_list, setSelectingList] = useState(false)
-  const [drawer_active, setDrawerActive] = useState(false)
 
   const current_list = lists[current_list_index]
 
@@ -60,28 +58,9 @@ const ListLayout = () => {
     setSelectingList(false)
   }
 
-  const DrawerContent = () => {
-    return (
-      <View style={css.drawer_container}>
-        <Text>Drawer!</Text>
-      </View>
-    )
-  }
-
   return (
-    <Drawer
-      type="overlay"
-      openDrawerOffset={0.5}
-      open={drawer_active}
-      onCloseStart={()=>setDrawerActive(false)}
-      content={<DrawerContent />}
-    >
+    <CustomDrawer header_content={<View />}>
       <View style={css.container}>
-        <View style={css.header}>
-          <DrawerIcon onPress={()=>setDrawerActive(true)} />
-          <TouchableOpacity style={css.list_title_container} onPress={()=>console.log('pressed members button')}>
-          </TouchableOpacity>
-        </View>
         <ListTab {...{lists}} onSelect={onSelectList} />
         {selecting_list &&
           <View style={css.list_select_container}>
@@ -101,8 +80,7 @@ const ListLayout = () => {
         />
         <TaskAddButton onTouch={addTask} />
       </View>
-      <FadeContent active={drawer_active} />
-    </Drawer>
+    </CustomDrawer>
   )
 }
 
