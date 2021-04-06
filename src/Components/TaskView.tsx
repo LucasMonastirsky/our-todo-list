@@ -1,21 +1,30 @@
-import React, { useState } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
+import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native'
 import { Task } from '../Models'
 import { colors, style } from '../Styling'
 import TaskModal from './TaskModal'
 
-const TaskView = (props: { task: Task }) => {
+const TaskView = (props: { task: Task, index?: number }) => {
   const [modal_active, setModalActive] = useState(false)
+  const anim = useRef(new Animated.Value(0)).current
+
+  useEffect(()=>{
+   Animated.timing(anim, {
+     toValue: 1,
+     duration: 100 * ((props.index ?? 0) + 1),
+     useNativeDriver: false,
+   }).start()
+  }, [anim])
 
   return (
     <TouchableOpacity onPress={() => setModalActive(true)}>
-      <View style={css.container}>
+      <Animated.View style={[css.container, {opacity: anim}]}>
         <TouchableOpacity style={css.status} onPress={()=>{/* set status as pending */ }}>
 
         </TouchableOpacity>
         <View style={css.status_divider} />
         <Text style={css.title}>{props.task.title}</Text>
-      </View>
+      </Animated.View>
       {modal_active && <TaskModal task={props.task} onClose={()=>setModalActive(false)} />}
     </TouchableOpacity>
   )

@@ -73,8 +73,8 @@ const ListLayout = () => {
         }
         <FlatList
           data={current_list.tasks}
-          renderItem={({item})=>(
-            <TaskView task={item} />
+          renderItem={({item, index})=>(
+            <TaskView {...{task: item, index}} />
           )}
           ItemSeparatorComponent={()=><View style={css.item_divider} />}
         />
