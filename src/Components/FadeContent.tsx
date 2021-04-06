@@ -1,17 +1,14 @@
 import React, { useRef } from 'react'
 import { Animated, StyleSheet } from 'react-native'
+import { createAnimation } from '../Utils'
 
 const FadeContent = (props: {active: boolean}) => {
-  const anim = useRef(new Animated.Value(props.active ? 1 : 0)).current
-
-  React.useEffect(() => {
-    Animated.timing(anim, {
-        toValue: props.active ? 1 : 0,
-        duration: 300,
-        useNativeDriver: false,
-      }
-    ).start();
-  }, [props.active])
+  const anim = createAnimation({
+    from: props.active ? 1 : 0,
+    to: props.active ? 1 : 0,
+    duration: 300,
+    condition: props.active
+  })
 
   return <Animated.View pointerEvents='none' style={[css.container, {opacity: anim}]}  />
 }

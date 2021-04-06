@@ -1,20 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useState } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native'
 import { Task } from '../Models'
 import { colors, style } from '../Styling'
 import TaskModal from './TaskModal'
+import { createAnimation } from '../Utils'
 
 const TaskView = (props: { task: Task, index?: number }) => {
   const [modal_active, setModalActive] = useState(false)
-  const anim = useRef(new Animated.Value(0)).current
-
-  useEffect(()=>{
-   Animated.timing(anim, {
-     toValue: 1,
-     duration: 100 * ((props.index ?? 0) + 1),
-     useNativeDriver: false,
-   }).start()
-  }, [anim])
+  const anim = createAnimation({duration: 100 * ((props.index ?? 0) + 1)})
 
   return (
     <TouchableOpacity onPress={() => setModalActive(true)}>
