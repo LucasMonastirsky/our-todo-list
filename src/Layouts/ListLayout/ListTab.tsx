@@ -4,32 +4,65 @@ import { TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
 
 const ListTab = (props: { lists: TodoList[], onSelect: (index: number)=>void, onPress?: ()=>void }) => {
-  const [index, setIndex] = useState(0)
+  const [selected_index, setIndex] = useState(0)
+  const [item_widths, setItemWidths] = useState([0])
+  const [item_offsets, setItemOffsets] = useState([0])
+  // const [scroll_pos, setScrollPos] = useState(0) // for debug only
 
   const onScroll = (pos: number) => {
-    const new_index = Math.round(pos / tab_size)
-    if (new_index !== index) {
+    let new_index = selected_index
+    pos += 1 // this avoids bugs caused by rounding
+    // setScrollPos(pos)
+
+    if (pos > item_offsets[selected_index])
+      new_index++
+    if (pos < item_offsets[selected_index-1])
+      new_index--
+
+    if (new_index !== selected_index) {
       setIndex(new_index)
       props.onSelect(new_index)
     }
   }
 
-  const renderItem = ({item}: {item: any})=>(
-    <View style={[css.item, {width: tab_size}]}>
-      <Text style={css.item_text}>{item.title}</Text>
-    </View>
-  )
+  const setItemWidth = (index: number, width: number) => {
+    const new_item_widths = [...item_widths]
+    new_item_widths[index] = width
+    setItemWidths(new_item_widths)
+  }
+
+  const setItemOffset = (index: number, width: number) => {
+    const new_item_offsets = [...item_offsets]
+    new_item_offsets[index] = (new_item_offsets[index-1]??0) + width
+    setItemOffsets(new_item_offsets)
+    setItemWidth(index, width)
+  }
+
+  const renderItem = ({item, index}: {item: any, index: number})=>{
+    return (
+      <View style={css.item} onLayout={({nativeEvent})=>setItemOffset(index, nativeEvent.layout.width)}>
+        <Text style={[css.item_text, {color: selected_index === index ? colors.light : colors.light_dark}]}>
+          {item.title}
+        </Text>
+        {/* <Text style={{position: 'absolute'}}>{item_offsets[index]}</Text> */}
+      </View>
+  )}
+
+  const calculateHeader = () => (Dimensions.get('window').width - item_offsets[0]) / 2
+  const calculateFooter = () => (Dimensions.get('window').width - item_widths[item_widths.length-1]) / 2
 
   return (
     <View style={css.container}>
+      {/* <Text style={{position: 'absolute', backgroundColor: 'white', zIndex: 10}}>{scroll_pos}</Text> */}
       <FlatList
         data={props.lists}
         {...{renderItem}}
-        ListHeaderComponent={()=><View style={{width: tab_margin}} />}
-        ListFooterComponent={()=><View style={{width: tab_margin}} />}
+        ListHeaderComponent={()=><View style={{width: calculateHeader()}} />}
+        ListFooterComponent={()=><View style={{width: calculateFooter()}} />}
+        snapToOffsets={[0, ...item_offsets]}
+        snapToStart={false}
+        snapToEnd={false}
         horizontal
-        snapToInterval={tab_size}
-        disableIntervalMomentum
         onScroll={({nativeEvent})=>{onScroll(nativeEvent.contentOffset.x)}}
         // might not work on iOS: https://stackoverflow.com/questions/29503252/get-current-scroll-position-of-scrollview-in-react-native
       />
@@ -37,27 +70,21 @@ const ListTab = (props: { lists: TodoList[], onSelect: (index: number)=>void, on
   )
 }
 
-const TAB_RATIO = 0.8 // multiplier of screen width
-const screen_width = Dimensions.get('screen').width
-const tab_size = screen_width * TAB_RATIO
-const tab_margin = screen_width * ((1 - TAB_RATIO) / 2)
-
 const css = StyleSheet.create({
   container: {
-    height: 50,
+    // height: 50,
     backgroundColor: colors.main,
-    padding: style.padding,
-    flexDirection: 'row',
+    // padding: style.padding,
+    // flexDirection: 'row',
   },
   item: {
     justifyContent: 'center',
-    marginLeft: 'auto',
   },
   item_text: {
+    // backgroundColor: 'pink',
     color: colors.light,
     fontSize: style.font_size_big,
-    marginHorizontal: style.padding,
-    textAlign: 'center',
+    marginHorizontal: style.margin * 2,
   }
 })
 
