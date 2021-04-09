@@ -72,16 +72,12 @@ const ListTab = (props: { lists: TodoList[], onSelect: (index: number)=>void, on
 
 const css = StyleSheet.create({
   container: {
-    // height: 50,
     backgroundColor: colors.main,
-    // padding: style.padding,
-    // flexDirection: 'row',
   },
   item: {
     justifyContent: 'center',
   },
   item_text: {
-    // backgroundColor: 'pink',
     color: colors.light,
     fontSize: style.font_size_big,
     marginHorizontal: style.margin * 2,

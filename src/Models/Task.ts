@@ -4,6 +4,7 @@ class Task {
   description: string
   id: string
   creator_id: string
+  creation_date: number
   completer_id?: string
   position: number
 
@@ -13,6 +14,7 @@ class Task {
     description?: string,
     id: string,
     creator_id: string,
+    creation_date?: number,
     completer_id?: string,
     position: number,
   }){
@@ -21,6 +23,7 @@ class Task {
     this.description = properties.description ?? ''
     this.id = properties.id
     this.creator_id = properties.creator_id
+    this.creation_date = properties.creation_date ?? Date.now(),
     this.completer_id = properties.completer_id
     this.position = properties.position
   }
@@ -29,6 +32,7 @@ class Task {
 
 enum TASK_STATUS {
   DONE = 'Done',
+  IN_PROGRESS = 'In Progress',
   PENDING = 'Pending',
   PAUSED = 'Paused',
 }

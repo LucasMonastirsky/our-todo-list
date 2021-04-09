@@ -14,10 +14,10 @@ const debug_lists: TodoList[] = [
     id: '0',
     tasks: [
       new Task({title: 'Wash Dishes', creator_id: 'Laura', id: '0', position: 0}),
-      new Task({title: 'Buy Tofu', creator_id: 'Josh', id: '1', position: 1}),
+      new Task({title: 'Buy Tofu', creator_id: 'Josh', id: '1', position: 1, description: `The normal kind, not the flavoured kind, it's more expensive!`}),
       new Task({title: 'Fill Hole in the Wall', creator_id: 'Laura', id: '2', position: 2}),
       new Task({title: 'Take Dog for a Walk', creator_id: 'Laura', id: '3', position: 3}),
-      new Task({title: 'Develop App', creator_id: 'Josh', id: '4', position: 4}),
+      new Task({title: 'Develop App', creator_id: 'Josh', id: '4', position: 4, description: `Yes, this one.`}),
       new Task({title: 'I Ran out of Ideas', creator_id: 'Laura', id: '5', position: 5}),
     ]
   }),

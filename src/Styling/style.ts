@@ -1,7 +1,7 @@
 const style = {
-  font_size_big: 25,
-  font_size_med: 22,
-  font_size_small: 19,
+  font_size_big: 24,
+  font_size_med: 20,
+  font_size_small: 16,
 
   padding: 5,
   margin: 8,
