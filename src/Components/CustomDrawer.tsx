@@ -3,6 +3,7 @@ import { View, StyleSheet, Text, Image, TouchableOpacity } from 'react-native'
 import Drawer from 'react-native-drawer'
 import { AppText, DrawerIcon, FadeContent } from './'
 import { colors, style } from '../Styling'
+import { Navigation } from '../App'
 
 const CustomDrawer = (props: {header_content?: any, children?: any}) => {
   const [drawer_active, setDrawerActive] = useState(false)
@@ -16,17 +17,17 @@ const CustomDrawer = (props: {header_content?: any, children?: any}) => {
         <Spacer />
         <ItemText>Profile</ItemText>
       </Item>
-      <Item>
+      <Item onPress={()=>Navigation.goTo('Lists')}>
         <ItemText>Lists</ItemText>
       </Item>
-      <Item>
+      <Item onPress={()=>Navigation.goTo('Options')}>
         <ItemText>Options</ItemText>
       </Item>
       <AppText style={css.credit_text}>Developed by Lucas Monastirsky</AppText>
     </View>
   )
 
-  const Item = ({children}: {children: any}) => <TouchableOpacity><View style={css.item}>{children}</View></TouchableOpacity>
+  const Item = ({children, onPress}: {children: any, onPress?: ()=>void}) => <TouchableOpacity {...{onPress}}><View style={css.item}>{children}</View></TouchableOpacity>
   const ItemText = ({children}: {children: any}) => <AppText style={css.text}>{children}</AppText>
   const Spacer = () => <View style={css.spacer} />
 

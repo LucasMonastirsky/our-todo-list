@@ -6,6 +6,7 @@ import { Task, TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
 import ListTab from './ListTab'
 import { AppText, CustomDrawer } from '../../Components'
+import Navigation from '../../App/Navigation'
 
 const debug_lists: TodoList[] = [
   new TodoList({
@@ -96,7 +97,7 @@ const ListLayout = () => {
 
   const Header = () => {
     const Icon = (props: {source: ImageSourcePropType}) => (
-      <TouchableOpacity style={css.header_icon_container}>
+      <TouchableOpacity style={css.header_icon_container} onPress={()=>{}}>
           <Image style={css.header_icon_img} source={props.source} />
       </TouchableOpacity>
     )
