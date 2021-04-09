@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { View, StyleSheet, Modal, Text, TouchableWithoutFeedback } from 'react-native'
+import { View, StyleSheet, Modal, TouchableWithoutFeedback } from 'react-native'
+import { AppText } from '../Components'
 import { Task } from '../Models'
 import { colors, style } from '../Styling'
 
@@ -18,16 +19,16 @@ const TaskModal = (props: { task: Task, onClose: ()=>void }) => {
         <View style={css.centered}>
           <View style={css.container}>
             <View style={css.title_container}>
-              <Text style={css.title}>{task.title}</Text>
-              <Text style={css.status}>{task.status}</Text>
+              <AppText style={css.title}>{task.title}</AppText>
+              <AppText style={css.status}>{task.status}</AppText>
             </View> 
             <Divider />
             {task.description !== '' && <>
-              <Text style={css.description}>{task.description}</Text>
+              <AppText style={css.description}>{task.description}</AppText>
               <Divider />
             </>}
             <View style={css.created_container}>
-              <Text style={css.created_text}>Created by {task.creator_id} on {new Date(task.creation_date).toDateString()}</Text>
+              <AppText style={css.created_text}>Created by {task.creator_id} on {new Date(task.creation_date).toDateString()}</AppText>
             </View>
           </View>
         </View>
@@ -56,18 +57,15 @@ const css = StyleSheet.create({
     flexDirection: 'row',
   },
   title: {
-    color: colors.light,
     fontSize: style.font_size_big,
   },
   status: {
-    color: colors.light,
     fontSize: style.font_size_small,
     marginLeft: 'auto',
     textAlign: 'center',
     textAlignVertical: 'center',
   },
   description: {
-    color: colors.light,
     fontSize: style.font_size_small,
     marginVertical: style.padding,
   },
@@ -81,7 +79,6 @@ const css = StyleSheet.create({
 
   },
   created_text: {
-    color: colors.light,
     fontSize: style.font_size_small,
   },
 })

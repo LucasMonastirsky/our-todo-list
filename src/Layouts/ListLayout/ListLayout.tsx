@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native'
 import TaskAddButton from '../../Components/TaskAddButton'
 import TaskView from '../../Components/TaskView'
 import { Task, TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
 import ListTab from './ListTab'
-import { CustomDrawer } from '../../Components'
+import { AppText, CustomDrawer } from '../../Components'
 
 const debug_lists: TodoList[] = [
   new TodoList({
@@ -102,7 +102,7 @@ const ListLayout = () => {
           <View style={css.list_select_container}>
             {lists.map((list, index) =>
               <TouchableOpacity style={css.list_select_item} onPress={()=>onSelectList(index)} key={index}>
-                <Text style={css.list_select_item_text}>{list.title}</Text>
+                <AppText style={css.list_select_item_text}>{list.title}</AppText>
               </TouchableOpacity>
             )}
           </View>
@@ -136,7 +136,6 @@ const css = StyleSheet.create({
   },
   list_title: {
     fontSize: style.font_size_big,
-    color: colors.light,
   },
   list_select_container: {
     backgroundColor: colors.main_dark + 'bb',
@@ -150,8 +149,6 @@ const css = StyleSheet.create({
 
   },
   list_select_item_text: {
-    fontSize: style.font_size_med,
-    color: colors.light,
   },
   item_divider: {
     height: 2,

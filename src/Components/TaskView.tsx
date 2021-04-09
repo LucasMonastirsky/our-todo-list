@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native'
+import { View, TouchableOpacity, StyleSheet, Animated } from 'react-native'
 import { Task } from '../Models'
 import { colors, style } from '../Styling'
 import TaskModal from './TaskModal'
 import { createAnimation } from '../Utils'
+import { AppText } from '.'
 
 const TaskView = (props: { task: Task, index?: number }) => {
   const [modal_active, setModalActive] = useState(false)
@@ -16,7 +17,7 @@ const TaskView = (props: { task: Task, index?: number }) => {
 
         </TouchableOpacity>
         <View style={css.status_divider} />
-        <Text style={css.title}>{props.task.title}</Text>
+        <AppText style={css.title}>{props.task.title}</AppText>
       </Animated.View>
       {modal_active && <TaskModal task={props.task} onClose={()=>setModalActive(false)} />}
     </TouchableOpacity>
@@ -37,8 +38,6 @@ const css = StyleSheet.create({
     backgroundColor: colors.main_dark,
   },
   title: {
-    color: colors.light,
-    fontSize: style.font_size_med,
     padding: style.padding,
     marginLeft: style.margin,
     marginBottom: style.font_size_med / 6,

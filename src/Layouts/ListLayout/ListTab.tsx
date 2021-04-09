@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { View, FlatList, StyleSheet, Dimensions, Text } from 'react-native'
+import { View, FlatList, StyleSheet, Dimensions } from 'react-native'
+import { AppText } from '../../Components'
 import { TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
 
@@ -41,9 +42,9 @@ const ListTab = (props: { lists: TodoList[], onSelect: (index: number)=>void, on
   const renderItem = ({item, index}: {item: any, index: number})=>{
     return (
       <View style={css.item} onLayout={({nativeEvent})=>setItemOffset(index, nativeEvent.layout.width)}>
-        <Text style={[css.item_text, {color: selected_index === index ? colors.light : colors.light_dark}]}>
+        <AppText style={[css.item_text, {color: selected_index === index ? colors.light : colors.light_dark}]}>
           {item.title}
-        </Text>
+        </AppText>
         {/* <Text style={{position: 'absolute'}}>{item_offsets[index]}</Text> */}
       </View>
   )}
@@ -78,7 +79,6 @@ const css = StyleSheet.create({
     justifyContent: 'center',
   },
   item_text: {
-    color: colors.light,
     fontSize: style.font_size_big,
     marginHorizontal: style.margin * 2,
   }

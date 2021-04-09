@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { View, StyleSheet, Text, Image } from 'react-native'
 import Drawer from 'react-native-drawer'
-import { DrawerIcon, FadeContent } from './'
+import { AppText, DrawerIcon, FadeContent } from './'
 import { colors, style } from '../Styling'
 
 const CustomDrawer = (props: {header_content?: any, children?: any}) => {
@@ -22,12 +22,12 @@ const CustomDrawer = (props: {header_content?: any, children?: any}) => {
       <Item>
         <ItemText>Options</ItemText>
       </Item>
-      <Text style={css.credit_text}>Developed by Lucas Monastirsky</Text>
+      <AppText style={css.credit_text}>Developed by Lucas Monastirsky</AppText>
     </View>
   )
 
   const Item = ({children}: {children: any}) => <View style={css.item}>{children}</View>
-  const ItemText = ({children}: {children: any}) => <Text style={css.text}>{children}</Text>
+  const ItemText = ({children}: {children: any}) => <AppText style={css.text}>{children}</AppText>
   const Spacer = () => <View style={css.spacer} />
 
   return (
@@ -71,8 +71,6 @@ const css = StyleSheet.create({
     width: style.margin,
   },
   text: {
-    fontSize: style.font_size_med,
-    color: colors.light,
   },
   picture_container: {
 
@@ -85,7 +83,6 @@ const css = StyleSheet.create({
   credit_text: {
     fontSize: style.font_size_small * 0.75,
     padding: style.padding,
-    color: colors.light,
     marginTop: 'auto',
   },
 })
