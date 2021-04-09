@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { FlatList, Image, ImageSourcePropType, StyleSheet, TouchableOpacity, View } from 'react-native'
 import TaskAddButton from '../../Components/TaskAddButton'
 import TaskView from '../../Components/TaskView'
 import { Task, TodoList } from '../../Models'
@@ -94,8 +94,23 @@ const ListLayout = () => {
     setSelectingList(false)
   }
 
+  const Header = () => {
+    const Icon = (props: {source: ImageSourcePropType}) => (
+      <TouchableOpacity style={css.header_icon_container}>
+          <Image style={css.header_icon_img} source={props.source} />
+      </TouchableOpacity>
+    )
+
+    return (
+      <View style={css.header}>
+        <Icon source={require('../../Images/Icons/edit.png')} />
+        <Icon source={require('../../Images/Icons/plus.png')} />
+      </View>
+    )
+  }
+
   return (
-    <CustomDrawer header_content={<View />}>
+    <CustomDrawer header_content={<Header />}>
       <View style={css.container}>
         <ListTab {...{lists}} onSelect={onSelectList} />
         {selecting_list &&
@@ -126,10 +141,18 @@ const css = StyleSheet.create({
     flex: 1,
   },
   header: {
-    height: 45,
-    backgroundColor: colors.main,
-    padding: style.padding,
+    flex: 1,
     flexDirection: 'row',
+    padding: style.padding,
+    justifyContent: 'flex-end',
+  },
+  header_icon_container: {
+    // flex: 1,
+    marginLeft: style.margin,
+  },
+  header_icon_img: {
+    flex: 1,
+    aspectRatio: 1,
   },
   list_title_container: {
     marginLeft: 'auto',

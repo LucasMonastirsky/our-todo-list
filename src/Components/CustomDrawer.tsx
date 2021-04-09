@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, StyleSheet, Text, Image } from 'react-native'
+import { View, StyleSheet, Text, Image, TouchableOpacity } from 'react-native'
 import Drawer from 'react-native-drawer'
 import { AppText, DrawerIcon, FadeContent } from './'
 import { colors, style } from '../Styling'
@@ -26,7 +26,7 @@ const CustomDrawer = (props: {header_content?: any, children?: any}) => {
     </View>
   )
 
-  const Item = ({children}: {children: any}) => <View style={css.item}>{children}</View>
+  const Item = ({children}: {children: any}) => <TouchableOpacity><View style={css.item}>{children}</View></TouchableOpacity>
   const ItemText = ({children}: {children: any}) => <AppText style={css.text}>{children}</AppText>
   const Spacer = () => <View style={css.spacer} />
 
@@ -52,6 +52,7 @@ const css = StyleSheet.create({
   drawer: {
     flex: 1,
     backgroundColor: colors.main_dark,
+    padding: style.padding,
   },
   header: {
     height: 45,
@@ -64,7 +65,7 @@ const css = StyleSheet.create({
     flex: 1,
   },
   item: {
-    padding: style.padding,
+    paddingVertical: style.padding,
     flexDirection: 'row',
   },
   spacer: {
@@ -82,7 +83,6 @@ const css = StyleSheet.create({
   },
   credit_text: {
     fontSize: style.font_size_small * 0.75,
-    padding: style.padding,
     marginTop: 'auto',
   },
 })
