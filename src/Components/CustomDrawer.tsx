@@ -10,7 +10,7 @@ const CustomDrawer = (props: {header_content?: any, children?: any}) => {
 
   const DrawerContent = () => (
     <View style={css.drawer}>
-      <Item>
+      <Item onPress={()=>Navigation.goTo('Profile')}>
         <View style={css.picture_container}>
           <Image style={css.picture} source={require('../Images/Icons/profile_default.png')} />
         </View>
