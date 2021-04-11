@@ -6,7 +6,6 @@ import { Task, TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
 import ListTab from './ListTab'
 import { AppText, CustomDrawer } from '../../Components'
-import Navigation from '../../App/Navigation'
 
 const debug_lists: TodoList[] = [
   new TodoList({
@@ -148,7 +147,6 @@ const css = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   header_icon_container: {
-    // flex: 1,
     marginLeft: style.margin,
   },
   header_icon_img: {

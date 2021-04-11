@@ -2,7 +2,8 @@ import React from 'react'
 import { StyleSheet, Text } from 'react-native'
 import { colors, style } from '../Styling'
 
-const AppText = ({style, children}: {style?: any, children: any}) => (
+type Parameters = { style?: any, children: any }
+const AppText = ({style, children}: Parameters) => (
   <Text style={[css.style, style]}>{children}</Text>
 )
 

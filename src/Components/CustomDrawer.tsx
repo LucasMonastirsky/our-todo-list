@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, StyleSheet, Text, Image, TouchableOpacity } from 'react-native'
+import { View, StyleSheet, Image, TouchableOpacity } from 'react-native'
 import Drawer from 'react-native-drawer'
 import { AppText, DrawerIcon, FadeContent } from './'
 import { colors, style } from '../Styling'

@@ -1,12 +1,9 @@
 class Navigation {
-  // static update_listeners: (()=>void)[] = []
-  // static addUpdateListener = (callback: ()=>void) => Navigation.update_listeners.push(callback)
-  // static update = () => Navigation.update_listeners.forEach(callback => {callback()})
-
-  static current_layout: Navigation.LayoutName = 'Lists'
+  private static _current_layout: Navigation.LayoutName = 'Lists'
+  static get current_layout() { return Navigation._current_layout }
   static onChangeLayout = (layout: Navigation.LayoutName) => {}
   static goTo = (layout: Navigation.LayoutName) => {
-    Navigation.current_layout = layout
+    Navigation._current_layout = layout
     Navigation.onChangeLayout(layout)
   }
 }

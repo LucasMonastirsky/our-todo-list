@@ -3,6 +3,7 @@ import { View, StyleSheet, Modal, TouchableWithoutFeedback } from 'react-native'
 import { AppText } from '../../Components'
 import { Task } from '../../Models'
 import { colors, style } from '../../Styling'
+import { formatDate } from '../../Utils'
 
 const TaskModal = (props: { task: Task, onClose: ()=>void }) => {
   const [visible, setVisible] = useState(true)
@@ -28,7 +29,7 @@ const TaskModal = (props: { task: Task, onClose: ()=>void }) => {
               <Divider />
             </>}
             <View style={css.created_container}>
-              <AppText style={css.created_text}>Created by {task.creator_id} on {new Date(task.creation_date).toDateString()}</AppText>
+              <AppText style={css.created_text}>Created by {task.creator_id} on {formatDate(task.creation_date)}</AppText>
             </View>
           </View>
         </View>

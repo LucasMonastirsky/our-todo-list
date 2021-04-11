@@ -8,12 +8,10 @@ const ListTab = (props: { lists: TodoList[], onSelect: (index: number)=>void, on
   const [selected_index, setIndex] = useState(0)
   const [item_widths, setItemWidths] = useState([0])
   const [item_offsets, setItemOffsets] = useState([0])
-  // const [scroll_pos, setScrollPos] = useState(0) // for debug only
 
   const onScroll = (pos: number) => {
     let new_index = selected_index
     pos += 1 // this avoids bugs caused by rounding
-    // setScrollPos(pos)
 
     if (pos > item_offsets[selected_index])
       new_index++
@@ -45,7 +43,6 @@ const ListTab = (props: { lists: TodoList[], onSelect: (index: number)=>void, on
         <AppText style={[css.item_text, {color: selected_index === index ? colors.light : colors.light_dark}]}>
           {item.title}
         </AppText>
-        {/* <Text style={{position: 'absolute'}}>{item_offsets[index]}</Text> */}
       </View>
   )}
 
@@ -54,7 +51,6 @@ const ListTab = (props: { lists: TodoList[], onSelect: (index: number)=>void, on
 
   return (
     <View style={css.container}>
-      {/* <Text style={{position: 'absolute', backgroundColor: 'white', zIndex: 10}}>{scroll_pos}</Text> */}
       <FlatList
         data={props.lists}
         {...{renderItem}}
