@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { BackHandler, StyleSheet, Text, View } from 'react-native'
+import React, { useEffect } from 'react';
+import { BackHandler, StyleSheet, View } from 'react-native'
 import { Navigation } from './src/App';
 import { ListLayout, ProfileLayout } from './src/Layouts';
 import OptionsLayout from './src/Layouts/OptionsLayout/OptionsLayout';
 import { colors } from './src/Styling';
+import { useAsyncState } from './src/Utils';
 
 const App = () => {
-  const [layout_stack, setLayoutStack] = useState<Navigation.LayoutName[]>(['Lists'])
+  const [layout_stack, getLayoutStack, setLayoutStack] = useAsyncState<Navigation.LayoutName[]>(['Lists'])
 
   Navigation.onChangeLayout = layout => navigateTo(layout)
   const navigateTo = (layout: Navigation.LayoutName) => {
@@ -19,24 +20,18 @@ const App = () => {
     'Options': <OptionsLayout />
   }
 
-  useEffect(()=>{
-    console.log(layout_stack)
-  }, [layout_stack])
-
   const onBack = () => {
-    setLayoutStack(value => {
-      if (value.length < 2)
-        return value
-      const new_layout_stack = [...value]
-      new_layout_stack.pop()
-      return new_layout_stack
-    })
+    if (getLayoutStack().length < 2)
+      return false
+    const new_layout_stack = [...getLayoutStack()]
+    new_layout_stack.pop()
+    setLayoutStack(new_layout_stack)
+      
     return true
   }
 
   useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', onBack)
-    return () => BackHandler.removeEventListener('hardwareBackPress', onBack)
+    return BackHandler.addEventListener('hardwareBackPress', onBack).remove
   }, [])
 
   return (
