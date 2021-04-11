@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import { View, StyleSheet, Image, TouchableOpacity } from 'react-native'
+import { View, StyleSheet, Image, TouchableOpacity, TouchableNativeFeedback } from 'react-native'
 import Drawer from 'react-native-drawer'
-import { AppText, DrawerIcon, FadeContent } from './'
+import { AppText, FadeContent } from './'
 import { colors, style } from '../Styling'
 import { Navigation } from '../App'
 
@@ -57,6 +57,18 @@ const CustomDrawer = (props: {children?: any}) => {
   )
 }
 
+const DrawerIcon = (props: {onPress: ()=>void}) => {
+  return (
+    <TouchableNativeFeedback {...props}>
+      <View style={css.burger_container}>
+        <View style={css.burger_bar} />
+        <View style={css.burger_bar} />
+        <View style={css.burger_bar} />
+      </View>
+    </TouchableNativeFeedback>
+  )
+}
+
 const css = StyleSheet.create({
   drawer: {
     flex: 1,
@@ -93,6 +105,17 @@ const css = StyleSheet.create({
   credit_text: {
     fontSize: style.font_size_small * 0.75,
     marginTop: 'auto',
+  },
+  burger_container: {
+    height: '100%',
+    aspectRatio: 1.25,
+    padding: style.padding,
+  },
+  burger_bar: {
+    width: '100%',
+    flex: 1,
+    backgroundColor: colors.light,
+    marginVertical: style.border_width,
   },
 })
 

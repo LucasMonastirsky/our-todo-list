@@ -16,7 +16,6 @@ const TaskView = (props: { task: Task, index?: number }) => {
         <TouchableOpacity style={css.status} onPress={()=>{/* set status as pending */ }}>
 
         </TouchableOpacity>
-        <View style={css.status_divider} />
         <AppText style={css.title}>{props.task.title}</AppText>
       </Animated.View>
       {modal_active && <TaskModal task={props.task} onClose={()=>setModalActive(false)} />}
@@ -28,10 +27,13 @@ const css = StyleSheet.create({
   container: {
     backgroundColor: colors.main,
     flexDirection: 'row',
+    marginTop: style.border_width,
   },
   status: {
     backgroundColor: colors.main,
     aspectRatio: 1,
+    borderRightWidth: style.border_width,
+    borderRightColor: colors.main_dark,
   },
   status_divider: {
     width: style.border_width,

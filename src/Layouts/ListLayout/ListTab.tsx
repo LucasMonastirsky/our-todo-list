@@ -73,6 +73,7 @@ const css = StyleSheet.create({
   },
   item: {
     justifyContent: 'center',
+    paddingBottom: style.padding,
   },
   item_text: {
     fontSize: style.font_size_big,

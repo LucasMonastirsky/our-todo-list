@@ -129,7 +129,6 @@ const ListLayout = () => {
         renderItem={({item, index})=>(
           <TaskView {...{task: item, index}} />
         )}
-        ItemSeparatorComponent={()=><View style={css.item_divider} />}
       />
       <TaskAddButton onTouch={addTask} />
     </View>
