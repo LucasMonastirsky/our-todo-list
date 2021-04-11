@@ -38,9 +38,10 @@ const ListTab = (props: { lists: TodoList[], onSelect: (index: number)=>void, on
   }
 
   const renderItem = ({item, index}: {item: any, index: number})=>{
+    const selected = selected_index === index
     return (
-      <View style={css.item} onLayout={({nativeEvent})=>setItemOffset(index, nativeEvent.layout.width)}>
-        <AppText style={[css.item_text, {color: selected_index === index ? colors.light : colors.light_dark}]}>
+      <View style={[css.item, selected && css.item_selected]} onLayout={({nativeEvent})=>setItemOffset(index, nativeEvent.layout.width)}>
+        <AppText style={[css.item_text, selected && css.item_text_selected]}>
           {item.title}
         </AppText>
       </View>
@@ -54,6 +55,7 @@ const ListTab = (props: { lists: TodoList[], onSelect: (index: number)=>void, on
       <FlatList
         data={props.lists}
         {...{renderItem}}
+        showsHorizontalScrollIndicator={false}
         ListHeaderComponent={()=><View style={{width: calculateHeader()}} />}
         ListFooterComponent={()=><View style={{width: calculateFooter()}} />}
         snapToOffsets={[0, ...item_offsets]}
@@ -75,10 +77,18 @@ const css = StyleSheet.create({
     justifyContent: 'center',
     paddingBottom: style.padding,
   },
+  item_selected: {
+    borderBottomWidth: style.border_width,
+    borderBottomColor: colors.light,
+  },
   item_text: {
+    color: colors.light_dark,
     fontSize: style.font_size_big,
     marginHorizontal: style.margin * 2,
-  }
+  },
+  item_text_selected: {
+    color: colors.light,
+  },
 })
 
 export default ListTab
