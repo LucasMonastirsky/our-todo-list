@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { View, StyleSheet, Modal, TouchableWithoutFeedback } from 'react-native'
-import { AppText } from '../Components'
-import { Task } from '../Models'
-import { colors, style } from '../Styling'
+import { AppText } from '../../Components'
+import { Task } from '../../Models'
+import { colors, style } from '../../Styling'
 
 const TaskModal = (props: { task: Task, onClose: ()=>void }) => {
   const [visible, setVisible] = useState(true)

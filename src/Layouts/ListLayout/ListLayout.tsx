@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { FlatList, Image, ImageSourcePropType, StyleSheet, TouchableOpacity, View } from 'react-native'
 import TaskAddButton from '../../Components/TaskAddButton'
-import TaskView from '../../Components/TaskView'
+import TaskView from './TaskView'
 import { Task, TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
 import ListTab from './ListTab'

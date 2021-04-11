@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { View, TouchableOpacity, StyleSheet, Animated } from 'react-native'
-import { Task } from '../Models'
-import { colors, style } from '../Styling'
+import { Task } from '../../Models'
+import { colors, style } from '../../Styling'
 import TaskModal from './TaskModal'
-import { createAnimation } from '../Utils'
-import { AppText } from '.'
+import { createAnimation } from '../../Utils'
+import { AppText } from '../../Components'
 
 const TaskView = (props: { task: Task, index?: number }) => {
   const [modal_active, setModalActive] = useState(false)
