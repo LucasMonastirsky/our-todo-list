@@ -1,10 +1,12 @@
-import React from "react"
+import { ListLayout } from "../Layouts"
+
+const INITIAL_LAYOUT = ListLayout
 
 class Navigation {
-  private static _current_layout: Navigation.LayoutName = 'Lists'
+  private static _current_layout = INITIAL_LAYOUT
   static get current_layout() { return Navigation._current_layout }
-  static onChangeLayout = (layout: Navigation.LayoutName) => {}
-  static goTo = (layout: Navigation.LayoutName) => {
+  static onChangeLayout = (layout: ()=>JSX.Element) => {}
+  static goTo = (layout: ()=>JSX.Element) => {
     Navigation._current_layout = layout
     Navigation.onChangeLayout(layout)
   }
@@ -16,10 +18,10 @@ class Navigation {
     Navigation.onChangeHeader(value)
   }
   static onChangeHeader = (header: ()=>JSX.Element) => {}
-}
 
-module Navigation {
-  export type LayoutName = 'Lists' | 'Profile' | 'Options'
+  static reset() {
+    Navigation._current_layout = INITIAL_LAYOUT
+  }
 }
 
 export default Navigation

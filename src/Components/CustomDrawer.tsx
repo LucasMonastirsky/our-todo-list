@@ -4,6 +4,7 @@ import Drawer from 'react-native-drawer'
 import { AppText, FadeContent } from './'
 import { colors, style } from '../Styling'
 import { Navigation } from '../App'
+import { ListLayout, OptionsLayout, ProfileLayout } from '../Layouts'
 
 const CustomDrawer = (props: {children?: any}) => {
   const [drawer_active, setDrawerActive] = useState(false)
@@ -11,24 +12,24 @@ const CustomDrawer = (props: {children?: any}) => {
 
   Navigation.onChangeHeader = setHeader
 
-  const goTo = (layout: Navigation.LayoutName) => {
+  const goTo = (layout: ()=>JSX.Element) => {
     Navigation.goTo(layout)
     setDrawerActive(false)
   }
 
   const DrawerContent = () => (
     <View style={css.drawer}>
-      <Item onPress={()=>goTo('Profile')}>
+      <Item onPress={()=>goTo(ProfileLayout)}>
         <View style={css.picture_container}>
           <Image style={css.picture} source={require('../Images/Icons/profile_default.png')} />
         </View>
         <Spacer />
         <ItemText>Profile</ItemText>
       </Item>
-      <Item onPress={()=>goTo('Lists')}>
+      <Item onPress={()=>goTo(ListLayout)}>
         <ItemText>Lists</ItemText>
       </Item>
-      <Item onPress={()=>goTo('Options')}>
+      <Item onPress={()=>goTo(OptionsLayout)}>
         <ItemText>Options</ItemText>
       </Item>
       <AppText style={css.credit_text}>Developed by Lucas Monastirsky</AppText>
