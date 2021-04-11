@@ -1,36 +1,36 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { AppText, CustomDrawer } from '../../Components'
+import { Navigation } from '../../App'
+import { AppText } from '../../Components'
 import { colors, style } from '../../Styling'
 
 const OptionsLayout = () => {
-  
   type props = {children: any}
   const Item = ({children}: props) => <View style={css.item}>{children}</View>
   const ItemTitle = ({children}: props) => <AppText style={css.item_title}>{children}</AppText>
   const ItemValue = ({children}: props) => <AppText style={css.item_value}>{children}</AppText>
   
+  useEffect(() => {Navigation.header = ()=><View />}, [])
+
   return (
-    <CustomDrawer>
-      <View style={css.container}>
-        <Item>
-          <ItemTitle>Example</ItemTitle>
-          <ItemValue>Sample Value</ItemValue>
-        </Item>
-        <Item>
-          <ItemTitle>Example</ItemTitle>
-          <ItemValue>Sample Value</ItemValue>
-        </Item>
-        <Item>
-          <ItemTitle>Example</ItemTitle>
-          <ItemValue>Sample Value</ItemValue>
-        </Item>
-        <Item>
-          <ItemTitle>Example</ItemTitle>
-          <ItemValue>Sample Value</ItemValue>
-        </Item>
-      </View>
-    </CustomDrawer>
+    <View style={css.container}>
+      <Item>
+        <ItemTitle>Example</ItemTitle>
+        <ItemValue>Sample Value</ItemValue>
+      </Item>
+      <Item>
+        <ItemTitle>Example</ItemTitle>
+        <ItemValue>Sample Value</ItemValue>
+      </Item>
+      <Item>
+        <ItemTitle>Example</ItemTitle>
+        <ItemValue>Sample Value</ItemValue>
+      </Item>
+      <Item>
+        <ItemTitle>Example</ItemTitle>
+        <ItemValue>Sample Value</ItemValue>
+      </Item>
+    </View>
   )
 }
 

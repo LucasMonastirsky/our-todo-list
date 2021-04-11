@@ -5,22 +5,30 @@ import { AppText, DrawerIcon, FadeContent } from './'
 import { colors, style } from '../Styling'
 import { Navigation } from '../App'
 
-const CustomDrawer = (props: {header_content?: any, children?: any}) => {
+const CustomDrawer = (props: {children?: any}) => {
   const [drawer_active, setDrawerActive] = useState(false)
+  const [header, setHeader] = useState(Navigation.header)
+
+  Navigation.onChangeHeader = setHeader
+
+  const goTo = (layout: Navigation.LayoutName) => {
+    Navigation.goTo(layout)
+    setDrawerActive(false)
+  }
 
   const DrawerContent = () => (
     <View style={css.drawer}>
-      <Item onPress={()=>Navigation.goTo('Profile')}>
+      <Item onPress={()=>goTo('Profile')}>
         <View style={css.picture_container}>
           <Image style={css.picture} source={require('../Images/Icons/profile_default.png')} />
         </View>
         <Spacer />
         <ItemText>Profile</ItemText>
       </Item>
-      <Item onPress={()=>Navigation.goTo('Lists')}>
+      <Item onPress={()=>goTo('Lists')}>
         <ItemText>Lists</ItemText>
       </Item>
-      <Item onPress={()=>Navigation.goTo('Options')}>
+      <Item onPress={()=>goTo('Options')}>
         <ItemText>Options</ItemText>
       </Item>
       <AppText style={css.credit_text}>Developed by Lucas Monastirsky</AppText>
@@ -41,7 +49,7 @@ const CustomDrawer = (props: {header_content?: any, children?: any}) => {
     >
       <View style={css.header}>
         <DrawerIcon onPress={()=>setDrawerActive(true)} />
-        {props.header_content}
+        {header}
       </View>
       <View style={css.content}>{props.children}</View>
       <FadeContent active={drawer_active} />

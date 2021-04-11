@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { BackHandler, StyleSheet, View } from 'react-native'
 import { Navigation } from './src/App';
+import { CustomDrawer } from './src/Components';
 import { ListLayout, ProfileLayout } from './src/Layouts';
 import OptionsLayout from './src/Layouts/OptionsLayout/OptionsLayout';
 import { colors } from './src/Styling';
@@ -36,7 +37,9 @@ const App = () => {
 
   return (
     <View style={css.app}>
-      {layout_map[layout_stack[layout_stack.length-1]]}
+      <CustomDrawer>
+        {layout_map[layout_stack[layout_stack.length-1]]}
+      </CustomDrawer>
     </View>
   )
 }

@@ -1,11 +1,12 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FlatList, Image, ImageSourcePropType, StyleSheet, TouchableOpacity, View } from 'react-native'
 import TaskAddButton from '../../Components/TaskAddButton'
 import TaskView from './TaskView'
 import { Task, TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
 import ListTab from './ListTab'
-import { AppText, CustomDrawer } from '../../Components'
+import { AppText } from '../../Components'
+import { Navigation } from '../../App'
 
 const debug_lists: TodoList[] = [
   new TodoList({
@@ -94,44 +95,44 @@ const ListLayout = () => {
     setSelectingList(false)
   }
 
-  const Header = () => {
-    const Icon = (props: {source: ImageSourcePropType}) => (
-      <TouchableOpacity style={css.header_icon_container} onPress={()=>{}}>
-          <Image style={css.header_icon_img} source={props.source} />
-      </TouchableOpacity>
-    )
-
-    return (
-      <View style={css.header}>
-        <Icon source={require('../../Images/Icons/edit.png')} />
-        <Icon source={require('../../Images/Icons/plus.png')} />
-      </View>
-    )
-  }
+  useEffect(() => {
+    Navigation.header = () => {
+      const Icon = (props: {source: ImageSourcePropType}) => (
+        <TouchableOpacity style={css.header_icon_container} onPress={()=>{}}>
+            <Image style={css.header_icon_img} source={props.source} />
+        </TouchableOpacity>
+      )
+  
+      return (
+        <View style={css.header}>
+          <Icon source={require('../../Images/Icons/edit.png')} />
+          <Icon source={require('../../Images/Icons/plus.png')} />
+        </View>
+      )
+    }
+  }, [])
 
   return (
-    <CustomDrawer header_content={<Header />}>
-      <View style={css.container}>
-        <ListTab {...{lists}} onSelect={onSelectList} />
-        {selecting_list &&
-          <View style={css.list_select_container}>
-            {lists.map((list, index) =>
-              <TouchableOpacity style={css.list_select_item} onPress={()=>onSelectList(index)} key={index}>
-                <AppText style={css.list_select_item_text}>{list.title}</AppText>
-              </TouchableOpacity>
-            )}
-          </View>
-        }
-        <FlatList
-          data={current_list.tasks}
-          renderItem={({item, index})=>(
-            <TaskView {...{task: item, index}} />
+    <View style={css.container}>
+      <ListTab {...{lists}} onSelect={onSelectList} />
+      {selecting_list &&
+        <View style={css.list_select_container}>
+          {lists.map((list, index) =>
+            <TouchableOpacity style={css.list_select_item} onPress={()=>onSelectList(index)} key={index}>
+              <AppText style={css.list_select_item_text}>{list.title}</AppText>
+            </TouchableOpacity>
           )}
-          ItemSeparatorComponent={()=><View style={css.item_divider} />}
-        />
-        <TaskAddButton onTouch={addTask} />
-      </View>
-    </CustomDrawer>
+        </View>
+      }
+      <FlatList
+        data={current_list.tasks}
+        renderItem={({item, index})=>(
+          <TaskView {...{task: item, index}} />
+        )}
+        ItemSeparatorComponent={()=><View style={css.item_divider} />}
+      />
+      <TaskAddButton onTouch={addTask} />
+    </View>
   )
 }
 

@@ -1,14 +1,14 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { CustomDrawer } from '../../Components'
+import { Navigation } from '../../App'
 
 const ProfileLayout = () => {
-  return (
-    <CustomDrawer>
-      <View style={css.container}>
+  useEffect(() => {Navigation.header = ()=><View />}, [])
 
-      </View>
-    </CustomDrawer>
+  return (
+    <View style={css.container}>
+
+    </View>
   )
 }
 
