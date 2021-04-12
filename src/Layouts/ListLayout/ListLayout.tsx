@@ -138,7 +138,8 @@ const ListLayout = () => {
 const css = StyleSheet.create({
   container: {
     backgroundColor: colors.main_dark,
-    flex: 1,
+    height: '100%',
+    width: '100%',
   },
   header: {
     flex: 1,

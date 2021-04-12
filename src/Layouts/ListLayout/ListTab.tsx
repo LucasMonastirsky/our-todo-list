@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, FlatList, StyleSheet, Dimensions } from 'react-native'
+import { View, FlatList, StyleSheet, Dimensions, Text } from 'react-native'
 import { AppText } from '../../Components'
 import { TodoList } from '../../Models'
 import { colors, style } from '../../Styling'

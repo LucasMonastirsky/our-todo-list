@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, StyleSheet, Image, TouchableOpacity, TouchableNativeFeedback } from 'react-native'
+import { View, StyleSheet, Image, TouchableOpacity, TouchableNativeFeedback, Dimensions } from 'react-native'
 import Drawer from 'react-native-drawer'
 import { AppText, FadeContent } from './'
 import { colors, style } from '../Styling'
@@ -78,6 +78,7 @@ const css = StyleSheet.create({
   },
   header: {
     height: 45,
+    width: Dimensions.get('window').width,
     backgroundColor: colors.main,
     padding: style.padding,
     flexDirection: 'row',
