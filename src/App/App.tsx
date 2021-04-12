@@ -6,12 +6,14 @@ import { colors } from '../Styling';
 import { createAnimation, useAsyncState } from '../Utils';
 
 const App = () => {
+  const [active_layout_index, setActiveLayoutIndex] = useState(0)
   const [back_animation_active, getBackAnimationActive, setBackAnimationActive] = useAsyncState(false)
   const [layout_stack, getLayoutStack, setLayoutStack] = useAsyncState([Navigation.current_layout])
 
   //#region Navigation
   Navigation.onChangeLayout = (layout: ()=>JSX.Element) => {
     setLayoutStack([...layout_stack, layout])
+    setActiveLayoutIndex(getLayoutStack().length - 1)
   }
 
   useEffect(() => {
@@ -24,6 +26,7 @@ const App = () => {
     }
 
     setBackAnimationActive(true)
+    setActiveLayoutIndex(getLayoutStack().length - 2)
       
     return true
   }
@@ -40,16 +43,19 @@ const App = () => {
         new_layout_stack.pop()
         setLayoutStack(new_layout_stack)
         setBackAnimationActive(false)
+        setActiveLayoutIndex(getLayoutStack().length - 1)
       }
     }
   })
-
+  console.log(active_layout_index, layout_stack.length)
   return (
     <View style={css.app}>
       <CustomDrawer>
         <Animated.View style={[css.content, {left: scroll_animation}]}>
           {layout_stack.map((Layout, index) => (
-            <View style={[css.layout_container]}><Layout /></View>
+            <View style={[css.layout_container]}>
+              <Layout active={index===active_layout_index} />
+            </View>
           ))}
         </Animated.View>
       </CustomDrawer>

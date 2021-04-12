@@ -12,7 +12,7 @@ const CustomDrawer = (props: {children?: any}) => {
 
   Navigation.onChangeHeader = setHeader
 
-  const goTo = (layout: ()=>JSX.Element) => {
+  const goTo = (layout: (args?: any)=>JSX.Element) => {
     Navigation.goTo(layout)
     setDrawerActive(false)
   }

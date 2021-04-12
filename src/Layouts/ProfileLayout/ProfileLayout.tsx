@@ -2,8 +2,8 @@ import React, { useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Navigation } from '../../App'
 
-const ProfileLayout = () => {
-  useEffect(() => {Navigation.header = ()=><View />}, [])
+const ProfileLayout = (props: {active?: boolean}) => {
+  useEffect(() => {if (props.active) Navigation.header = ()=><View />}, [props.active])
 
   return (
     <View style={css.container}>

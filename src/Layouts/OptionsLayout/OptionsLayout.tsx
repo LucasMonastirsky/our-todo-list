@@ -4,13 +4,13 @@ import { Navigation } from '../../App'
 import { AppText } from '../../Components'
 import { colors, style } from '../../Styling'
 
-const OptionsLayout = () => {
+const OptionsLayout = (props: {active?: boolean}) => {
   type props = {children: any}
   const Item = ({children}: props) => <View style={css.item}>{children}</View>
   const ItemTitle = ({children}: props) => <AppText style={css.item_title}>{children}</AppText>
   const ItemValue = ({children}: props) => <AppText style={css.item_value}>{children}</AppText>
   
-  useEffect(() => {Navigation.header = ()=><View />}, [])
+  useEffect(() => {if (props.active) Navigation.header = ()=><View />}, [props.active])
 
   return (
     <View style={css.container}>

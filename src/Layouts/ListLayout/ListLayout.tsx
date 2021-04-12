@@ -73,7 +73,7 @@ const debug_lists: TodoList[] = [
   }),
 ]
 
-const ListLayout = () => {
+const ListLayout = (props: {active?: boolean}) => {
   const [lists, setLists] = useState(debug_lists)
   const [current_list_index, setCurrentListIndex] = useState(0)
   const [selecting_list, setSelectingList] = useState(false)
@@ -96,7 +96,7 @@ const ListLayout = () => {
   }
 
   useEffect(() => {
-    Navigation.header = () => {
+    if (props.active) Navigation.header = () => {
       const Icon = (props: {source: ImageSourcePropType}) => (
         <TouchableOpacity style={css.header_icon_container} onPress={()=>{}}>
             <Image style={css.header_icon_img} source={props.source} />
@@ -110,7 +110,7 @@ const ListLayout = () => {
         </View>
       )
     }
-  }, [])
+  }, [props.active])
 
   return (
     <View style={css.container}>
