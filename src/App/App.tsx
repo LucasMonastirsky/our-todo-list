@@ -10,6 +10,10 @@ const App = () => {
   const [back_animation_active, getBackAnimationActive, setBackAnimationActive] = useAsyncState(false)
   const [layout_stack, getLayoutStack, setLayoutStack] = useAsyncState([Navigation.current_layout])
 
+  useEffect(() => {
+    console.log(active_layout_index, back_animation_active, layout_stack)
+  }, [active_layout_index, back_animation_active, layout_stack])
+
   //#region Navigation
   Navigation.onChangeLayout = (layout: ()=>JSX.Element) => {
     setLayoutStack([...layout_stack, layout])
@@ -26,7 +30,7 @@ const App = () => {
     }
 
     setBackAnimationActive(true)
-    setActiveLayoutIndex(getLayoutStack().length - 2)
+    setActiveLayoutIndex(value => value - 1)
       
     return true
   }
@@ -34,20 +38,19 @@ const App = () => {
   //#endregion
 
   const scroll_animation = createAnimation({
-    from: 0, to: -screen_width*(layout_stack.length - 1 - +back_animation_active),
+    from: 0, to: -screen_width*active_layout_index,
     duration: 500,
-    condition: [layout_stack.length, back_animation_active],
+    condition: active_layout_index,
     onDone: () => {
       if (getBackAnimationActive()) {
         const new_layout_stack = [...getLayoutStack()]
         new_layout_stack.pop()
         setLayoutStack(new_layout_stack)
         setBackAnimationActive(false)
-        setActiveLayoutIndex(getLayoutStack().length - 1)
       }
     }
   })
-  console.log(active_layout_index, layout_stack.length)
+
   return (
     <View style={css.app}>
       <CustomDrawer>

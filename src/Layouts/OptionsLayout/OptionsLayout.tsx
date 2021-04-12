@@ -10,7 +10,7 @@ const OptionsLayout = (props: {active?: boolean}) => {
   const ItemTitle = ({children}: props) => <AppText style={css.item_title}>{children}</AppText>
   const ItemValue = ({children}: props) => <AppText style={css.item_value}>{children}</AppText>
   
-  useEffect(() => {if (props.active) Navigation.header = ()=><View />}, [props.active])
+  useEffect(() => {if (props.active) Navigation.header = ()=><AppText>debuggin</AppText>}, [props.active])
 
   return (
     <View style={css.container}>
