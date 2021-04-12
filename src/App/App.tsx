@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Animated, BackHandler, Dimensions, StyleSheet, View } from 'react-native'
 import { Navigation } from '.';
 import { CustomDrawer } from '../Components';
@@ -6,10 +6,8 @@ import { colors } from '../Styling';
 import { createAnimation, useAsyncState } from '../Utils';
 
 const App = () => {
-  const [layout_stack, getLayoutStack, _setLayoutStack] = useAsyncState([Navigation.current_layout])
-  const setLayoutStack = (value: (()=>JSX.Element)[]) =>{
-    _setLayoutStack(value)
-  }
+  const [back_animation_active, getBackAnimationActive, setBackAnimationActive] = useAsyncState(false)
+  const [layout_stack, getLayoutStack, setLayoutStack] = useAsyncState([Navigation.current_layout])
 
   //#region Navigation
   Navigation.onChangeLayout = (layout: ()=>JSX.Element) => {
@@ -24,9 +22,8 @@ const App = () => {
       Navigation.reset()
       return false
     }
-    const new_layout_stack = [...getLayoutStack()]
-    new_layout_stack.pop()
-    setLayoutStack(new_layout_stack)
+
+    setBackAnimationActive(true)
       
     return true
   }
@@ -34,9 +31,17 @@ const App = () => {
   //#endregion
 
   const scroll_animation = createAnimation({
-    from: 0, to: -screen_width*(layout_stack.length-1),
+    from: 0, to: -screen_width*(layout_stack.length - 1 - +back_animation_active),
     duration: 500,
-    condition: layout_stack.length
+    condition: [layout_stack.length, back_animation_active],
+    onDone: () => {
+      if (getBackAnimationActive()) {
+        const new_layout_stack = [...getLayoutStack()]
+        new_layout_stack.pop()
+        setLayoutStack(new_layout_stack)
+        setBackAnimationActive(false)
+      }
+    }
   })
 
   return (
