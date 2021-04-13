@@ -1,12 +1,13 @@
 import React from 'react'
 import { Animated, StyleSheet } from 'react-native'
+import { style } from '../Styling'
 import { createAnimation } from '../Utils'
 
 const FadeContent = (props: {active: boolean}) => {
   const anim = createAnimation({
     from: props.active ? 1 : 0,
     to: props.active ? 1 : 0,
-    duration: 300,
+    duration: style.anim_duration,
     condition: props.active
   })
 

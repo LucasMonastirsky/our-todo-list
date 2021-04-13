@@ -8,7 +8,7 @@ import { AppText } from '../../Components'
 
 const TaskView = (props: { task: Task, index?: number }) => {
   const [modal_active, setModalActive] = useState(false)
-  const anim = createAnimation({duration: 100 * ((props.index ?? 0) + 1)})
+  const anim = createAnimation({duration: style.anim_duration / 5 * ((props.index ?? 0) + 1)})
 
   return (
     <TouchableOpacity onPress={() => setModalActive(true)}>

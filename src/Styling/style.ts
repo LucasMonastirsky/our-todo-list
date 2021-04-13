@@ -9,6 +9,8 @@ const style = {
   border_width: 2,
   border_radius_med: 4,
   border_radius_big: 7,
+
+  anim_duration: 500,
 }
 
 export default style

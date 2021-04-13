@@ -1,21 +1,37 @@
 import React, { useState } from 'react'
-import { View, StyleSheet, Image, TouchableOpacity, TouchableNativeFeedback, Dimensions } from 'react-native'
+import { View, StyleSheet, Image, TouchableOpacity, TouchableNativeFeedback, Dimensions, Animated } from 'react-native'
 import Drawer from 'react-native-drawer'
 import { AppText, FadeContent } from './'
 import { colors, style } from '../Styling'
 import { Navigation } from '../App'
 import { ListLayout, OptionsLayout, ProfileLayout } from '../Layouts'
+import { createAnimation } from '../Utils'
 
 const CustomDrawer = (props: {children?: any}) => {
   const [drawer_active, setDrawerActive] = useState(false)
   const [header, setHeader] = useState(Navigation.header)
+  const [header_fading, setHeaderFading] = useState(false)
+  const [next_header, setNextHeader] = useState(Navigation.header)
 
-  Navigation.onChangeHeader = setHeader
+  Navigation.onChangeHeader = value => {
+    setNextHeader(value)
+    setHeaderFading(true)
+  }
 
   const goTo = (layout: (args?: any)=>JSX.Element) => {
     Navigation.goTo(layout)
     setDrawerActive(false)
   }
+
+  const header_fade_in_anim = createAnimation({
+    from: +header_fading, to: 1-+header_fading, duration: style.anim_duration / 2, condition: header_fading,
+    onDone: () => {
+      if (header_fading) {
+        setHeader(next_header)
+        setHeaderFading(false)
+      }
+    }
+  })
 
   const DrawerContent = () => (
     <View style={css.drawer}>
@@ -50,7 +66,7 @@ const CustomDrawer = (props: {children?: any}) => {
     >
       <View style={css.header}>
         <DrawerIcon onPress={()=>setDrawerActive(true)} />
-        {header}
+        <Animated.View style={{flex: 1, opacity: header_fade_in_anim}}>{header}</Animated.View>
       </View>
       <View style={css.content}>{props.children}</View>
       <FadeContent active={drawer_active} />

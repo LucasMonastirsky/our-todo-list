@@ -2,17 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Animated, BackHandler, Dimensions, StyleSheet, View } from 'react-native'
 import { Navigation } from '.';
 import { CustomDrawer } from '../Components';
-import { colors } from '../Styling';
+import { colors, style } from '../Styling';
 import { createAnimation, useAsyncState } from '../Utils';
 
 const App = () => {
   const [active_layout_index, setActiveLayoutIndex] = useState(0)
   const [back_animation_active, getBackAnimationActive, setBackAnimationActive] = useAsyncState(false)
   const [layout_stack, getLayoutStack, setLayoutStack] = useAsyncState([Navigation.current_layout])
-
-  useEffect(() => {
-    console.log(active_layout_index, back_animation_active, layout_stack)
-  }, [active_layout_index, back_animation_active, layout_stack])
 
   //#region Navigation
   Navigation.onChangeLayout = (layout: ()=>JSX.Element) => {
@@ -39,7 +35,7 @@ const App = () => {
 
   const scroll_animation = createAnimation({
     from: 0, to: -screen_width*active_layout_index,
-    duration: 500,
+    duration: style.anim_duration,
     condition: active_layout_index,
     onDone: () => {
       if (getBackAnimationActive()) {
