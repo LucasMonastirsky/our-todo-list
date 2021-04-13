@@ -10,6 +10,8 @@ const style = {
   border_radius_med: 4,
   border_radius_big: 7,
 
+  header_height: 50,
+
   anim_duration: 500,
 }
 

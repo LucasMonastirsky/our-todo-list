@@ -71,6 +71,7 @@ const css = StyleSheet.create({
   },
   content: {
     flexDirection: 'row',
+    height: '100%',
   },
   layout_container: {
     width: screen_width,
