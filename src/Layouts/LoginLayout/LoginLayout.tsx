@@ -12,8 +12,8 @@ const LoginLayout = (props: {onLogin: ()=>any, onRegister: ()=>any}) => {
         <Text style={css.title}>OUR TODO LIST</Text>
       </View>
       <View style={{flex: 1}}>
-        <AppInput label="Username" />
-        <AppInput label="Password" />
+        <AppInput label="Username" type="username" />
+        <AppInput label="Password" type="password" />
         <Separator />
         <AppButton label="Sign In" onPress={props.onLogin} />
         <AppButton label="New Account" onPress={props.onRegister} />

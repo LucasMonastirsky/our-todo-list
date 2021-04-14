@@ -16,13 +16,13 @@ const RegisterLayout = (props: LayoutProps & {onCancel: ()=>any}) => {
         <AppText style={css.title}>New Account</AppText>
       </View>
       <View style={{}}>
-        <AppInput label="Username" />
-        <AppInput label="Password" />
-        <AppInput label="Confirm Password" />
+        <AppInput label="Username" type="username" />
+        <AppInput label="Password" type="new_password" />
+        <AppInput label="Confirm Password" type="password"  />
       </View>
       <View style={{flex: 1, marginTop: style.margin,}}>
        <AppButton label="Create Account" onPress={()=>{}} />
-       <AppButton label="Cancel" onPress={()=>{}} />
+       <AppButton label="Cancel" onPress={props.onCancel} />
       </View>
     </View>
   )
