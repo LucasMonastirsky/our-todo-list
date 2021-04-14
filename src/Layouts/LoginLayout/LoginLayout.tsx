@@ -1,10 +1,10 @@
 import React from 'react'
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import { AppText } from '../../Components'
+import { AppButton, AppText } from '../../Components'
 import { colors, style } from '../../Styling'
 import { screen } from '../../Utils'
 
-const LoginLayout = (props: {onLogin: ()=>any}) => {
+const LoginLayout = (props: {onLogin: ()=>any, onRegister: ()=>any}) => {
 
   return (
     <View style={css.container}>
@@ -12,11 +12,11 @@ const LoginLayout = (props: {onLogin: ()=>any}) => {
         <Text style={css.title}>OUR TODO LIST</Text>
       </View>
       <View style={{flex: 1}}>
-        <Input label="Username" />
-        <Input label="Password" />
+        <AppInput label="Username" />
+        <AppInput label="Password" />
         <Separator />
-        <Button label="Sign In" onPress={props.onLogin} />
-        <Button label="New Account" onPress={()=>{}} />
+        <AppButton label="Sign In" onPress={props.onLogin} />
+        <AppButton label="New Account" onPress={props.onRegister} />
         <TouchableOpacity>
           <AppText style={css.button_facebook_text}>Log in with Facebook</AppText>
         </TouchableOpacity>
@@ -25,19 +25,6 @@ const LoginLayout = (props: {onLogin: ()=>any}) => {
     </View>
   )
 }
-
-const Input = (props: {label: string}) => {
-  return (
-    <View style={css.input_container}>
-      <TextInput style={css.input_text} placeholder={props.label} placeholderTextColor={colors.gray} />
-    </View>
-  )
-}
-const Button = (props: {label: string, onPress: ()=>any}) => (
-  <TouchableOpacity onPress={props.onPress}>
-    <AppText style={css.button}>{props.label}</AppText>
-  </TouchableOpacity>
-)
 
 const Separator = () => <View style={css.separator}/>
 
@@ -68,25 +55,6 @@ const css = StyleSheet.create({
     borderRadius: style.border_radius_big,
     backgroundColor: colors.light_dark,
     height: style.border_width,
-  },
-  input_container: {
-    borderRadius: style.border_radius_med,
-    marginTop: style.margin,
-    backgroundColor: colors.light,
-    width: 300,
-  },
-  input_text: {
-    fontSize: style.font_size_med,
-    color: colors.dark,
-  },
-  button: {
-    backgroundColor: colors.main,
-    fontSize: style.font_size_big,
-    padding: style.padding,
-    paddingHorizontal: style.padding * 2,
-    alignSelf: 'center',
-    borderRadius: style.border_radius_med,
-    marginTop: style.margin,
   },
   button_facebook_text: {
     fontSize: style.font_size_big,

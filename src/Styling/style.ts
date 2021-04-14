@@ -1,4 +1,5 @@
 const style = {
+  font_size_huge: 28,
   font_size_big: 24,
   font_size_med: 20,
   font_size_small: 16,

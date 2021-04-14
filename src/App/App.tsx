@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Animated, BackHandler, Dimensions, StyleSheet, View } from 'react-native'
 import { Navigation } from '.';
 import { CustomDrawer } from '../Components';
-import { LoginLayout } from '../Layouts';
+import { LoginLayout, RegisterLayout } from '../Layouts';
 import { Layout } from '../Layouts/types';
 import { colors, style } from '../Styling';
 import { createAnimation, useAsyncState } from '../Utils';
@@ -11,7 +11,7 @@ const App = () => {
   const [active_layout_index, setActiveLayoutIndex] = useState(0)
   const [, getBackAnimationActive, setBackAnimationActive] = useAsyncState(false)
   const [layout_stack, getLayoutStack, setLayoutStack] = useAsyncState([Navigation.current_layout])
-  const [login_layout_active, setLoginLayoutActive] = useState(true)
+  const [login_state, setLoginState] = useState<'login'|'register'|null>('login')
 
   //#region Navigation
   Navigation.onChangeLayout = (layout: Layout) => {
@@ -50,8 +50,10 @@ const App = () => {
   })
 
   const content = () => {
-    if (login_layout_active)
-      return <LoginLayout onLogin={()=>{setLoginLayoutActive(false)}} />
+    if (login_state === 'login')
+      return <LoginLayout onLogin={()=>{setLoginState(null)}} onRegister={()=>setLoginState('register')} />
+    if (login_state === 'register')
+      return <RegisterLayout />
     return (
       <CustomDrawer>
         <Animated.View style={[css.content, {left: scroll_animation}]}>
