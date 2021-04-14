@@ -3,17 +3,18 @@ import { Animated, BackHandler, Dimensions, StyleSheet, View } from 'react-nativ
 import { Navigation } from '.';
 import { CustomDrawer } from '../Components';
 import { LoginLayout } from '../Layouts';
+import { Layout } from '../Layouts/types';
 import { colors, style } from '../Styling';
 import { createAnimation, useAsyncState } from '../Utils';
 
 const App = () => {
   const [active_layout_index, setActiveLayoutIndex] = useState(0)
-  const [back_animation_active, getBackAnimationActive, setBackAnimationActive] = useAsyncState(false)
+  const [, getBackAnimationActive, setBackAnimationActive] = useAsyncState(false)
   const [layout_stack, getLayoutStack, setLayoutStack] = useAsyncState([Navigation.current_layout])
   const [login_layout_active, setLoginLayoutActive] = useState(true)
 
   //#region Navigation
-  Navigation.onChangeLayout = (layout: ()=>JSX.Element) => {
+  Navigation.onChangeLayout = (layout: Layout) => {
     setLayoutStack([...layout_stack, layout])
     setActiveLayoutIndex(getLayoutStack().length - 1)
   }
@@ -32,7 +33,6 @@ const App = () => {
       
     return true
   }
-
   //#endregion
 
   const scroll_animation = createAnimation({
@@ -51,7 +51,7 @@ const App = () => {
 
   const content = () => {
     if (login_layout_active)
-      return <LoginLayout onLogin={()=>setLoginLayoutActive(false)} />
+      return <LoginLayout onLogin={()=>{setLoginLayoutActive(false)}} />
     return (
       <CustomDrawer>
         <Animated.View style={[css.content, {left: scroll_animation}]}>

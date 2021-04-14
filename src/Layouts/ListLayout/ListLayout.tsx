@@ -7,6 +7,7 @@ import { colors, style } from '../../Styling'
 import ListTab from './ListTab'
 import { AppText } from '../../Components'
 import { Navigation } from '../../App'
+import { LayoutProps } from '../types'
 
 const debug_lists: TodoList[] = [
   new TodoList({
@@ -73,7 +74,7 @@ const debug_lists: TodoList[] = [
   }),
 ]
 
-const ListLayout = (props: {active?: boolean}) => {
+const ListLayout = (props: LayoutProps) => {
   const [lists, setLists] = useState(debug_lists)
   const [current_list_index, setCurrentListIndex] = useState(0)
   const [selecting_list, setSelectingList] = useState(false)

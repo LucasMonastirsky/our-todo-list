@@ -1,15 +1,10 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import { Navigation } from '../../App'
 import { AppText } from '../../Components'
 import { colors, style } from '../../Styling'
 import { screen } from '../../Utils'
 
-const LoginLayout = (props: {active?: boolean, onLogin: ()=>{}}) => {
-  useEffect(() => {
-    if (props.active)
-      Navigation.header = () => <View style={css.header}><AppText style={css.header_text}>Welcome to Our To-Do List!</AppText></View>
-  }, [props.active])
+const LoginLayout = (props: {onLogin: ()=>any}) => {
 
   return (
     <View style={css.container}>
@@ -34,7 +29,7 @@ const LoginLayout = (props: {active?: boolean, onLogin: ()=>{}}) => {
 const Input = (props: {label: string}) => {
   return (
     <View style={css.input_container}>
-      <TextInput style={css.input_text} placeholder={props.label} placeholderTextColor={colors.light_dark} />
+      <TextInput style={css.input_text} placeholder={props.label} placeholderTextColor={colors.gray} />
     </View>
   )
 }

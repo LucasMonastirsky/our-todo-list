@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Navigation } from '../../App'
+import { LayoutProps } from '../types'
 
-const ProfileLayout = (props: {active?: boolean}) => {
+const ProfileLayout = (props: LayoutProps) => {
   useEffect(() => {if (props.active) Navigation.header = ()=><View />}, [props.active])
 
   return (

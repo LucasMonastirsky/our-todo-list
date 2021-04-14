@@ -3,7 +3,8 @@ const colors = {
   main_dark: '#37535C',
   main_light: '#8BD1E8',
   light: '#efefef',
-  light_dark: '#a0a0a0',
+  light_dark: '#d0d0d0',
+  gray: '#909090',
   dark: '#363636',
 }
 

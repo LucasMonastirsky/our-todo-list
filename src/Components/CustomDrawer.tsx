@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { ComponentType, useState } from 'react'
 import { View, StyleSheet, Image, TouchableOpacity, TouchableNativeFeedback, Dimensions, Animated } from 'react-native'
 import Drawer from 'react-native-drawer'
 import { AppText, FadeContent } from './'
@@ -9,9 +9,9 @@ import { createAnimation } from '../Utils'
 
 const CustomDrawer = (props: {children?: any}) => {
   const [drawer_active, setDrawerActive] = useState(false)
-  const [header, setHeader] = useState(Navigation.header)
+  const [header, setHeader] = useState<ComponentType>(Navigation.header)
+  const [next_header, setNextHeader] = useState<ComponentType>(Navigation.header)
   const [header_fading, setHeaderFading] = useState(false)
-  const [next_header, setNextHeader] = useState(Navigation.header)
 
   Navigation.onChangeHeader = value => {
     setNextHeader(value)

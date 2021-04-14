@@ -3,8 +3,9 @@ import { StyleSheet, View } from 'react-native'
 import { Navigation } from '../../App'
 import { AppText } from '../../Components'
 import { colors, style } from '../../Styling'
+import { LayoutProps } from '../types'
 
-const OptionsLayout = (props: {active?: boolean}) => {
+const OptionsLayout = (props: LayoutProps) => {
   type props = {children: any}
   const Item = ({children}: props) => <View style={css.item}>{children}</View>
   const ItemTitle = ({children}: props) => <AppText style={css.item_title}>{children}</AppText>
