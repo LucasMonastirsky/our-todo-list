@@ -1,6 +1,6 @@
 import React from 'react'
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import { AppButton, AppText } from '../../Components'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { AppButton, AppInput, AppText } from '../../Components'
 import { colors, style } from '../../Styling'
 import { screen } from '../../Utils'
 
@@ -38,12 +38,11 @@ const css = StyleSheet.create({
   },
   container: {
     alignSelf: 'center',
-    position: 'absolute',
     height: screen.height,
   },
   title: {
     color: colors.light,
-    fontSize: style.font_size_big * 1.33,
+    fontSize: style.font_size_huge,
     marginTop: 'auto',
     marginBottom: style.margin,
     fontWeight: 'bold',

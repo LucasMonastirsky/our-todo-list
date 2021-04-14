@@ -1,10 +1,14 @@
-import React from 'react'
-import { StyleSheet, View } from 'react-native'
+import React, { useEffect } from 'react'
+import { BackHandler, StyleSheet, View } from 'react-native'
 import { AppButton, AppInput, AppText } from '../../Components'
 import { style } from '../../Styling'
 import { LayoutProps } from '../types'
 
-const RegisterLayout = (props: LayoutProps) => {
+const RegisterLayout = (props: LayoutProps & {onCancel: ()=>any}) => {
+  useEffect(()=>{
+    return BackHandler.addEventListener('hardwareBackPress', props.onCancel).remove
+  }, [])
+
   return (
     <View style={css.container}>
       <AppText style={css.title}>New Account</AppText>

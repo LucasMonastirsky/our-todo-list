@@ -5,13 +5,13 @@ import { CustomDrawer } from '../Components';
 import { LoginLayout, RegisterLayout } from '../Layouts';
 import { Layout } from '../Layouts/types';
 import { colors, style } from '../Styling';
-import { createAnimation, useAsyncState } from '../Utils';
+import { createAnimation, screen, useAsyncState } from '../Utils';
 
 const App = () => {
   const [active_layout_index, setActiveLayoutIndex] = useState(0)
   const [, getBackAnimationActive, setBackAnimationActive] = useAsyncState(false)
   const [layout_stack, getLayoutStack, setLayoutStack] = useAsyncState([Navigation.current_layout])
-  const [login_state, setLoginState] = useState<'login'|'register'|null>('login')
+  const [login_state, getLoginState, setLoginState] = useAsyncState<'login'|'register'|null>('login')
 
   //#region Navigation
   Navigation.onChangeLayout = (layout: Layout) => {
@@ -49,11 +49,29 @@ const App = () => {
     }
   })
 
+  const register_transition = createAnimation({
+    from: 0, to: login_state === 'register' ? -screen.height : 0, duration: style.anim_duration,
+    condition: login_state,
+  })
+
   const content = () => {
-    if (login_state === 'login')
-      return <LoginLayout onLogin={()=>{setLoginState(null)}} onRegister={()=>setLoginState('register')} />
+    if (login_state) {
+      return (
+        <Animated.View style={{top: register_transition}}>
+          <LoginLayout onLogin={()=>{setLoginState(null)}} onRegister={()=>setLoginState('register')} />
+          <RegisterLayout onCancel={()=>{
+            if (getLoginState() === 'register') { 
+              setLoginState('login')
+              return true
+            }
+            else return false
+          }} />
+        </Animated.View>
+      )
+    }
+
     if (login_state === 'register')
-      return <RegisterLayout />
+      return 
     return (
       <CustomDrawer>
         <Animated.View style={[css.content, {left: scroll_animation}]}>
