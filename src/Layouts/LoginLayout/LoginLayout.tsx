@@ -34,7 +34,7 @@ const LoginLayout = (props: {active?: boolean, onLogin: ()=>{}}) => {
 const Input = (props: {label: string}) => {
   return (
     <View style={css.input_container}>
-      <TextInput style={css.input_text} placeholder={props.label} />
+      <TextInput style={css.input_text} placeholder={props.label} placeholderTextColor={colors.light_dark} />
     </View>
   )
 }

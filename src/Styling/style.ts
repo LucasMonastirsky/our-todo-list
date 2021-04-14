@@ -6,7 +6,7 @@ const style = {
   padding: 5,
   margin: 10,
 
-  border_width: 2,
+  border_width: 1.5,
   border_radius_med: 3,
   border_radius_big: 7,
 

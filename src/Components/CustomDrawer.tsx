@@ -89,7 +89,7 @@ const DrawerIcon = (props: {onPress: ()=>void}) => {
 const css = StyleSheet.create({
   drawer: {
     flex: 1,
-    backgroundColor: colors.main_dark,
+    backgroundColor: colors.main,
     padding: style.padding,
   },
   header: {
