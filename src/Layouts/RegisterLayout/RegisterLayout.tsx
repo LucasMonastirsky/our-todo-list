@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { BackHandler, StyleSheet, View } from 'react-native'
 import { AppButton, AppInput, AppText } from '../../Components'
 import { style } from '../../Styling'
+import { screen } from '../../Utils'
 import { LayoutProps } from '../types'
 
 const RegisterLayout = (props: LayoutProps & {onCancel: ()=>any}) => {
@@ -11,11 +12,18 @@ const RegisterLayout = (props: LayoutProps & {onCancel: ()=>any}) => {
 
   return (
     <View style={css.container}>
-      <AppText style={css.title}>New Account</AppText>
-      <AppInput label="Username" />
-      <AppInput label="Password" />
-      <AppInput label="Confirm Password" />
-      <AppButton label="Create Account" onPress={()=>{}} />
+      <View style={{flex: 1, justifyContent: 'flex-end'}}>
+        <AppText style={css.title}>New Account</AppText>
+      </View>
+      <View style={{}}>
+        <AppInput label="Username" />
+        <AppInput label="Password" />
+        <AppInput label="Confirm Password" />
+      </View>
+      <View style={{flex: 1, marginTop: style.margin,}}>
+       <AppButton label="Create Account" onPress={()=>{}} />
+       <AppButton label="Cancel" onPress={()=>{}} />
+      </View>
     </View>
   )
 }
@@ -24,6 +32,8 @@ const css = StyleSheet.create({
   container: {
     padding: style.padding,
     alignItems: 'center',
+    height: screen.height,
+    justifyContent: 'center',
   },
   title: {
     alignSelf: 'center',
