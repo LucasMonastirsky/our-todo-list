@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Animated, BackHandler, Dimensions, StyleSheet, View } from 'react-native'
 import { Navigation } from '.';
 import { CustomDrawer } from '../Components';
+import { LoginLayout } from '../Layouts';
 import { colors, style } from '../Styling';
 import { createAnimation, useAsyncState } from '../Utils';
 
@@ -9,6 +10,7 @@ const App = () => {
   const [active_layout_index, setActiveLayoutIndex] = useState(0)
   const [back_animation_active, getBackAnimationActive, setBackAnimationActive] = useAsyncState(false)
   const [layout_stack, getLayoutStack, setLayoutStack] = useAsyncState([Navigation.current_layout])
+  const [login_layout_active, setLoginLayoutActive] = useState(true)
 
   //#region Navigation
   Navigation.onChangeLayout = (layout: ()=>JSX.Element) => {
@@ -47,8 +49,10 @@ const App = () => {
     }
   })
 
-  return (
-    <View style={css.app}>
+  const content = () => {
+    if (login_layout_active)
+      return <LoginLayout onLogin={()=>setLoginLayoutActive(false)} />
+    return (
       <CustomDrawer>
         <Animated.View style={[css.content, {left: scroll_animation}]}>
           {layout_stack.map((Layout, index) => (
@@ -58,7 +62,11 @@ const App = () => {
           ))}
         </Animated.View>
       </CustomDrawer>
-    </View>
+    )
+  }
+
+  return (
+    <View style={css.app}>{content()}</View>
   )
 }
 

@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { Navigation } from '../../App'
 import { AppText } from '../../Components'
 import { colors, style } from '../../Styling'
+import { screen } from '../../Utils'
 
-const LoginLayout = (props: {active?: boolean}) => {
+const LoginLayout = (props: {active?: boolean, onLogin: ()=>{}}) => {
   useEffect(() => {
     if (props.active)
       Navigation.header = () => <View style={css.header}><AppText style={css.header_text}>Welcome to Our To-Do List!</AppText></View>
@@ -12,18 +13,19 @@ const LoginLayout = (props: {active?: boolean}) => {
 
   return (
     <View style={css.container}>
-      <View style={{flex: 1, marginVertical: -style.header_height}}>
-        <View style={{height: style.header_height}} />
+      <View style={{flex: 1}}>
         <Text style={css.title}>OUR TODO LIST</Text>
       </View>
-      <View style={{flex: 1, justifyContent: 'center',}}>
+      <View style={{flex: 1}}>
         <Input label="Username" />
         <Input label="Password" />
         <Separator />
-        <View style={css.button_facebook}>
-          <Text style={css.button_facebook_text}>Log in with Facebook</Text>
-        </View>
-      </View>
+        <Button label="Sign In" onPress={props.onLogin} />
+        <Button label="New Account" onPress={()=>{}} />
+        <TouchableOpacity>
+          <AppText style={css.button_facebook_text}>Log in with Facebook</AppText>
+        </TouchableOpacity>
+      </View> 
       <View style={{flex: 1}} />
     </View>
   )
@@ -32,10 +34,15 @@ const LoginLayout = (props: {active?: boolean}) => {
 const Input = (props: {label: string}) => {
   return (
     <View style={css.input_container}>
-      <Text style={css.input_text}>{props.label}</Text>
+      <TextInput style={css.input_text} placeholder={props.label} />
     </View>
   )
 }
+const Button = (props: {label: string, onPress: ()=>any}) => (
+  <TouchableOpacity onPress={props.onPress}>
+    <AppText style={css.button}>{props.label}</AppText>
+  </TouchableOpacity>
+)
 
 const Separator = () => <View style={css.separator}/>
 
@@ -46,10 +53,11 @@ const css = StyleSheet.create({
   },
   header_text: {
     alignSelf: 'flex-end',
-
   },
   container: {
     alignSelf: 'center',
+    position: 'absolute',
+    height: screen.height,
   },
   title: {
     color: colors.light,
@@ -68,26 +76,32 @@ const css = StyleSheet.create({
   },
   input_container: {
     borderRadius: style.border_radius_med,
-    padding: style.padding,
     marginTop: style.margin,
     backgroundColor: colors.light,
     width: 300,
-    // alignSelf: 'center',
   },
   input_text: {
     fontSize: style.font_size_med,
     color: colors.dark,
   },
-  button_facebook: {
-    marginTop: style.margin,
-    backgroundColor: '#3B5998',
+  button: {
+    backgroundColor: colors.main,
+    fontSize: style.font_size_big,
     padding: style.padding,
+    paddingHorizontal: style.padding * 2,
+    alignSelf: 'center',
     borderRadius: style.border_radius_med,
+    marginTop: style.margin,
   },
   button_facebook_text: {
     fontSize: style.font_size_big,
     color: colors.light,
     alignSelf: 'center',
+    backgroundColor: '#3B5998',
+    padding: style.padding,
+    paddingHorizontal: style.padding * 2,
+    borderRadius: style.border_radius_med,
+    marginTop: style.margin,
   },
 })
 

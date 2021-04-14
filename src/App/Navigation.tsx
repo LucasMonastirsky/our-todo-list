@@ -1,6 +1,6 @@
-import { LoginLayout } from "../Layouts"
+import { ListLayout } from "../Layouts"
 
-const INITIAL_LAYOUT = LoginLayout
+const INITIAL_LAYOUT = ListLayout
 
 class Navigation {
   private static _current_layout = INITIAL_LAYOUT
