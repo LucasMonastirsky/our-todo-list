@@ -7,6 +7,17 @@ import { Layout } from '../Layouts/types';
 import { colors, style } from '../Styling';
 import { createAnimation, screen, useAsyncState } from '../Utils';
 
+import Amplify from 'aws-amplify'
+
+Amplify.configure({
+  aws_cognito_region: "us-east-2", // (required) - Region where Amazon Cognito project was created   
+  aws_user_pools_id:  "us-east-2_U2wpENRtF", // (optional) -  Amazon Cognito User Pool ID
+  aws_user_pools_web_client_id: '74m7qd1uml82a3t1ccn7hf1k2d',
+  Auth: {
+    userPoolId: "us-east-2_U2wpENRtF",
+  }
+})
+
 const App = () => {
   const [active_layout_index, setActiveLayoutIndex] = useState(0)
   const [, getBackAnimationActive, setBackAnimationActive] = useAsyncState(false)

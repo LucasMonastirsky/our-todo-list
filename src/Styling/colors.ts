@@ -6,6 +6,7 @@ const colors = {
   light_dark: '#d0d0d0',
   gray: '#909090',
   dark: '#363636',
+  alert: '#ff7777',
 }
 
 export default colors
