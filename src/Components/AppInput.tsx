@@ -2,11 +2,12 @@ import React from 'react'
 import { View, TextInput, StyleSheet, TextInputProps } from 'react-native'
 import { colors, style } from '../Styling'
 
-const AppInput = (props: {label: string, type?: 'username'|'password'|'new_password'} & TextInputProps) => {
+const AppInput = (props: {label: string, type?: 'username'|'password'|'new_password'|'numeric'} & TextInputProps) => {
   const type_props = {
-    username: {autoCompleteType:"username", textContentType: "username"} as const,
-    password: {autoCompleteType:"password", textContentType: "password", secureTextEntry: true} as const,
-    new_password: {autoCompleteType:"password", textContentType: "newPassword", secureTextEntry: true} as const,
+    username: {autoCompleteType:'username', textContentType: 'username'} as const,
+    password: {autoCompleteType:'password', textContentType: 'password', secureTextEntry: true} as const,
+    new_password: {autoCompleteType:'password', textContentType: 'newPassword', secureTextEntry: true} as const,
+    numeric: {keyboardType: 'numeric', } as const,
     none: {},
   }[props.type ?? 'none']
 

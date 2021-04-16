@@ -7,22 +7,16 @@ import { Layout } from '../Layouts/types';
 import { colors, style } from '../Styling';
 import { createAnimation, screen, useAsyncState } from '../Utils';
 
-import Amplify from 'aws-amplify'
+import Amplify, { Auth } from 'aws-amplify'
+import { amplify_config } from '../Config'
 
-Amplify.configure({
-  aws_cognito_region: "us-east-2", // (required) - Region where Amazon Cognito project was created   
-  aws_user_pools_id:  "us-east-2_U2wpENRtF", // (optional) -  Amazon Cognito User Pool ID
-  aws_user_pools_web_client_id: '74m7qd1uml82a3t1ccn7hf1k2d',
-  Auth: {
-    userPoolId: "us-east-2_U2wpENRtF",
-  }
-})
+Amplify.configure(amplify_config)
 
 const App = () => {
   const [active_layout_index, setActiveLayoutIndex] = useState(0)
   const [, getBackAnimationActive, setBackAnimationActive] = useAsyncState(false)
   const [layout_stack, getLayoutStack, setLayoutStack] = useAsyncState([Navigation.current_layout])
-  const [login_state, getLoginState, setLoginState] = useAsyncState<'login'|'register'|null>('login')
+  const [login_state, getLoginState, setLoginState] = useAsyncState<'login'|'register'|'confirm'|null>('login')
 
   //#region Navigation
   Navigation.onChangeLayout = (layout: Layout) => {
@@ -70,13 +64,16 @@ const App = () => {
       return (
         <Animated.View style={{top: register_transition}}>
           <LoginLayout onLogin={()=>{setLoginState(null)}} onRegister={()=>setLoginState('register')} />
-          <RegisterLayout onCancel={()=>{
-            if (getLoginState() === 'register') { 
-              setLoginState('login')
-              return true
-            }
-            else return false
-          }} />
+          <RegisterLayout
+            onCancel={()=>{
+              if (getLoginState() === 'register') { 
+                setLoginState('login')
+                return true
+              }
+              else return false
+            }}
+            onRegister={async (username: string)=>{console.log(await Auth.currentUserInfo())}}
+          />
         </Animated.View>
       )
     }
