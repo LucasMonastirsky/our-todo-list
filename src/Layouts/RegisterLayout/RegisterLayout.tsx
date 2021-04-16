@@ -15,7 +15,7 @@ const RegisterLayout = (props: LayoutProps & {onCancel: ()=>any, onRegister: (us
   const [password, _setPassword] = useState('')
   const [confirmPassword, _setConfirmPassword] = useState('')
   const [alert, setAlert] = useState<string>('')
-  const [phase, setPhase] = useState<'registering'|'confirming'>('registering')
+  const [phase, setPhase] = useState<'registering'|'confirming'|'loading'>('registering')
   const [confirmation_code, setConfirmationCode] = useState('')
 
   const setUsername = (value: string) => {
@@ -84,10 +84,13 @@ const RegisterLayout = (props: LayoutProps & {onCancel: ()=>any, onRegister: (us
     })
 
     if (result) {
-      console.log(result)
-      Auth.signIn(username, password)
+      await Auth.signIn(username, password)
       props.onRegister(username)
     }
+  }
+
+  const resendConfirmationCode = async () => {
+    await Auth.resendSignUp(username)
   }
 
   return (
@@ -114,6 +117,7 @@ const RegisterLayout = (props: LayoutProps & {onCancel: ()=>any, onRegister: (us
           <AppInput label="Confirmation Code" type="numeric" onChangeText={setConfirmationCode} />
           {alert.length > 1 && <AppText style={css.alert_text}>{alert}</AppText>}
           <AppButton label="Confirm" onPress={confirmUser} />
+          <AppButton label="Resend Code" onPress={resendConfirmationCode} />
         </View>
       </>)}
       

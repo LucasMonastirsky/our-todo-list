@@ -63,7 +63,13 @@ const App = () => {
     if (login_state) {
       return (
         <Animated.View style={{top: register_transition}}>
-          <LoginLayout onLogin={()=>{setLoginState(null)}} onRegister={()=>setLoginState('register')} />
+          <LoginLayout
+            onRegister={()=>setLoginState('register')}
+            onLogin={async(username, password)=>{
+              if(await Auth.signIn(username, password))
+                setLoginState(null)
+            }} 
+          />
           <RegisterLayout
             onCancel={()=>{
               if (getLoginState() === 'register') { 
@@ -72,14 +78,12 @@ const App = () => {
               }
               else return false
             }}
-            onRegister={async (username: string)=>{console.log(await Auth.currentUserInfo())}}
+            onRegister={()=>setLoginState(null)}
           />
         </Animated.View>
       )
     }
 
-    if (login_state === 'register')
-      return 
     return (
       <CustomDrawer>
         <Animated.View style={[css.content, {left: scroll_animation}]}>

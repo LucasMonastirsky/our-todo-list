@@ -1,10 +1,20 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { AppButton, AppInput, AppText } from '../../Components'
 import { colors, style } from '../../Styling'
 import { screen } from '../../Utils'
 
-const LoginLayout = (props: {onLogin: ()=>any, onRegister: ()=>any}) => {
+const LoginLayout = (props: {onLogin: (username: string, password: string)=>any, onRegister: ()=>any}) => {
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+
+  const login = () => {
+    if (username.length < 6)
+      return
+    if (password.length < 8)
+      return
+    props.onLogin(username, password)
+  }
 
   return (
     <View style={css.container}>
@@ -12,10 +22,10 @@ const LoginLayout = (props: {onLogin: ()=>any, onRegister: ()=>any}) => {
         <Text style={css.title}>OUR TODO LIST</Text>
       </View>
       <View style={{flex: 1}}>
-        <AppInput label="Username" type="username" />
-        <AppInput label="Password" type="password" />
+        <AppInput label="Username" type="username" onChangeText={setUsername} />
+        <AppInput label="Password" type="password" onChangeText={setPassword} />
         <Separator />
-        <AppButton label="Sign In" onPress={props.onLogin} />
+        <AppButton label="Sign In" onPress={login} />
         <AppButton label="New Account" onPress={props.onRegister} />
         <TouchableOpacity>
           <AppText style={css.button_facebook_text}>Log in with Facebook</AppText>
