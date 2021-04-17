@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Animated, BackHandler, Dimensions, StyleSheet, View } from 'react-native'
+import { Animated, BackHandler, StyleSheet, View } from 'react-native'
 import { Navigation } from '.';
-import { CustomDrawer, Loading } from '../Components';
+import { AppDrawer } from '../Components';
 import { AuthenticationLayout } from '../Layouts';
 import { Layout } from '../Layouts/types';
 import { colors, style } from '../Styling';
@@ -62,7 +62,7 @@ const App = () => {
   const content = () => {
     return !logged_in
     ? <AuthenticationLayout onLoggedIn={()=>setLoggedIn(true)} />
-    : <CustomDrawer {...{signOut}}>
+    : <AppDrawer {...{signOut}}>
         <Animated.View style={[css.content, {left: scroll_animation}]}>
           {layout_stack.map((Layout, index) => (
             <View style={[css.layout_container]}>
@@ -70,7 +70,7 @@ const App = () => {
             </View>
           ))}
         </Animated.View>
-      </CustomDrawer>
+      </AppDrawer>
   }
 
   return (

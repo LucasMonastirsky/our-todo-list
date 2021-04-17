@@ -1,13 +1,13 @@
 import React, { ComponentType, useState } from 'react'
 import { View, StyleSheet, Image, TouchableOpacity, TouchableNativeFeedback, Dimensions, Animated } from 'react-native'
 import Drawer from 'react-native-drawer'
-import { AppText, FadeContent } from './'
+import { AppText, FadeContent } from '.'
 import { colors, style } from '../Styling'
 import { Navigation } from '../App'
 import { ListLayout, OptionsLayout, ProfileLayout } from '../Layouts'
 import { createAnimation } from '../Utils'
 
-const CustomDrawer = (props: {children?: any, signOut: ()=>any}) => {
+const AppDrawer = (props: {children?: any, signOut: ()=>any}) => {
   const [drawer_active, setDrawerActive] = useState(false)
   const [header, setHeader] = useState<ComponentType>(Navigation.header)
   const [next_header, setNextHeader] = useState<ComponentType>(Navigation.header)
@@ -145,4 +145,4 @@ const css = StyleSheet.create({
   },
 })
 
-export default CustomDrawer
+export default AppDrawer
