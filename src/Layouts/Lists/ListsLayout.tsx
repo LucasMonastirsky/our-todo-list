@@ -106,8 +106,8 @@ const ListLayout = (props: LayoutProps) => {
   
       return (
         <View style={css.header}>
-          <Icon source={require('../../Images/Icons/edit.png')} />
-          <Icon source={require('../../Images/Icons/plus.png')} />
+          <Icon source={require('../../Media/Icons/edit.png')} />
+          <Icon source={require('../../Media/Icons/plus.png')} />
         </View>
       )
     }

@@ -37,7 +37,7 @@ const CustomDrawer = (props: {children?: any}) => {
     <View style={css.drawer}>
       <Item onPress={()=>goTo(ProfileLayout)}>
         <View style={css.picture_container}>
-          <Image style={css.picture} source={require('../Images/Icons/profile_default.png')} />
+          <Image style={css.picture} source={require('../Media/Icons/profile_default.png')} />
         </View>
         <Spacer />
         <ItemText>Profile</ItemText>

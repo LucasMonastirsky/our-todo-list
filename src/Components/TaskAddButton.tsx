@@ -6,7 +6,7 @@ const TaskAddButton = (props: { onTouch: () => void }) => {
   return (
     <View style={css.container}>
       <TouchableOpacity style={css.circle} onPress={props.onTouch}>
-          <Image style={css.img} source={require('../Images/Icons/plus.png')}/>
+          <Image style={css.img} source={require('../Media/Icons/plus.png')}/>
       </TouchableOpacity>
     </View>
   )

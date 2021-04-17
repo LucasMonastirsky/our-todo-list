@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Animated, BackHandler, Dimensions, StyleSheet, View } from 'react-native'
 import { Navigation } from '.';
 import { CustomDrawer } from '../Components';
-import { LoginLayout, RegisterLayout } from '../Layouts';
+import { AuthenticationLayout } from '../Layouts';
 import { Layout } from '../Layouts/types';
 import { colors, style } from '../Styling';
 import { createAnimation, screen, useAsyncState } from '../Utils';
@@ -16,7 +16,7 @@ const App = () => {
   const [active_layout_index, setActiveLayoutIndex] = useState(0)
   const [, getBackAnimationActive, setBackAnimationActive] = useAsyncState(false)
   const [layout_stack, getLayoutStack, setLayoutStack] = useAsyncState([Navigation.current_layout])
-  const [login_state, getLoginState, setLoginState] = useAsyncState<'login'|'register'|'confirm'|null>('login')
+  const [logged_in, setLoggedIn] = useState(false)
 
   //#region Navigation
   Navigation.onChangeLayout = (layout: Layout) => {
@@ -41,7 +41,7 @@ const App = () => {
   //#endregion
 
   const scroll_animation = createAnimation({
-    from: 0, to: -screen_width*active_layout_index,
+    from: 0, to: -screen.width*active_layout_index,
     duration: style.anim_duration,
     condition: active_layout_index,
     onDone: () => {
@@ -54,38 +54,10 @@ const App = () => {
     }
   })
 
-  const register_transition = createAnimation({
-    from: 0, to: login_state === 'register' ? -screen.height : 0, duration: style.anim_duration,
-    condition: login_state,
-  })
-
   const content = () => {
-    if (login_state) {
-      return (
-        <Animated.View style={{top: register_transition}}>
-          <LoginLayout
-            onRegister={()=>setLoginState('register')}
-            onLogin={async(username, password)=>{
-              if(await Auth.signIn(username, password))
-                setLoginState(null)
-            }} 
-          />
-          <RegisterLayout
-            onCancel={()=>{
-              if (getLoginState() === 'register') { 
-                setLoginState('login')
-                return true
-              }
-              else return false
-            }}
-            onRegister={()=>setLoginState(null)}
-          />
-        </Animated.View>
-      )
-    }
-
-    return (
-      <CustomDrawer>
+    return !logged_in
+    ? <AuthenticationLayout onLoggedIn={()=>setLoggedIn(true)} />
+    : <CustomDrawer>
         <Animated.View style={[css.content, {left: scroll_animation}]}>
           {layout_stack.map((Layout, index) => (
             <View style={[css.layout_container]}>
@@ -94,15 +66,12 @@ const App = () => {
           ))}
         </Animated.View>
       </CustomDrawer>
-    )
   }
 
   return (
     <View style={css.app}>{content()}</View>
   )
 }
-
-const screen_width = Dimensions.get('window').width
 
 const css = StyleSheet.create({
   app: {
@@ -114,7 +83,7 @@ const css = StyleSheet.create({
     height: '100%',
   },
   layout_container: {
-    width: screen_width,
+    width: screen.width,
   },
 })
 
