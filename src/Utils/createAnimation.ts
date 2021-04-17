@@ -1,14 +1,15 @@
 import { useEffect, useRef } from "react"
 import { Animated } from "react-native"
 
-type parameters = {from?: number, to?: number, duration?: number, condition?: any, onDone?: ()=>void}
-const useAnim = ({from, to, duration, condition, onDone}: parameters) => {
+type parameters = {from?: number, to?: number, duration?: number, condition?: any, onDone?: ()=>void, delay?: number}
+const useAnim = ({from, to, duration, condition, onDone, delay}: parameters) => {
   const anim = useRef(new Animated.Value(from ?? 0)).current
 
   useEffect(()=>{
    Animated.timing(anim, {
      toValue: to ?? 1,
      duration: duration ?? 300,
+     delay,
      useNativeDriver: false,
    }).start(onDone)
   }, [condition ?? anim])

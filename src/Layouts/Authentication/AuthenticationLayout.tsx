@@ -18,10 +18,7 @@ const AuthenticationLayout = (props: {onLoggedIn: ()=>any}) => {
     <Animated.View style={{top: transition}}>
       <LoginLayout
         onRegister={()=>setLoginState('register')}
-        onLogin={async(username, password)=>{
-          if(await Auth.signIn(username, password))
-            props.onLoggedIn()
-        }} 
+        onLogin={props.onLoggedIn}
       />
       <RegisterLayout
         onCancel={()=>{
@@ -31,7 +28,7 @@ const AuthenticationLayout = (props: {onLoggedIn: ()=>any}) => {
           }
           else return false
         }}
-        onRegister={()=>setLoginState(null)}
+        onRegister={props.onLoggedIn}
       />
     </Animated.View>
   )

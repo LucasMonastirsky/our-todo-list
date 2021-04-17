@@ -1,20 +1,27 @@
+import { Auth } from 'aws-amplify'
 import React, { useState } from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import { AppButton, AppInput, AppText } from '../../Components'
+import { AppButton, AppInput, AppText, Loading } from '../../Components'
 import { colors, style } from '../../Styling'
 import { screen } from '../../Utils'
 
 const LoginLayout = (props: {onLogin: (username: string, password: string)=>any, onRegister: ()=>any}) => {
+  const [loading, setLoading] = useState(false)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
-  const login = () => {
-    if (username.length < 6)
+  const login = async () => {
+    if (password.length < 8) // TODO: add alerts
       return
-    if (password.length < 8)
-      return
-    props.onLogin(username, password)
+
+    setLoading(true)
+    if (await Auth.signIn(username, password))
+      props.onLogin(username, password)
+    setLoading(false)
   }
+
+  if (loading)
+    return <View style={css.container}><Loading /></View>
 
   return (
     <View style={css.container}>

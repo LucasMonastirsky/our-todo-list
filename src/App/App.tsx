@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Animated, BackHandler, Dimensions, StyleSheet, View } from 'react-native'
 import { Navigation } from '.';
-import { CustomDrawer } from '../Components';
+import { CustomDrawer, Loading } from '../Components';
 import { AuthenticationLayout } from '../Layouts';
 import { Layout } from '../Layouts/types';
 import { colors, style } from '../Styling';

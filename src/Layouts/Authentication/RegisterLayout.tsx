@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { BackHandler, StyleSheet, View } from 'react-native'
-import { AppButton, AppInput, AppText } from '../../Components'
+import { AppButton, AppInput, AppText, Loading } from '../../Components'
 import { colors, style } from '../../Styling'
 import { screen } from '../../Utils'
 import { LayoutProps } from '../types'
@@ -10,6 +10,7 @@ const USERNAME_MIN_LENGTH = 3
 const PASSWORD_MIN_LENGTH = 8
 
 const RegisterLayout = (props: LayoutProps & {onCancel: ()=>any, onRegister: (username: string)=>void}) => {
+  const [loading, setLoading] = useState(false)
   const [username, _setUsername] = useState('')
   const [email, _setEmail] = useState('')
   const [password, _setPassword] = useState('')
@@ -56,6 +57,7 @@ const RegisterLayout = (props: LayoutProps & {onCancel: ()=>any, onRegister: (us
     if (password.length < PASSWORD_MIN_LENGTH)
       return setAlert(`Password must be longer than ${PASSWORD_MIN_LENGTH} characters`)
 
+    setLoading(true)
     const result = await Auth.signUp({
       username, password,
       attributes: {
@@ -68,6 +70,7 @@ const RegisterLayout = (props: LayoutProps & {onCancel: ()=>any, onRegister: (us
       }[error.code]
       ??'Unknown error')
     })
+    setLoading(false)
 
     if (result) {
       setPhase('confirming')
@@ -78,6 +81,7 @@ const RegisterLayout = (props: LayoutProps & {onCancel: ()=>any, onRegister: (us
     if (confirmation_code.length !== 6)
       return setAlert('Confirmation code must be 6 characters long')
     
+    setLoading(true)
     const result = await Auth.confirmSignUp(username, confirmation_code)
       .catch((reason: {message: string})=>{
         setAlert(reason.message)
@@ -87,13 +91,17 @@ const RegisterLayout = (props: LayoutProps & {onCancel: ()=>any, onRegister: (us
       await Auth.signIn(username, password)
       props.onRegister(username)
     }
+
+    setLoading(false)
   }
 
   const resendConfirmationCode = async () => {
     await Auth.resendSignUp(username)
   }
 
-  return (
+  return loading
+  ? <View style={css.container}><Loading /></View>
+  : (
     <View style={css.container}>
       {phase === 'registering' && (<>
         <View style={{flex: 1, justifyContent: 'flex-end'}}>
