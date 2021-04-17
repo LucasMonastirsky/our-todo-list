@@ -7,7 +7,7 @@ import { Navigation } from '../App'
 import { ListLayout, OptionsLayout, ProfileLayout } from '../Layouts'
 import { createAnimation } from '../Utils'
 
-const CustomDrawer = (props: {children?: any}) => {
+const CustomDrawer = (props: {children?: any, signOut: ()=>any}) => {
   const [drawer_active, setDrawerActive] = useState(false)
   const [header, setHeader] = useState<ComponentType>(Navigation.header)
   const [next_header, setNextHeader] = useState<ComponentType>(Navigation.header)
@@ -33,6 +33,11 @@ const CustomDrawer = (props: {children?: any}) => {
     }
   })
 
+  const signOut = async () => {
+    setDrawerActive(false)
+    await props.signOut()
+  }
+
   const DrawerContent = () => (
     <View style={css.drawer}>
       <Item onPress={()=>goTo(ProfileLayout)}>
@@ -47,6 +52,9 @@ const CustomDrawer = (props: {children?: any}) => {
       </Item>
       <Item onPress={()=>goTo(OptionsLayout)}>
         <ItemText>Options</ItemText>
+      </Item>
+      <Item onPress={signOut} >
+        <ItemText>Sign Out</ItemText>
       </Item>
       <AppText style={css.credit_text}>Developed by Lucas Monastirsky</AppText>
     </View>

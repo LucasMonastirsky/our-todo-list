@@ -40,6 +40,11 @@ const App = () => {
   }
   //#endregion
 
+  const signOut = async () => {
+    await Auth.signOut()
+    setLoggedIn(false)
+  }
+
   const scroll_animation = createAnimation({
     from: 0, to: -screen.width*active_layout_index,
     duration: style.anim_duration,
@@ -57,7 +62,7 @@ const App = () => {
   const content = () => {
     return !logged_in
     ? <AuthenticationLayout onLoggedIn={()=>setLoggedIn(true)} />
-    : <CustomDrawer>
+    : <CustomDrawer {...{signOut}}>
         <Animated.View style={[css.content, {left: scroll_animation}]}>
           {layout_stack.map((Layout, index) => (
             <View style={[css.layout_container]}>
