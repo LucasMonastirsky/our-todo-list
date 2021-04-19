@@ -81,10 +81,10 @@ const ListLayout = (props: LayoutProps) => {
 
   const current_list = lists[current_list_index]
 
-  const addTask = () => {
+  const addTask = (task: Task) => {
     const updated_list = {...current_list, tasks: [
       ...current_list.tasks,
-      new Task({ id: `${current_list.tasks.length}`, creator_id: 'Josh', position: current_list.tasks.length })
+      task
     ]}
     const updated_lists = [...lists]
     updated_lists.splice(current_list_index, 1, updated_list)
@@ -102,7 +102,7 @@ const ListLayout = (props: LayoutProps) => {
       return (
         <View style={css.header}>
           <Icon source={require('../../Media/Icons/edit.png')} onPress={()=>{}} />
-          <Icon source={require('../../Media/Icons/plus.png')} onPress={()=>setAddingTask(true)} />
+          <Icon source={require('../../Media/Icons/plus.png')} onPress={()=>{}} />
         </View>
       )
     }
@@ -111,7 +111,7 @@ const ListLayout = (props: LayoutProps) => {
   //#region Render
   return (
     <View style={css.container}>
-      {adding_task && <AddTaskModal onAdd={task=>console.log(task)} onClose={()=>setAddingTask(false)} />}
+      {adding_task && <AddTaskModal onAdd={addTask} onClose={()=>setAddingTask(false)} />}
       <ListTab {...{lists}} onSelect={i=>setCurrentListIndex(i)} />
       <FlatList
         data={current_list.tasks}
@@ -119,7 +119,7 @@ const ListLayout = (props: LayoutProps) => {
           <TaskView {...{task: item, index}} />
         )}
       />
-      <TaskAddButton onTouch={addTask} />
+      <TaskAddButton onTouch={()=>setAddingTask(true)} />
     </View>
   )
   //#endregion

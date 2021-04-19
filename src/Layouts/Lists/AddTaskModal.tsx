@@ -16,15 +16,15 @@ const AddTaskModal = (props: {onAdd: (task: Task)=>any, onClose: ()=>any}) => {
   const [visible, setVisible] = useState(true)
   const [task, setTask] = useState(default_task)
 
- const close = () => {
-   setVisible(false)
-   props.onClose()
- }
+  const close = () => {
+    setVisible(false)
+    props.onClose()
+  }
 
- const addTask = () => {
-   props.onAdd(task)
-   close()
- }
+  const addTask = () => {
+    props.onAdd(task)
+    close()
+  }
 
   return (
     <Modal transparent {...{visible}} onRequestClose={close}>
