@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native'
 import { TodoList } from '../../Models'
 import { LayoutProps } from '../types'
 
-const ListEditLayout = (props: LayoutProps & {list: TodoList}) => {
+const ListEditLayout = (props: LayoutProps & {list?: TodoList}) => {
   return (
     <View>
       <Text>editting babyyy</Text>
@@ -16,3 +16,5 @@ const css = StyleSheet.create({
 
   },
 })
+
+export default ListEditLayout

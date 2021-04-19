@@ -1,18 +1,18 @@
 import React from 'react'
-import { StyleSheet, TouchableOpacity } from 'react-native'
+import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native'
 import { AppText } from '.'
 import { colors, style } from '../Styling'
 
-const AppButton = (props: {label: string, onPress: ()=>any}) => (
-  <TouchableOpacity onPress={props.onPress}>
+const AppButton = (props: {label: string, onPress: ()=>any, style?: ViewStyle}) => (
+  <TouchableOpacity onPress={props.onPress} style={props.style}>
     <AppText style={css.button}>{props.label}</AppText>
   </TouchableOpacity>
 )
 
 const css = StyleSheet.create({
   button: {
-    backgroundColor: colors.main,
-    fontSize: style.font_size_big,
+    backgroundColor: colors.main_light,
+    fontSize: style.font_size_med,
     padding: style.padding,
     paddingHorizontal: style.padding * 2,
     alignSelf: 'center',

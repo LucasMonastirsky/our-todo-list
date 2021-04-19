@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import { FlatList, Image, ImageSourcePropType, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { FlatList, Image, ImageSourcePropType, Modal, StyleSheet, TouchableOpacity, View } from 'react-native'
 import TaskAddButton from '../../Components/TaskAddButton'
 import TaskView from './TaskView'
 import { Task, TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
 import ListTab from './ListTab'
-import { AppText } from '../../Components'
 import { Navigation } from '../../App'
 import { LayoutProps } from '../types'
+import AddTaskModal from './AddTaskModal'
 
 const debug_lists: TodoList[] = [
   new TodoList({
@@ -77,7 +77,7 @@ const debug_lists: TodoList[] = [
 const ListLayout = (props: LayoutProps) => {
   const [lists, setLists] = useState(debug_lists)
   const [current_list_index, setCurrentListIndex] = useState(0)
-  const [selecting_list, setSelectingList] = useState(false)
+  const [adding_task, setAddingTask] = useState(false)
 
   const current_list = lists[current_list_index]
 
@@ -91,40 +91,28 @@ const ListLayout = (props: LayoutProps) => {
     setLists(updated_lists)
   }
 
-  const onSelectList = (index: number) => {
-    setCurrentListIndex(index)
-    setSelectingList(false)
-  }
-
   useEffect(() => {
     if (props.active) Navigation.header = () => {
-      const Icon = (props: {source: ImageSourcePropType}) => (
-        <TouchableOpacity style={css.header_icon_container} onPress={()=>{}}>
-            <Image style={css.header_icon_img} source={props.source} />
+      const Icon = ({source, onPress}: {source: ImageSourcePropType, onPress: ()=>any}) => (
+        <TouchableOpacity style={css.header_icon_container} {...{onPress}}>
+            <Image style={css.header_icon_img} {...{source}} />
         </TouchableOpacity>
       )
   
       return (
         <View style={css.header}>
-          <Icon source={require('../../Media/Icons/edit.png')} />
-          <Icon source={require('../../Media/Icons/plus.png')} />
+          <Icon source={require('../../Media/Icons/edit.png')} onPress={()=>{}} />
+          <Icon source={require('../../Media/Icons/plus.png')} onPress={()=>setAddingTask(true)} />
         </View>
       )
     }
   }, [props.active])
 
+  //#region Render
   return (
     <View style={css.container}>
-      <ListTab {...{lists}} onSelect={onSelectList} />
-      {selecting_list &&
-        <View style={css.list_select_container}>
-          {lists.map((list, index) =>
-            <TouchableOpacity style={css.list_select_item} onPress={()=>onSelectList(index)} key={index}>
-              <AppText style={css.list_select_item_text}>{list.title}</AppText>
-            </TouchableOpacity>
-          )}
-        </View>
-      }
+      {adding_task && <AddTaskModal onAdd={task=>console.log(task)} onClose={()=>setAddingTask(false)} />}
+      <ListTab {...{lists}} onSelect={i=>setCurrentListIndex(i)} />
       <FlatList
         data={current_list.tasks}
         renderItem={({item, index})=>(
@@ -134,6 +122,7 @@ const ListLayout = (props: LayoutProps) => {
       <TaskAddButton onTouch={addTask} />
     </View>
   )
+  //#endregion
 }
 
 const css = StyleSheet.create({

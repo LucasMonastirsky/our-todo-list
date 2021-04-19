@@ -46,7 +46,7 @@ const css = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#000000aa'
+    backgroundColor: colors.faded,
   },
   container: {
     padding: style.padding,
