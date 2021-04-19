@@ -1,6 +1,10 @@
 import Auth from "@aws-amplify/auth"
 import { TodoList, Task } from "../Models"
 import User from "../Models/User"
+import AWS from 'aws-sdk'
+import { aws_sdk_config } from '../Secrets'
+
+AWS.config.update(aws_sdk_config)
 
 export default class API {
   static getCurrentUser = async () => {
