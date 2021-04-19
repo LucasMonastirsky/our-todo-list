@@ -18,7 +18,7 @@ const TaskView = (props: { task: Task, index?: number }) => {
         </TouchableOpacity>
         <AppText style={css.title}>{props.task.title}</AppText>
       </Animated.View>
-      {modal_active && <TaskModal task={props.task} onClose={()=>setModalActive(false)} />}
+      {modal_active && <TaskModal task={props.task} close={()=>setModalActive(false)} />}
     </TouchableOpacity>
   )
 }

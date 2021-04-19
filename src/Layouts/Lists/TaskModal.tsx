@@ -1,58 +1,41 @@
-import React, { useState } from 'react'
-import { View, StyleSheet, Modal, TouchableWithoutFeedback } from 'react-native'
-import { AppText } from '../../Components'
+import React from 'react'
+import { View, StyleSheet } from 'react-native'
+import { AppModal, AppText } from '../../Components'
 import { Task } from '../../Models'
 import { colors, style } from '../../Styling'
 import { formatDate } from '../../Utils'
 
-const TaskModal = (props: { task: Task, onClose: ()=>void }) => {
-  const [visible, setVisible] = useState(true)
+const TaskModal = (props: { task: Task, close: ()=>void }) => {
   const { task } = props
 
-  const close = () => {
-    setVisible(false)
-    props.onClose()
-  }
-
   return (
-    <Modal transparent {...{visible}} onRequestClose={close}>
-      <TouchableWithoutFeedback onPressOut={close}>
-        <View style={css.centered}>
-          <View style={css.container}>
-            <View style={css.title_container}>
-              <AppText style={css.title}>{task.title}</AppText>
-              <AppText style={css.status}>{task.status}</AppText>
-            </View> 
-            <Divider />
-            {task.description !== '' && <>
-              <AppText style={css.description}>{task.description}</AppText>
-              <Divider />
-            </>}
-            <View style={css.created_container}>
-              <AppText style={css.created_text}>Created by {task.creator_id} on {formatDate(task.creation_date)}</AppText>
-            </View>
-          </View>
+    <AppModal close={props.close}>
+      <View style={css.container}>
+        <View style={css.title_container}>
+          <AppText style={css.title}>{task.title}</AppText>
+          <AppText style={css.status}>{task.status}</AppText>
+        </View> 
+        <Divider />
+        {task.description !== '' && <>
+          <AppText style={css.description}>{task.description}</AppText>
+          <Divider />
+        </>}
+        <View style={css.created_container}>
+          <AppText style={css.created_text}>Created by {task.creator_id} on {formatDate(task.creation_date)}</AppText>
         </View>
-      </TouchableWithoutFeedback>
-    </Modal>
+      </View>
+    </AppModal>
   )
 }
 
 const Divider = () => <View style={css.divider} />
 
 const css = StyleSheet.create({
-  centered: {
-    padding: style.margin,
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.faded,
-  },
   container: {
+    marginHorizontal: style.margin,
     padding: style.padding,
     borderRadius: style.border_radius_big,
     backgroundColor: colors.main,
-    width: '100%',
   },
   title_container: {
     flexDirection: 'row',

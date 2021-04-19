@@ -8,12 +8,14 @@ import ListTab from './ListTab'
 import { Navigation } from '../../App'
 import { LayoutProps } from '../types'
 import AddTaskModal from './AddTaskModal'
+import ListEditModal from './ListEditModal'
 
 const debug_lists: TodoList[] = [
   new TodoList({
     title: 'Household',
     description: 'Tasks for our home!',
     id: '0',
+    member_ids: ['0', '1'],
     tasks: [
       new Task({title: 'Wash Dishes', creator_id: 'Laura', id: '0', position: 0}),
       new Task({title: 'Buy Tofu', creator_id: 'Josh', id: '1', position: 1, description: `The normal kind, not the flavoured kind, it's more expensive!`}),
@@ -27,6 +29,7 @@ const debug_lists: TodoList[] = [
     title: 'Vacation Trip',
     description: 'Things to do before going on vacation',
     id: '1',
+    member_ids: ['0', '1'],
     tasks: [
       new Task({title: 'Choose Destination', creator_id: 'Laura', id: '6', position: 0}),
       new Task({title: 'Book Tickets', creator_id: 'Josh', id: '7', position: 1}),
@@ -40,6 +43,7 @@ const debug_lists: TodoList[] = [
     title: 'Project Car',
     description: 'An absolute money pit',
     id: '2',
+    member_ids: ['0'],
     tasks: [
       new Task({title: 'Buy new jack', creator_id: 'Laura', id: '12', position: 0}),
       new Task({title: 'Fabricate brake adaptor plate', creator_id: 'Josh', id: '13', position: 1}),
@@ -53,6 +57,7 @@ const debug_lists: TodoList[] = [
     title: 'Cows Rule',
     description: 'Things to do before going on vacation',
     id: '3',
+    member_ids: ['0', '3'],
     tasks: [
       new Task({title: 'They are so pretty', creator_id: 'Laura', id: '18', position: 0}),
       new Task({title: 'In any colour', creator_id: 'Josh', id: '19', position: 1}),
@@ -63,6 +68,7 @@ const debug_lists: TodoList[] = [
     title: 'Project Car',
     description: 'Things to do before going on vacation',
     id: '4',
+    member_ids: ['0', '1', '2'],
     tasks: [
       new Task({title: 'Choose Destination', creator_id: 'Laura', id: '6', position: 0}),
       new Task({title: 'Book Tickets', creator_id: 'Josh', id: '7', position: 1}),
@@ -78,6 +84,7 @@ const ListLayout = (props: LayoutProps) => {
   const [lists, setLists] = useState(debug_lists)
   const [current_list_index, setCurrentListIndex] = useState(0)
   const [adding_task, setAddingTask] = useState(false)
+  const [editting, setEditting] = useState(false)
 
   const current_list = lists[current_list_index]
 
@@ -101,7 +108,7 @@ const ListLayout = (props: LayoutProps) => {
   
       return (
         <View style={css.header}>
-          <Icon source={require('../../Media/Icons/edit.png')} onPress={()=>{}} />
+          <Icon source={require('../../Media/Icons/edit.png')} onPress={()=>setEditting(true)} />
           <Icon source={require('../../Media/Icons/plus.png')} onPress={()=>{}} />
         </View>
       )
@@ -111,7 +118,8 @@ const ListLayout = (props: LayoutProps) => {
   //#region Render
   return (
     <View style={css.container}>
-      {adding_task && <AddTaskModal onAdd={addTask} onClose={()=>setAddingTask(false)} />}
+      {adding_task && <AddTaskModal onAdd={addTask} close={()=>setAddingTask(false)} />}
+      {editting && <ListEditModal list={current_list} close={()=>setEditting(false)} />}
       <ListTab {...{lists}} onSelect={i=>setCurrentListIndex(i)} />
       <FlatList
         data={current_list.tasks}

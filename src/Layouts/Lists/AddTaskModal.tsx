@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Modal, StyleSheet, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native'
-import { AppButton, AppInputMin, AppText } from '../../Components'
+import { AppButton, AppInputMin, AppModal, AppText } from '../../Components'
 import { Task } from '../../Models'
 import { colors, style } from '../../Styling'
 import { screen } from '../../Utils'
@@ -12,49 +12,34 @@ const default_task = new Task({
   position: 0,
 })
 
-const AddTaskModal = (props: {onAdd: (task: Task)=>any, onClose: ()=>any}) => {
-  const [visible, setVisible] = useState(true)
+const AddTaskModal = (props: {onAdd: (task: Task)=>any, close: ()=>any}) => {
   const [task, setTask] = useState(default_task)
-
-  const close = () => {
-    setVisible(false)
-    props.onClose()
-  }
 
   const addTask = () => {
     props.onAdd(task)
-    close()
+    props.close()
   }
 
   return (
-    <Modal transparent {...{visible}} onRequestClose={close}>
-      <TouchableWithoutFeedback onPress={close}>
-        <View style={css.centered}>
-          <TouchableWithoutFeedback>
-            <View style={css.container}>
-              <AppInputMin defaultValue='Task Title' onChangeText={text=>setTask({...task, title: text})} />
-              <AppInputMin style={css.description} onChangeText={text=>setTask({...task, description: text})}
-                defaultValue={default_task.description}
-                placeholder='Give the task a description'
-                placeholderTextColor={colors.light_dark}
-                multiline
-              />
-              <AppButton label='Add Task' onPress={addTask} style={css.button_add_task} />
-            </View>
-          </TouchableWithoutFeedback>
-        </View>
-      </TouchableWithoutFeedback>
-    </Modal>
+    <AppModal close={props.close}>
+      <View style={css.container}>
+        <AppInputMin defaultValue='Task Title' onChangeText={text=>setTask({...task, title: text})} />
+        <AppInputMin style={css.description} onChangeText={text=>setTask({...task, description: text})}
+          defaultValue={default_task.description}
+          placeholder='Give the task a description'
+          placeholderTextColor={colors.light_dark}
+          multiline
+        />
+        <AppButton label='Add Task' onPress={addTask} style={css.button_add_task} />
+      </View>
+    </AppModal>
   )
 }
 
 const css = StyleSheet.create({
-  centered: {
-    backgroundColor: colors.faded,
-    justifyContent: 'center',
-    flex: 1,
-  },
   container: {
+    // flex: 1,
+    // width: 'auto',
     marginHorizontal: screen.width / 10,
     backgroundColor: colors.main,
     padding: style.padding,
