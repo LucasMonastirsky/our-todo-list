@@ -1,14 +1,16 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Modal, StyleSheet, TouchableWithoutFeedback, View } from 'react-native'
 import { colors } from '../Styling'
 
-export default ({children, close}: {children: any, close: ()=>any}) => {
+export default (props: {children: any, close: (value: boolean)=>any}) => {
+  const close = () => props.close(false)
+
   return (
     <Modal transparent onRequestClose={close}>
       <TouchableWithoutFeedback onPress={close}>
         <View style={css.centered}>
           <TouchableWithoutFeedback>
-            {children}
+            {props.children}
           </TouchableWithoutFeedback>
         </View>
       </TouchableWithoutFeedback>
@@ -20,7 +22,6 @@ const css = StyleSheet.create({
   centered: {
     backgroundColor: colors.faded,
     justifyContent: 'center',
-    // alignItems: 'center',
     flex: 1,
   },
 })

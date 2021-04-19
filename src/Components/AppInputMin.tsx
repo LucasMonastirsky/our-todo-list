@@ -6,7 +6,7 @@ const AppInputMin = (props: TextInputProps) => {
   return (
     <View style={css.input_container}>
       <TextInput
-        placeholderTextColor={colors.gray}
+        placeholderTextColor={colors.light_dark}
         textAlign='center'
         {...props}
         style={[css.input_text, props.style]}

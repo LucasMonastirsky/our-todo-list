@@ -9,6 +9,7 @@ import { Navigation } from '../../App'
 import { LayoutProps } from '../types'
 import AddTaskModal from './AddTaskModal'
 import ListEditModal from './ListEditModal'
+import ListAddModal from './ListAddModal'
 
 const debug_lists: TodoList[] = [
   new TodoList({
@@ -85,6 +86,7 @@ const ListLayout = (props: LayoutProps) => {
   const [current_list_index, setCurrentListIndex] = useState(0)
   const [adding_task, setAddingTask] = useState(false)
   const [editting, setEditting] = useState(false)
+  const [adding_list, setAddingList] = useState(false)
 
   const current_list = lists[current_list_index]
 
@@ -98,6 +100,10 @@ const ListLayout = (props: LayoutProps) => {
     setLists(updated_lists)
   }
 
+  const addList = (list: TodoList) => {
+    setLists([...lists, list])
+  }
+
   useEffect(() => {
     if (props.active) Navigation.header = () => {
       const Icon = ({source, onPress}: {source: ImageSourcePropType, onPress: ()=>any}) => (
@@ -109,7 +115,7 @@ const ListLayout = (props: LayoutProps) => {
       return (
         <View style={css.header}>
           <Icon source={require('../../Media/Icons/edit.png')} onPress={()=>setEditting(true)} />
-          <Icon source={require('../../Media/Icons/plus.png')} onPress={()=>{}} />
+          <Icon source={require('../../Media/Icons/plus.png')} onPress={()=>setAddingList(true)} />
         </View>
       )
     }
@@ -120,6 +126,7 @@ const ListLayout = (props: LayoutProps) => {
     <View style={css.container}>
       {adding_task && <AddTaskModal onAdd={addTask} close={()=>setAddingTask(false)} />}
       {editting && <ListEditModal list={current_list} close={()=>setEditting(false)} />}
+      {adding_list && <ListAddModal add={addList} close={setAddingList} />}
       <ListTab {...{lists}} onSelect={i=>setCurrentListIndex(i)} />
       <FlatList
         data={current_list.tasks}
