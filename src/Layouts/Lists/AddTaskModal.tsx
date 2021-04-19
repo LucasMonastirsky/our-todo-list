@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
+import { API } from '../../App'
 import { AppButton, AppInputMin, AppModal } from '../../Components'
 import { Task } from '../../Models'
 import { colors, style } from '../../Styling'
@@ -15,8 +16,10 @@ const default_task = new Task({
 const AddTaskModal = (props: {onAdd: (task: Task)=>any, close: AppModal.Close}) => {
   const [task, setTask] = useState(default_task)
 
-  const addTask = () => {
-    props.onAdd(task)
+  const addTask = async () => {
+    const user = await API.getCurrentUser()
+    const final_task = {...task, creator_id: user.id}
+    props.onAdd(final_task)
     props.close(false)
   }
 

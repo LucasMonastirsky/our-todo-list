@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, TouchableOpacity, StyleSheet, Animated } from 'react-native'
+import { TouchableOpacity, StyleSheet, Animated } from 'react-native'
 import { Task } from '../../Models'
 import { colors, style } from '../../Styling'
 import TaskModal from './TaskModal'
