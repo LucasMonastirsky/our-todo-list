@@ -2,7 +2,7 @@ import React from 'react'
 import { Modal, StyleSheet, TouchableWithoutFeedback, View } from 'react-native'
 import { colors } from '../Styling'
 
-export default (props: {children: any, close: (value: boolean)=>any}) => {
+const AppModal = (props: {children: any, close: (value: boolean)=>any}) => {
   const close = () => props.close(false)
 
   return (
@@ -25,3 +25,8 @@ const css = StyleSheet.create({
     flex: 1,
   },
 })
+
+export default AppModal
+module AppModal {
+  export type Close = (value: boolean) => any
+}

@@ -1,20 +1,30 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { AppInputMin, AppModal, AppText } from '../../Components'
+import { AppButton, AppInputMin, AppModal, AppText } from '../../Components'
 import { TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
 import { screen } from '../../Utils'
 
-export default ({list, close}: {list: TodoList, close: ()=>any}) => {
+export default (props: {list: TodoList, editList: (list: TodoList)=>any, close: AppModal.Close}) => {
+  const [list, setList] = useState(props.list)
+
+  const save = () => {
+    props.editList(list)
+    props.close(false)
+  }
+
   return (
-    <AppModal {...{close}}>
+    <AppModal close={props.close}>
       <View style={css.container}>
-        <AppInputMin style={css.title} defaultValue={list.title} onChangeText={()=>{}} />
+        <AppInputMin style={css.title} defaultValue={list.title}
+          onChangeText={title=>setList({...list, title})} />
         <Spacing />
-        <AppInputMin style={css.description} defaultValue={list.description} multiline onChangeText={()=>{}} />
+        <AppInputMin style={css.description} defaultValue={list.description} multiline
+          onChangeText={description=>setList({...list, description})} />
         <Spacing />
         <AppText style={css.members_title}>Members:</AppText>
         {list.member_ids.map(id => <AppText>{id}</AppText>)}
+        <AppButton style={{marginLeft: 'auto'}} label='Done' onPress={save} />
       </View>
     </AppModal>
   )

@@ -5,7 +5,7 @@ import { Task } from '../../Models'
 import { colors, style } from '../../Styling'
 import { formatDate } from '../../Utils'
 
-const TaskModal = (props: { task: Task, close: ()=>void }) => {
+const TaskModal = (props: { task: Task, close: AppModal.Close }) => {
   const { task } = props
 
   return (

@@ -104,6 +104,12 @@ const ListLayout = (props: LayoutProps) => {
     setLists([...lists, list])
   }
 
+  const updateList = (list: TodoList) => {
+    const new_lists = lists
+    new_lists.splice(current_list_index, 1, list)
+    setLists(new_lists)
+  }
+
   useEffect(() => {
     if (props.active) Navigation.header = () => {
       const Icon = ({source, onPress}: {source: ImageSourcePropType, onPress: ()=>any}) => (
@@ -125,7 +131,7 @@ const ListLayout = (props: LayoutProps) => {
   return (
     <View style={css.container}>
       {adding_task && <AddTaskModal onAdd={addTask} close={()=>setAddingTask(false)} />}
-      {editting && <ListEditModal list={current_list} close={()=>setEditting(false)} />}
+      {editting && <ListEditModal list={current_list} editList={updateList} close={()=>setEditting(false)} />}
       {adding_list && <ListAddModal add={addList} close={setAddingList} />}
       <ListTab {...{lists}} onSelect={i=>setCurrentListIndex(i)} />
       <FlatList

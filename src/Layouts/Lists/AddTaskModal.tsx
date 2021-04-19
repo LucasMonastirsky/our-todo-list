@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { Modal, StyleSheet, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native'
-import { AppButton, AppInputMin, AppModal, AppText } from '../../Components'
+import { StyleSheet, View } from 'react-native'
+import { AppButton, AppInputMin, AppModal } from '../../Components'
 import { Task } from '../../Models'
 import { colors, style } from '../../Styling'
 import { screen } from '../../Utils'
@@ -12,12 +12,12 @@ const default_task = new Task({
   position: 0,
 })
 
-const AddTaskModal = (props: {onAdd: (task: Task)=>any, close: ()=>any}) => {
+const AddTaskModal = (props: {onAdd: (task: Task)=>any, close: AppModal.Close}) => {
   const [task, setTask] = useState(default_task)
 
   const addTask = () => {
     props.onAdd(task)
-    props.close()
+    props.close(false)
   }
 
   return (
@@ -38,8 +38,6 @@ const AddTaskModal = (props: {onAdd: (task: Task)=>any, close: ()=>any}) => {
 
 const css = StyleSheet.create({
   container: {
-    // flex: 1,
-    // width: 'auto',
     marginHorizontal: screen.width / 10,
     backgroundColor: colors.main,
     padding: style.padding,

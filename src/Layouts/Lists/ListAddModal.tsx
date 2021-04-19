@@ -5,7 +5,7 @@ import { TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
 import { screen } from '../../Utils'
 
-export default (props: {add: (list: TodoList)=>any, close: (value: boolean)=>any}) => {
+export default (props: {add: (list: TodoList)=>any, close: AppModal.Close}) => {
   const [list, setList] = useState(new TodoList({id: '0', member_ids: ['0']}))
 
   const addList = () => {
