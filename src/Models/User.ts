@@ -1,7 +1,7 @@
 import { TodoList } from "."
 
 type User = {
-  name: string,
+  username: string,
   id: string,
 
   getLists: () => Promise<TodoList[]>,

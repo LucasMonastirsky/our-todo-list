@@ -10,18 +10,6 @@ Amplify.configure(amplify_config)
 
 export default class API {
   private static dynamo_client =  new AWS.DynamoDB.DocumentClient()
-  static test = async () => {
-    API.dynamo_client.put({
-      TableName: 'Users',
-      Item: {
-        id: 'test_id',
-        username: 'test_username',
-      }
-    }, (error, data) => {
-      if (error) console.log(error)
-      else console.log(data)
-    })
-  }
 
   private static _user?: User
   static get user() { return API._user! }
@@ -51,9 +39,14 @@ export default class API {
     }
   }
 
+  private static pending_registration_user?: { username: string, id: string }
   static registerUser = async (username: string, password: string, email: string) => {
     try {
-      await Auth.signUp({username, password, attributes: { email }})
+      const result = await Auth.signUp({username, password, attributes: { email }})
+      API.pending_registration_user = {
+        username: result.user.getUsername(),
+        id: result.userSub,
+      }
     }
     catch (error) {
       console.error('Error while registering user: ', error)
@@ -63,7 +56,22 @@ export default class API {
 
   static confirmUser = async (username: string, confirmation_code: string) => {
     try {
-      await Auth.confirmSignUp(username, confirmation_code)
+      console.log('signUp return: ', await Auth.confirmSignUp(username, confirmation_code))
+
+      if (!API.pending_registration_user)
+        throw 'No user pending registration in API'
+      if (API.pending_registration_user.username !== username)
+        throw 'User pending registration differs from requested user'
+
+      await API.dynamo_client.put({
+        TableName: 'Users',
+        Item: {
+          username: API.pending_registration_user.username,
+          id: API.pending_registration_user.id,
+        }
+      })
+
+      API.pending_registration_user = undefined
     }
     catch (error) {
       console.error('Error while confirming new user: ', error)
@@ -84,7 +92,7 @@ export default class API {
 
 const mapUser = (cognito_user: CognitoUserObject): User => {
   return {
-    name: cognito_user.username,
+    username: cognito_user.username,
     id: cognito_user.attributes.sub,
     getLists: async () => mock_lists
   }
