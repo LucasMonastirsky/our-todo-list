@@ -1,16 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Animated, BackHandler, StyleSheet, View } from 'react-native'
-import { Navigation } from '.';
+import { API, Navigation } from '.';
 import { AppDrawer } from '../Components';
 import { AuthenticationLayout } from '../Layouts';
 import { Layout } from '../Layouts/types';
 import { colors, style } from '../Styling';
 import { createAnimation, screen, useAsyncState } from '../Utils';
-
-import Amplify, { Auth } from 'aws-amplify'
-import { amplify_config } from '../Config'
-
-Amplify.configure(amplify_config)
 
 const App = () => {
   const [active_layout_index, setActiveLayoutIndex] = useState(0)
@@ -41,7 +36,7 @@ const App = () => {
   //#endregion
 
   const signOut = async () => {
-    await Auth.signOut()
+    await API.signOut()
     setLoggedIn(false)
   }
 

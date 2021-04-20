@@ -1,14 +1,84 @@
 import Auth from "@aws-amplify/auth"
+import Amplify from 'aws-amplify'
 import { TodoList, Task } from "../Models"
 import User from "../Models/User"
 import AWS from 'aws-sdk'
-import { aws_sdk_config } from '../Secrets'
+import { amplify_config, aws_sdk_config } from '../Secrets'
 
 AWS.config.update(aws_sdk_config)
+Amplify.configure(amplify_config)
 
 export default class API {
-  static getCurrentUser = async () => {
-    return mapUser(await Auth.currentAuthenticatedUser())
+  private static dynamo_client =  new AWS.DynamoDB.DocumentClient()
+  static test = async () => {
+    API.dynamo_client.put({
+      TableName: 'Users',
+      Item: {
+        id: 'test_id',
+        username: 'test_username',
+      }
+    }, (error, data) => {
+      if (error) console.log(error)
+      else console.log(data)
+    })
+  }
+
+  private static _user?: User
+  static get user() { return API._user! }
+
+  static continuePreviousSession = async () => {
+    API._user = mapUser(await Auth.currentAuthenticatedUser())
+  }
+
+  static signIn = async (username: string, password: string) => {
+    try {
+      await Auth.signIn(username, password)
+      API._user = mapUser(await Auth.currentAuthenticatedUser())
+    }
+    catch (error) {
+      console.log('Error while signing in: ', error)
+      throw error.message ?? 'Unknown error'
+    }
+  }
+
+  static signOut = async () => {
+    try {
+      await Auth.signOut()
+    }
+    catch (error) {
+      console.log('Error while signing out: ', error)
+      throw error.message ?? 'Unknown error'
+    }
+  }
+
+  static registerUser = async (username: string, password: string, email: string) => {
+    try {
+      await Auth.signUp({username, password, attributes: { email }})
+    }
+    catch (error) {
+      console.error('Error while registering user: ', error)
+      throw {message: error.message ?? 'Unknown error'}
+    }
+  }
+
+  static confirmUser = async (username: string, confirmation_code: string) => {
+    try {
+      await Auth.confirmSignUp(username, confirmation_code)
+    }
+    catch (error) {
+      console.error('Error while confirming new user: ', error)
+      throw error.message ?? 'Unknown error'
+    }
+  }
+
+  static resendConfirmationCode = async (username: string) => {
+    try {
+      await Auth.resendSignUp(username)
+    }
+    catch (error) {
+      console.error('Error while resending confirmation code: ', error)
+      throw error.message ?? 'Unknown error'
+    }
   }
 }
 

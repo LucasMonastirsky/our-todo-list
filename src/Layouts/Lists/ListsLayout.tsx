@@ -23,11 +23,9 @@ const ListLayout = (props: LayoutProps) => {
   const current_list = lists[current_list_index]
 
   useEffect(()=>{ // get lists
-    API.getCurrentUser().then(user => {
-      user.getLists().then(user_lists => {
-        setLists(user_lists)
-        setGettingLists(false)
-      })
+    API.user.getLists().then(user_lists => {
+      setLists(user_lists)
+      setGettingLists(false)
     })
   }, [])
 

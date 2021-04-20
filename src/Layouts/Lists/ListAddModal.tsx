@@ -1,16 +1,16 @@
 import React, { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
-import api from '../../App/api'
 import { AppButton, AppInputMin, AppModal } from '../../Components'
 import { TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
 import { screen } from '../../Utils'
+import { API } from '../../App'
 
 export default (props: {add: (list: TodoList)=>any, close: AppModal.Close}) => {
   const [list, setList] = useState(new TodoList({id: 'undefined', member_ids: []}))
 
   const addList = async () => {
-    const user = await api.getCurrentUser()
+    const user = API.user
     const final_list = {...list, member_ids: [user.id]}
     props.add(final_list)
     props.close(false)

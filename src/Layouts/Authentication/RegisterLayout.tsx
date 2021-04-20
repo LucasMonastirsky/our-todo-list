@@ -5,6 +5,7 @@ import { colors, style } from '../../Styling'
 import { screen } from '../../Utils'
 import { LayoutProps } from '../types'
 import { Auth } from 'aws-amplify'
+import { API } from '../../App'
 
 const USERNAME_MIN_LENGTH = 3
 const PASSWORD_MIN_LENGTH = 8
@@ -58,23 +59,10 @@ const RegisterLayout = (props: LayoutProps & {onCancel: ()=>any, onRegister: (us
       return setAlert(`Password must be longer than ${PASSWORD_MIN_LENGTH} characters`)
 
     setLoading(true)
-    const result = await Auth.signUp({
-      username, password,
-      attributes: {
-        email,
-      }
-    }).catch((error: {code: string, message: string}) => {
-      console.log(error)
-      setAlert({
-        UsernameExistsException: 'Username already exists',
-      }[error.code]
-      ??'Unknown error')
-    })
-    setLoading(false)
-
-    if (result) {
-      setPhase('confirming')
-    }
+    API.registerUser(username, password, email)
+      .then(() => setPhase('confirming'))
+      .catch(error => setAlert(error.message))
+      .finally(() => setLoading(false))
   }
 
   const confirmUser = async () => {
@@ -82,17 +70,16 @@ const RegisterLayout = (props: LayoutProps & {onCancel: ()=>any, onRegister: (us
       return setAlert('Confirmation code must be 6 characters long')
     
     setLoading(true)
-    const result = await Auth.confirmSignUp(username, confirmation_code)
-      .catch((reason: {message: string})=>{
-        setAlert(reason.message)
-    })
 
-    if (result) {
-      await Auth.signIn(username, password)
-      props.onRegister(username)
-    }
-
-    setLoading(false)
+    API.confirmUser(username, confirmation_code)
+      .then(() => {
+        API.signIn(username, password)
+          .then(() => props.onRegister(username))
+      })
+      .catch(message => {
+        setAlert(message)
+        setLoading(false)
+      })
   }
 
   const resendConfirmationCode = async () => {

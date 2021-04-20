@@ -1,4 +1,3 @@
-import { Auth } from 'aws-amplify'
 import React, { useEffect, useState } from 'react'
 import { Animated, View } from 'react-native'
 import LoginLayout from './LoginLayout'
@@ -6,6 +5,7 @@ import RegisterLayout from './RegisterLayout'
 import { style } from '../../Styling'
 import { useAsyncState, createAnimation, screen } from '../../Utils'
 import { Loading } from '../../Components'
+import { API } from '../../App'
 
 const AuthenticationLayout = (props: {onLoggedIn: ()=>any}) => {
   const [login_state, getLoginState, setLoginState] = useAsyncState<'login'|'register'|'confirm'|null>('login')
@@ -16,18 +16,14 @@ const AuthenticationLayout = (props: {onLoggedIn: ()=>any}) => {
     condition: login_state,
   })
 
-  useEffect(() => {(async () => {
-    try {
-      // if there's a session, we just skip this component
-      console.log(await Auth.currentSession())
-      props.onLoggedIn()
-    }
-    catch (error) {
-      // if there's no session, we just render the sign in screen
-      console.log(`${error}, proceeding to login layout`)
-      setLoading(false)
-    }
-  })()}, [])
+  useEffect(() => {
+    API.continuePreviousSession()
+      .then(() => props.onLoggedIn())
+      .catch(error => {
+        console.log(`${error}, proceeding to login layout`)
+        setLoading(false)
+      })
+  }, [])
 
   if (loading)
     return <View style={{}}><Loading /></View>
