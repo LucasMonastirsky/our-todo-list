@@ -4,7 +4,9 @@ This project consists of a minimalist React Native app where one can manage shar
 
 ## How to Run
 
-This application currently uses AWS Cognito for user authentication, and AWS Dynamo DB for storage. As such, a configuration file needs to be created with the necessary credentials. Under the `src` folder, create a file named `Secrets.ts`. Inside the file, two objects need to be exported; see the following example:
+If you'd like to run the application without configuring AWS, you can replace the file `src/App/API.ts` with the file `src/App/API_Mock.ts`. This will mock any API interactions, so that the application can be tested without needing any external services.
+
+If you'd like to run the full application, an AWS account with a Cognito User Pool and DynamoDB service is needed, and a configuration file needs to be created with the necessary credentials. Under the `src` folder, create a file named `Secrets.ts`. Inside the file, two objects need to be exported; see the following example:
 
     export const amplify_config = {
       aws_cognito_region: "", // The Cognito user pool's region (example: `us-east-2`)

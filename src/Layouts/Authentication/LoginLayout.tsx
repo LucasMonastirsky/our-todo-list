@@ -1,6 +1,6 @@
-import { Auth } from 'aws-amplify'
 import React, { useState } from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { API } from '../../App'
 import { AppButton, AppInput, AppText, Loading } from '../../Components'
 import { colors, style } from '../../Styling'
 import { screen } from '../../Utils'
@@ -15,9 +15,10 @@ const LoginLayout = (props: {onLogin: (username: string, password: string)=>any,
       return
 
     setLoading(true)
-    if (await Auth.signIn(username, password))
-      props.onLogin(username, password)
-    setLoading(false)
+    API.signIn(username, password)
+      .then(() => props.onLogin(username, password))
+      .catch(error => {})
+      .finally(() => setLoading(false))
   }
 
   if (loading)
