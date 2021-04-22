@@ -16,7 +16,8 @@
     "aws-sdk": "^2.889.0",
     "react": "17.0.1",
     "react-native": "0.64.0",
-    "react-native-drawer": "^2.5.1"
+    "react-native-drawer": "^2.5.1",
+    "react-native-uuid": "^2.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

@@ -7,12 +7,16 @@ import { screen } from '../../Utils'
 import { API } from '../../App'
 
 export default (props: {add: (list: TodoList)=>any, close: AppModal.Close}) => {
-  const [list, setList] = useState(new TodoList({id: 'undefined', member_ids: []}))
+  const [list, setList] = useState({
+    title: 'Untitled List',
+    description: '',
+    owner_id: '',
+  })
 
   const addList = async () => {
     const user = API.user
     const final_list = {...list, member_ids: [user.id]}
-    props.add(final_list)
+    props.add(await API.createTodoList(final_list))
     props.close(false)
   }
 
