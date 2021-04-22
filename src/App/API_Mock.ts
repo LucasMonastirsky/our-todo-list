@@ -16,36 +16,37 @@ export default class API {
   }
 
   private static lists: { [index: string]: TodoList[] } = {
-    '0': [
-      new TodoList({
+    '0': [{
         title: 'Household Tasks',
         description: 'Everything we need to do around the house!',
         id: '0',
-        member_ids: ['0'],
-        tasks: [
-          new Task({title: 'Wash Dishes', creator_id: 'Laura', id: '0', position: 0}),
-          new Task({title: 'Buy Tofu', creator_id: 'Josh', id: '1', position: 1, description: `The normal kind, not the flavoured kind, it's more expensive!`}),
-          new Task({title: 'Fill Hole in the Wall', creator_id: 'Laura', id: '2', position: 2}),
-          new Task({title: 'Take Dog for a Walk', creator_id: 'Laura', id: '3', position: 3}),
-          new Task({title: 'Develop App', creator_id: 'Josh', id: '4', position: 4, description: `Yes, this one.`}),
-          new Task({title: 'I Ran out of Ideas', creator_id: 'Laura', id: '5', position: 5}),
-        ]
-      }),
-      new TodoList({
+        member_ids: ['0', '1'],
+        owner_id: '0',
+        task_ids: ['0', '1', '2', '3', '4', '5']
+      },{
         title: 'Project Car',
         description: 'An absolute money it',
         id: '1',
-        member_ids: ['0'],
-        tasks: [
-          new Task({title: 'Buy new jack', creator_id: 'Laura', id: '12', position: 0}),
-          new Task({title: 'Fabricate brake adaptor plate', creator_id: 'Josh', id: '13', position: 1}),
-          new Task({title: 'Buy disc brakes', creator_id: 'Laura', id: '14', position: 2}),
-          new Task({title: 'Buy fuel tank', creator_id: 'Laura', id: '15', position: 3}),
-          new Task({title: 'Build control box', creator_id: 'Josh', id: '16', position: 4}),
-          new Task({title: 'Replace alternator', creator_id: 'Laura', id: '17', position: 5}),
-        ]
-      })
+        member_ids: ['0', '2'],
+        owner_id: '0',
+        task_ids: ['6', '7', '8', '9', '10', '11']
+      }
     ]
+  }
+
+  private static tasks: { [index: string]: Task} = {
+    '0': new Task({title: 'Wash Dishes', creator_id: 'Laura', id: '0', position: 0}),
+    '1': new Task({title: 'Buy Tofu', creator_id: 'Josh', id: '1', position: 1, description: `The normal kind, not the flavoured kind, it's more expensive!`}),
+    '2': new Task({title: 'Fill Hole in the Wall', creator_id: 'Laura', id: '2', position: 2}),
+    '3': new Task({title: 'Take Dog for a Walk', creator_id: 'Laura', id: '3', position: 3}),
+    '4': new Task({title: 'Develop App', creator_id: 'Josh', id: '4', position: 4, description: `Yes, this one.`}),
+    '5': new Task({title: 'I Ran out of Ideas', creator_id: 'Laura', id: '5', position: 5}),
+    '6': new Task({title: 'Buy new jack', creator_id: 'Laura', id: '6', position: 0}),
+    '7': new Task({title: 'Fabricate brake adaptor plate', creator_id: 'Josh', id: '7', position: 1}),
+    '8': new Task({title: 'Buy disc brakes', creator_id: 'Laura', id: '8', position: 2}),
+    '9': new Task({title: 'Buy fuel tank', creator_id: 'Laura', id: '9', position: 3}),
+    '10': new Task({title: 'Build control box', creator_id: 'Josh', id: '10', position: 4}),
+    '11': new Task({title: 'Replace alternator', creator_id: 'Laura', id: '11', position: 5}),
   }
   //#endregion
 
@@ -133,7 +134,8 @@ export default class API {
         description: 'placeholder',
         id: `${Math.random()*10}`,
         member_ids: [API.pending_registration_user.id],
-        tasks: []
+        owner_id: API.pending_registration_user.id,
+        task_ids: []
       }]
     }
     catch (error) {
