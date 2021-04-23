@@ -1,8 +1,10 @@
+import { Task } from '.'
+
 type TodoList = {
   title: string
   description: string
   id: string
-  task_ids: string[]
+  tasks: Task[]
   member_ids: string[]
   owner_id: string,
 }

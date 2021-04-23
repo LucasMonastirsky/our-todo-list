@@ -23,8 +23,8 @@ const ListLayout = (props: LayoutProps) => {
   const current_list = lists[current_list_index]
 
   useEffect(()=>{ // get lists
-    API.user.getLists().then(user_lists => {
-      setLists(user_lists)
+    API.getListsFrom(API.user).then(result => {
+      setLists(result)
       setGettingLists(false)
     })
   }, [])
@@ -79,7 +79,7 @@ const ListLayout = (props: LayoutProps) => {
 
   else return (
     <View style={css.container}>
-      {adding_task && <AddTaskModal onAdd={addTask} close={()=>setAddingTask(false)} />}
+      {adding_task && <AddTaskModal list={current_list} onAdd={addTask} close={()=>setAddingTask(false)} />}
       {editting && <ListEditModal list={current_list} editList={updateList} close={()=>setEditting(false)} />}
       {adding_list && <ListAddModal add={addList} close={setAddingList} />}
       <ListTab {...{lists}} onSelect={i=>setCurrentListIndex(i)} />

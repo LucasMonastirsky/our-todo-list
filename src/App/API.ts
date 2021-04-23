@@ -1,6 +1,6 @@
 import Auth from "@aws-amplify/auth"
 import Amplify from 'aws-amplify'
-import { TodoList  } from "../Models"
+import { Task, TASK_STATUS, TodoList  } from "../Models"
 import User from "../Models/User"
 import AWS from 'aws-sdk'
 import { amplify_config, aws_sdk_config } from '../Secrets'
@@ -95,6 +95,15 @@ export default class API {
   //#endregion
 
   //#region Storage
+  static getListsFrom = async (user: User) => {
+    const result = await (API.dynamo_client.query({
+      TableName: 'Lists',
+      KeyConditionExpression: 'owner_id = :owner_id',
+      ExpressionAttributeValues: { ':owner_id': user.id }
+    }).promise())
+    return result.Items as TodoList[]
+  }
+
   static createTodoList = async (properties: {
     title: string,
     description: string,
@@ -103,7 +112,7 @@ export default class API {
     const list: TodoList = {
       ...properties,
       member_ids: [properties.owner_id],
-      task_ids: [],
+      tasks: [],
       id: uuid()
     }
 
@@ -116,21 +125,47 @@ export default class API {
 
     return list
   }
+
+  static createTask = async (list: TodoList, properties: {
+    title: string,
+    description?: string,
+  }) => {
+    const task: Task = {
+      title: properties.title,
+      description: properties.description ?? '',
+      id: uuid(),
+      creator_id: API.user.id,
+      creation_date: Date.now(),
+      status: TASK_STATUS.PENDING,
+      position: 0,
+    }
+    await API.dynamo_client.update({
+      TableName: 'Lists',
+      Key: {
+        owner_id: list.owner_id,
+        id: list.id,
+      },
+      UpdateExpression: 'SET #tasks = list_append(#tasks, :new_task)',
+      ExpressionAttributeNames: {
+        '#tasks': 'tasks',
+      },
+      ExpressionAttributeValues: {
+        ':new_task': [task],
+      },
+    }, (err, data) => console.log(err, '\n', data))
+  }
   //#endregion
 }
 
 const mapUser = (cognito_user: CognitoUserObject): User => {
-  return {
+  const user = {
     username: cognito_user.username,
     id: cognito_user.attributes.sub,
-    getLists: async () => [{
-      title: 'undefined',
-      id: '0',
-      description: '',
-      member_ids: ['0'],
-      task_ids: [],
-      owner_id: '0'
-    }]
+    getLists: async () => ([])
+  }
+  return {
+    ...user,
+    getLists: async () => API.getListsFrom(user)
   }
 }
 

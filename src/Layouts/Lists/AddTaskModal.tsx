@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { API } from '../../App'
 import { AppButton, AppInputMin, AppModal } from '../../Components'
-import { Task } from '../../Models'
+import { Task, TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
 import { screen } from '../../Utils'
 
@@ -13,12 +13,13 @@ const default_task = new Task({
   position: 0,
 })
 
-const AddTaskModal = (props: {onAdd: (task: Task)=>any, close: AppModal.Close}) => {
+const AddTaskModal = (props: {list: TodoList, onAdd: (task: Task)=>any, close: AppModal.Close}) => {
   const [task, setTask] = useState(default_task)
 
   const addTask = async () => {
-    const user = await API.getCurrentUser()
+    const user = API.user
     const final_task = {...task, creator_id: user.id}
+    await API.createTask(props.list, {...final_task})
     props.onAdd(final_task)
     props.close(false)
   }

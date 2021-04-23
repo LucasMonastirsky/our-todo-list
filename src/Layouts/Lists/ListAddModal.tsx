@@ -10,7 +10,7 @@ export default (props: {add: (list: TodoList)=>any, close: AppModal.Close}) => {
   const [list, setList] = useState({
     title: 'Untitled List',
     description: '',
-    owner_id: '',
+    owner_id: API.user.id,
   })
 
   const addList = async () => {
