@@ -1,70 +1,82 @@
 import React, { useState } from 'react'
-import { View, FlatList, StyleSheet, Dimensions, Text } from 'react-native'
+import { View, StyleSheet, ScrollView } from 'react-native'
 import { AppText } from '../../Components'
 import { TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
+import { screen } from '../../Utils'
 
 const ListTab = (props: { lists: TodoList[], onSelect: (index: number)=>void, onPress?: ()=>void }) => {
-  const [selected_index, setIndex] = useState(0)
-  const [item_widths, setItemWidths] = useState([0])
-  const [item_offsets, setItemOffsets] = useState([0])
+  const [selected_index, _setSelectedIndex] = useState(0)
+  const [positions, setPositions] = useState<number[]>([])
+  const [widths, setWidths] = useState<number[]>([])
+  const [offset_start, setOffsetStart] = useState(0)
+  const [offset_end, setOffsetEnd] = useState(0)
 
-  const onScroll = (pos: number) => {
-    let new_index = selected_index
-    pos += 1 // this avoids bugs caused by rounding
+  const setSelectedIndex = (new_index: number) => {
+    _setSelectedIndex(new_index)
+    props.onSelect(new_index)
+  }
 
-    if (pos > item_offsets[selected_index])
-      new_index++
-    if (pos < item_offsets[selected_index-1])
-      new_index--
+  const onScroll = (event: { nativeEvent: { contentOffset: { x: number } } }) => {
+    const pos = event.nativeEvent.contentOffset.x + 1
+    let selection = 0
+    offsets.forEach((item_pos, index) => {
+      if (pos > item_pos)
+        selection = index
+    })
+    setSelectedIndex(selection)
+    console.log(`${selection}: ${pos}`)
+  }
 
-    if (new_index !== selected_index) {
-      setIndex(new_index)
-      props.onSelect(new_index)
+  const tabs = props.lists.map((list, index) => {
+    const onLayout = (event: any) => {
+      const width = event.nativeEvent.layout.width
+      setWidths(arr => {
+        const new_arr = [...arr]
+        new_arr.splice(index, 1, width)
+        return new_arr
+      })
+      setPositions(arr => {
+        const new_arr = [...arr]
+        const offset = (new_arr[index-1] ?? offset_start) + width
+        new_arr.splice(index, 1, offset)
+        return new_arr
+      })
+
+      if (index === 0)
+        setOffsetStart((screen.width - width) / 2)
+      if (index === props.lists.length - 1)
+        setOffsetEnd((screen.width - width) / 2)
     }
-  }
 
-  const setItemWidth = (index: number, width: number) => {
-    const new_item_widths = [...item_widths]
-    new_item_widths[index] = width
-    setItemWidths(new_item_widths)
-  }
-
-  const setItemOffset = (index: number, width: number) => {
-    const new_item_offsets = [...item_offsets]
-    new_item_offsets[index] = (new_item_offsets[index-1]??0) + width
-    setItemOffsets(new_item_offsets)
-    setItemWidth(index, width)
-  }
-
-  const renderItem = ({item, index}: {item: any, index: number})=>{
-    const selected = selected_index === index
     return (
-      <View style={[css.item, selected && css.item_selected]} onLayout={({nativeEvent})=>setItemOffset(index, nativeEvent.layout.width)}>
-        <AppText style={[css.item_text, selected && css.item_text_selected]}>
-          {item.title}
+      <View style={[css.item, (selected_index === index ? css.item_selected : {})]} {...{onLayout}}>
+        <AppText style={[css.item_text, (selected_index === index ? css.item_text_selected : {})]}>
+          {list.title}
         </AppText>
       </View>
-  )}
+    )
+  })
 
-  const calculateHeader = () => (Dimensions.get('window').width - item_offsets[0]) / 2
-  const calculateFooter = () => (Dimensions.get('window').width - item_widths[item_widths.length-1]) / 2
+  const offsets = positions.map((value, index) => {
+    if (index === 0) return 0
+    return positions[index-1] - ((screen.width - widths[index]) / 2)
+  })
+
+  console.log('-------')
+  console.log(`Offsets: ${~~offset_start}:${~~offset_end}`)
+  console.log(`Screen: ${~~screen.width}`)
+  console.log(`Positions: ${positions.map(x=>~~x)}`)
+  console.log(`Widths: ${widths.map(x=>~~x)}`)
+  console.log(`Offsets: ${offsets.map(x=>~~x)}`)
 
   return (
     <View style={css.container}>
-      <FlatList
-        data={props.lists}
-        {...{renderItem}}
-        showsHorizontalScrollIndicator={false}
-        ListHeaderComponent={()=><View style={{width: calculateHeader()}} />}
-        ListFooterComponent={()=><View style={{width: calculateFooter()}} />}
-        snapToOffsets={[0, ...item_offsets]}
-        snapToStart={false}
-        snapToEnd={false}
-        horizontal
-        onScroll={({nativeEvent})=>{onScroll(nativeEvent.contentOffset.x)}}
-        // might not work on iOS: https://stackoverflow.com/questions/29503252/get-current-scroll-position-of-scrollview-in-react-native
-      />
+      <ScrollView horizontal {...{onScroll}} snapToOffsets={offsets}>
+        <View style={{width: offset_start}} />
+        {tabs}
+        <View style={{width: offset_end}} />
+      </ScrollView>
     </View>
   )
 }
