@@ -1,4 +1,4 @@
-import { TodoList, Task } from "../Models"
+import { TodoList, Task, TASK_STATUS } from "../Models"
 import User from "../Models/User"
 
 export default class API {
@@ -22,31 +22,30 @@ export default class API {
         id: '0',
         member_ids: ['0', '1'],
         owner_id: '0',
-        task_ids: ['0', '1', '2', '3', '4', '5']
+        tasks: [
+          new Task({title: 'Wash Dishes', creator_id: 'Laura', id: '0', position: 0}),
+          new Task({title: 'Buy Tofu', creator_id: 'Josh', id: '1', position: 1, description: `The normal kind, not the flavoured kind, it's more expensive!`}),
+          new Task({title: 'Fill Hole in the Wall', creator_id: 'Laura', id: '2', position: 2}),
+          new Task({title: 'Take Dog for a Walk', creator_id: 'Laura', id: '3', position: 3}),
+          new Task({title: 'Develop App', creator_id: 'Josh', id: '4', position: 4, description: `Yes, this one.`}),
+          new Task({title: 'I Ran out of Ideas', creator_id: 'Laura', id: '5', position: 5}),
+        ]
       },{
         title: 'Project Car',
         description: 'An absolute money it',
         id: '1',
         member_ids: ['0', '2'],
         owner_id: '0',
-        task_ids: ['6', '7', '8', '9', '10', '11']
+        tasks: [
+          new Task({title: 'Buy new jack', creator_id: 'Laura', id: '6', position: 0}),
+          new Task({title: 'Fabricate brake adaptor plate', creator_id: 'Josh', id: '7', position: 1}),
+          new Task({title: 'Buy disc brakes', creator_id: 'Laura', id: '8', position: 2}),
+          new Task({title: 'Buy fuel tank', creator_id: 'Laura', id: '9', position: 3}),
+          new Task({title: 'Build control box', creator_id: 'Josh', id: '10', position: 4}),
+          new Task({title: 'Replace alternator', creator_id: 'Laura', id: '11', position: 5}),
+        ]
       }
     ]
-  }
-
-  private static tasks: { [index: string]: Task} = {
-    '0': new Task({title: 'Wash Dishes', creator_id: 'Laura', id: '0', position: 0}),
-    '1': new Task({title: 'Buy Tofu', creator_id: 'Josh', id: '1', position: 1, description: `The normal kind, not the flavoured kind, it's more expensive!`}),
-    '2': new Task({title: 'Fill Hole in the Wall', creator_id: 'Laura', id: '2', position: 2}),
-    '3': new Task({title: 'Take Dog for a Walk', creator_id: 'Laura', id: '3', position: 3}),
-    '4': new Task({title: 'Develop App', creator_id: 'Josh', id: '4', position: 4, description: `Yes, this one.`}),
-    '5': new Task({title: 'I Ran out of Ideas', creator_id: 'Laura', id: '5', position: 5}),
-    '6': new Task({title: 'Buy new jack', creator_id: 'Laura', id: '6', position: 0}),
-    '7': new Task({title: 'Fabricate brake adaptor plate', creator_id: 'Josh', id: '7', position: 1}),
-    '8': new Task({title: 'Buy disc brakes', creator_id: 'Laura', id: '8', position: 2}),
-    '9': new Task({title: 'Buy fuel tank', creator_id: 'Laura', id: '9', position: 3}),
-    '10': new Task({title: 'Build control box', creator_id: 'Josh', id: '10', position: 4}),
-    '11': new Task({title: 'Replace alternator', creator_id: 'Laura', id: '11', position: 5}),
   }
   //#endregion
 
@@ -135,7 +134,7 @@ export default class API {
         id: `${Math.random()*10}`,
         member_ids: [API.pending_registration_user.id],
         owner_id: API.pending_registration_user.id,
-        task_ids: []
+        tasks: []
       }]
     }
     catch (error) {
@@ -158,4 +157,44 @@ export default class API {
       throw error.message ?? 'Unknown error'
     }
   }
+
+  //#region Storage
+  static getListsFrom = async (user: User) => {
+    return API.lists[user.id]
+  }
+
+  static createTodoList = async (properties: {
+    title: string,
+    description: string,
+    owner_id: string,
+  }) => {
+    const list: TodoList = {
+      title: properties.title,
+      description: properties.description,
+      owner_id: properties.owner_id,
+      id: `${API.lists[properties.owner_id].length}`,
+      tasks: [],
+      member_ids: [properties.owner_id],
+    }
+    API.lists[properties.owner_id].push(list)
+    return list
+  }
+
+  static createTask = async (list: TodoList, properties: {
+    title: string,
+    description?: string,
+  }) => {
+    const task: Task = {
+      title: properties.title,
+      description: properties.description ?? '',
+      status: TASK_STATUS.PENDING,
+      id: `${list.tasks.length}`,
+      creator_id: API.user.id,
+      creation_date: Date.now(),
+      position: list.tasks.length,
+    }
+    API.lists[list.owner_id].find(x => x.id === list.id)?.tasks.push(task)
+    return task
+  }
+  //#endregion
 }

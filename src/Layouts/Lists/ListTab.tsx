@@ -25,7 +25,6 @@ const ListTab = (props: { lists: TodoList[], onSelect: (index: number)=>void, on
         selection = index
     })
     setSelectedIndex(selection)
-    console.log(`${selection}: ${pos}`)
   }
 
   const tabs = props.lists.map((list, index) => {
