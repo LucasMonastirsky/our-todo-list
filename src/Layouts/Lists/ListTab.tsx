@@ -63,13 +63,6 @@ const ListTab = (props: { lists: TodoList[], onSelect: (index: number)=>void, on
     return positions[index-1] - ((screen.width - widths[index]) / 2)
   })
 
-  console.log('-------')
-  console.log(`Offsets: ${~~offset_start}:${~~offset_end}`)
-  console.log(`Screen: ${~~screen.width}`)
-  console.log(`Positions: ${positions.map(x=>~~x)}`)
-  console.log(`Widths: ${widths.map(x=>~~x)}`)
-  console.log(`Offsets: ${offsets.map(x=>~~x)}`)
-
   return (
     <View style={css.container}>
       <ScrollView horizontal {...{onScroll}} snapToOffsets={offsets}>
