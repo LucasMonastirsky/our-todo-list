@@ -1,7 +1,9 @@
+import { IAPI } from "."
 import { TodoList, Task, TASK_STATUS } from "../Models"
 import User from "../Models/User"
 
-export default class API {
+let API: IAPI
+API = class API {
   //#region Mock Storage
   private static users: {[index: string]: User} = {
     '0': {
@@ -198,3 +200,5 @@ export default class API {
   }
   //#endregion
 }
+
+export default API

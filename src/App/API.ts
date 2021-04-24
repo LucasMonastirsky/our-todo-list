@@ -5,13 +5,15 @@ import User from "../Models/User"
 import AWS from 'aws-sdk'
 import { amplify_config, aws_sdk_config } from '../Secrets'
 import {default as react_native_uuid } from 'react-native-uuid'
+import { IAPI } from '.'
 
 AWS.config.update(aws_sdk_config)
 Amplify.configure(amplify_config)
 
 const uuid = () => `${react_native_uuid.v4()}`
 
-export default class API {
+let API: IAPI
+API = class API {
   private static dynamo_client =  new AWS.DynamoDB.DocumentClient()
 
   //#region Auth
@@ -153,6 +155,7 @@ export default class API {
         ':new_task': [task],
       },
     }, (err, data) => console.log(err, '\n', data))
+    return task
   }
   //#endregion
 }
@@ -175,3 +178,5 @@ type CognitoUserObject = {
     sub: string,
   }
 }
+
+export default API
