@@ -1,18 +1,38 @@
-import React from 'react'
-import { Modal, StyleSheet, TouchableWithoutFeedback, View } from 'react-native'
+import React, { useState } from 'react'
+import { Modal, StyleSheet, TouchableWithoutFeedback, Animated } from 'react-native'
 import { colors } from '../Styling'
+import { createAnimation } from '../Utils'
 
 const AppModal = (props: {children: any, close: (value: boolean)=>any, clear?: boolean}) => {
-  const close = () => props.close(false)
+  const [active, setActive] = useState(true)
+
+  const close = () => {
+    setActive(false)
+  }
+
+  const fade_animation = createAnimation({
+    from: 1 - +active,
+    to: +active,
+    condition: active,
+    onDone: () => {
+      if (!active)
+        props.close(false)
+    }
+  })
+
+  const fade_style = {
+    backgroundColor: props.clear ?  '#00000000' : '#000000aa',
+    opacity: fade_animation,
+  }
 
   return (
     <Modal transparent onRequestClose={close}>
       <TouchableWithoutFeedback onPress={close}>
-        <View style={[css.centered, { backgroundColor: props.clear ?  '#00000000' : colors.faded}]}>
+        <Animated.View style={[css.centered, fade_style]}>
           <TouchableWithoutFeedback>
             {props.children}
           </TouchableWithoutFeedback>
-        </View>
+        </Animated.View>
       </TouchableWithoutFeedback>
     </Modal>
   )
