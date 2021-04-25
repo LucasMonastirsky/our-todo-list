@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
+import { API } from '../../App'
 import { AppButton, AppInputMin, AppModal, AppText } from '../../Components'
-import { TodoList } from '../../Models'
+import { TodoList, User } from '../../Models'
 import { colors, style } from '../../Styling'
 import { screen } from '../../Utils'
 
@@ -11,6 +12,18 @@ export default (props: {list: TodoList, editList: (list: TodoList)=>any, close: 
   const save = () => {
     props.editList(list)
     props.close(false)
+  }
+
+  const MemberItem = (props: {id: string}) => {
+    const [user, setUser] = useState<User>()
+
+    useEffect(() => {
+      (async () => setUser(await API.getCachedUser(props.id)))()
+    }, [])
+
+    return (
+      <AppText>{user?.username ?? 'loading...'}</AppText>
+    )
   }
 
   return (
@@ -23,7 +36,7 @@ export default (props: {list: TodoList, editList: (list: TodoList)=>any, close: 
           onChangeText={description=>setList({...list, description})} />
         <Spacing />
         <AppText style={css.members_title}>Members:</AppText>
-        {list.member_ids.map(id => <AppText>{id}</AppText>)}
+        {list.member_ids.map(id => <MemberItem {...{id}} />)}
         <AppButton style={{marginLeft: 'auto'}} label='Done' onPress={save} />
       </View>
     </AppModal>
