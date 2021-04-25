@@ -23,7 +23,9 @@ If you'd like to run the application, an AWS account with a Cognito User Pool an
       },
     }
 
-Eventually this will be replaced by environment variables.
+For the database, create two tables in DynamoDB: `Users`, and `Lists`. Both tables must be indexed by the property `id`.
+
+For the authentication, create a Cognito User Pool with **Username login**. When creating the app client, **disable** the `Generate client secret` box, and enable `username-password based authentication`.
 
 ## Technologies Used
 [React Native](https://reactnative.dev/)
