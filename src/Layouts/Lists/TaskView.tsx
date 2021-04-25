@@ -4,27 +4,30 @@ import { Task, TASK_STATUS } from '../../Models'
 import { colors, style } from '../../Styling'
 import TaskModal from './TaskModal'
 import { createAnimation } from '../../Utils'
-import { AppText } from '../../Components'
+import { AppText, ProfilePicture } from '../../Components'
 import { API } from '../../App'
+import DEBUG from '../../Utils/DEBUG'
 
-const TaskView = (props: { task: Task, index?: number }) => {
+const TaskView = (props: { task: Task, index?: number, updateTask: (task: Task)=>any }) => {
   const [modal_active, setModalActive] = useState(false)
   const anim = createAnimation({duration: style.anim_duration / 5 * ((props.index ?? 0) + 1)})
 
   const claimTask = async () => {
-    await API.editTask({
+    const new_task = {
       ...props.task,
       status: TASK_STATUS.IN_PROGRESS,
       claimed_by_id: API.user.id,
-    })
-    console.log(`Claimed task ${props.task.title}`)
+    }
+    await API.editTask(new_task)
+    props.updateTask(new_task)
+    DEBUG.log(`Claimed task ${props.task.title}`)
   }
 
   return (
     <TouchableOpacity onPress={() => setModalActive(true)}>
       <Animated.View style={[css.container, {opacity: anim}]}>
         <TouchableOpacity style={css.status} onPress={claimTask}>
-
+          {props.task.status === TASK_STATUS.IN_PROGRESS && <ProfilePicture />}
         </TouchableOpacity>
         <AppText style={css.title}>{props.task.title}</AppText>
       </Animated.View>

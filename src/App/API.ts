@@ -6,6 +6,7 @@ import AWS from 'aws-sdk'
 import { amplify_config, aws_sdk_config } from '../Secrets'
 import {default as react_native_uuid } from 'react-native-uuid'
 import { IAPI } from '.'
+import DEBUG from "../Utils/DEBUG"
 
 AWS.config.update(aws_sdk_config)
 Amplify.configure(amplify_config)
@@ -22,8 +23,8 @@ API = class API {
 
   static continuePreviousSession = async () => {
     const cognito_user = await Auth.currentAuthenticatedUser()
-    console.log(`Found session from user '${cognito_user.username}'`)
-    API._user = await API.getUser(cognito_user.attributes.id)
+    DEBUG.log(`Found session from user '${cognito_user.username}'`)
+    API._user = await API.getUser(cognito_user.attributes.sub)
   }
 
   static signIn = async (username: string, password: string) => {
@@ -32,7 +33,7 @@ API = class API {
       API._user = await API.getUser((await Auth.currentAuthenticatedUser()).attributes.sub)
     }
     catch (error) {
-      console.log('Error while signing in: ', error)
+      DEBUG.log('Error while signing in: ', error)
       throw error.message ?? 'Unknown error'
     }
   }
@@ -42,7 +43,7 @@ API = class API {
       await Auth.signOut()
     }
     catch (error) {
-      console.log('Error while signing out: ', error)
+      DEBUG.log('Error while signing out: ', error)
       throw error.message ?? 'Unknown error'
     }
   }
@@ -64,14 +65,14 @@ API = class API {
 
   static confirmUser = async (username: string, confirmation_code: string) => {
     try {
-      console.log('signUp return: ', await Auth.confirmSignUp(username, confirmation_code))
+      DEBUG.log('signUp return: ', await Auth.confirmSignUp(username, confirmation_code))
 
       if (!API.pending_registration_user)
         throw 'No user pending registration in API'
       if (API.pending_registration_user.username !== username)
         throw 'User pending registration differs from requested user'
 
-      console.log(`Adding user '${username}' to storage`)
+      DEBUG.log(`Adding user '${username}' to storage`)
 
       await API.dynamo_client.put({
         TableName: 'Users',
@@ -80,7 +81,7 @@ API = class API {
           id: API.pending_registration_user.id,
           list_ids: [],
         }
-      }, (err, data) => console.log(err || `Done: ${data}`))
+      }, (err, data) => DEBUG.log(err || `Done: ${data}`))
 
       API.pending_registration_user = undefined
     }
@@ -103,20 +104,24 @@ API = class API {
 
   //#region Storage
   static getUser = async (id: string) => {
-    console.log(`Getting user data from id: ${id}`)
-    API._user = (await (API.dynamo_client.get({
-      TableName: 'Users',
-      Key: { id },
-    }).promise())).Item as User
-    console.log(`Found user data: ${API.user}`)
+    DEBUG.log(`Getting user data from id: ${id}`)
+    try {
+      API._user = (await (API.dynamo_client.get({
+        TableName: 'Users',
+        Key: { id },
+      }).promise())).Item as User
+    } catch (error) {
+      DEBUG.error(error)
+    }
+    DEBUG.log(`Found user data: ${API.user}`)
     return API._user
   }
 
   static getListsFrom = async (user: User) => {
-    console.log(`Getting lists from user ${user.username}`)
+    DEBUG.log(`Getting lists from user ${user.username}`)
 
     if (user.list_ids.length < 1) {
-      console.log('User has no lists')
+      DEBUG.log('User has no lists')
       return []
     }
 
@@ -129,12 +134,12 @@ API = class API {
     }).promise())
 
     if (!query.Responses){
-      console.log('No responses...')
+      DEBUG.log('No responses...')
       throw 'getListsFrom: no responses'
     }
 
     const result = query.Responses.Lists
-    console.log(`Got lists from ${user.username}: `, result)
+    DEBUG.log(`Got lists from ${user.username}: `, result)
 
     return result.map(item => ( // convert task map to list
       { ...item, tasks: Object.values(item.tasks)}
@@ -196,7 +201,7 @@ API = class API {
       ExpressionAttributeValues: {
         ':new_task': task,
       },
-    }, (err, data) => console.log(err, '\n', data))
+    }, (error, data) => error && DEBUG.error(error))
     return task
   }
 
@@ -212,7 +217,7 @@ API = class API {
       ExpressionAttributeValues: {
         ':updated_task': task,
       }
-    }, (err, data) => console.log(err, '\n', data))
+    }, (error, data) => error && DEBUG.error(error))
   }
   //#endregion
 }

@@ -6,6 +6,7 @@ import { style } from '../../Styling'
 import { useAsyncState, createAnimation, screen } from '../../Utils'
 import { Loading } from '../../Components'
 import { API } from '../../App'
+import DEBUG from '../../Utils/DEBUG'
 
 const AuthenticationLayout = (props: {onLoggedIn: ()=>any}) => {
   const [login_state, getLoginState, setLoginState] = useAsyncState<'login'|'register'|'confirm'|null>('login')
@@ -20,7 +21,7 @@ const AuthenticationLayout = (props: {onLoggedIn: ()=>any}) => {
     API.continuePreviousSession()
       .then(() => props.onLoggedIn())
       .catch(error => {
-        console.log(`${error}, proceeding to login layout`)
+        DEBUG.log(`${error}, proceeding to login layout`)
         setLoading(false)
       })
   }, [])

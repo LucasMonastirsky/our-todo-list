@@ -11,6 +11,7 @@ import AddTaskModal from './AddTaskModal'
 import ListEditModal from './ListEditModal'
 import ListAddModal from './ListAddModal'
 import { AppText, Loading } from '../../Components'
+import DEBUG from '../../Utils/DEBUG'
 
 const ListLayout = (props: LayoutProps) => {
   const [lists, setLists] = useState<TodoList[]>([])
@@ -45,9 +46,15 @@ const ListLayout = (props: LayoutProps) => {
   }
 
   const updateList = (list: TodoList) => {
-    const new_lists = lists
+    const new_lists = [...lists]
     new_lists.splice(current_list_index, 1, list)
     setLists(new_lists)
+  }
+
+  const updateTask = (index: number, task: Task) => {
+    const new_list = {...current_list}
+    new_list.tasks[index] = task
+    updateList(new_list)
   }
   //#endregion
 
@@ -88,7 +95,7 @@ const ListLayout = (props: LayoutProps) => {
         <FlatList
           data={current_list.tasks}
           renderItem={({item, index})=>(
-            <TaskView {...{task: item, index}} />
+            <TaskView {...{task: item, index, updateTask: task => updateTask(index, task)}} />
           )}
         />
       </>
