@@ -21,13 +21,15 @@ API = class API {
   static get user() { return API._user! }
 
   static continuePreviousSession = async () => {
-    API._user = mapUser(await Auth.currentAuthenticatedUser())
+    const cognito_user = await Auth.currentAuthenticatedUser()
+    console.log(`Found session from user '${cognito_user.username}'`)
+    API._user = await API.getUser(cognito_user.attributes.id)
   }
 
   static signIn = async (username: string, password: string) => {
     try {
       await Auth.signIn(username, password)
-      API._user = mapUser(await Auth.currentAuthenticatedUser())
+      API._user = await API.getUser((await Auth.currentAuthenticatedUser()).attributes.sub)
     }
     catch (error) {
       console.log('Error while signing in: ', error)
@@ -69,13 +71,16 @@ API = class API {
       if (API.pending_registration_user.username !== username)
         throw 'User pending registration differs from requested user'
 
+      console.log(`Adding user '${username}' to storage`)
+
       await API.dynamo_client.put({
         TableName: 'Users',
         Item: {
           username: API.pending_registration_user.username,
           id: API.pending_registration_user.id,
+          list_ids: [],
         }
-      })
+      }, (err, data) => console.log(err || `Done: ${data}`))
 
       API.pending_registration_user = undefined
     }
@@ -97,13 +102,43 @@ API = class API {
   //#endregion
 
   //#region Storage
+  static getUser = async (id: string) => {
+    console.log(`Getting user data from id: ${id}`)
+    API._user = (await (API.dynamo_client.get({
+      TableName: 'Users',
+      Key: { id },
+    }).promise())).Item as User
+    console.log(`Found user data: ${API.user}`)
+    return API._user
+  }
+
   static getListsFrom = async (user: User) => {
-    const result = await (API.dynamo_client.query({
-      TableName: 'Lists',
-      KeyConditionExpression: 'owner_id = :owner_id',
-      ExpressionAttributeValues: { ':owner_id': user.id }
+    console.log(`Getting lists from user ${user.username}`)
+
+    if (user.list_ids.length < 1) {
+      console.log('User has no lists')
+      return []
+    }
+
+    const query = await (API.dynamo_client.batchGet({
+      RequestItems: {
+        Lists: {
+          Keys: user.list_ids.map(id => ({ id }))
+        }
+      }
     }).promise())
-    return result.Items as TodoList[]
+
+    if (!query.Responses){
+      console.log('No responses...')
+      throw 'getListsFrom: no responses'
+    }
+
+    const result = query.Responses.Lists
+    console.log(`Got lists from ${user.username}: `, result)
+
+    return result.map(item => ( // convert task map to list
+      { ...item, tasks: Object.values(item.tasks)}
+    )) as TodoList[]
   }
 
   static createTodoList = async (properties: {
@@ -120,10 +155,18 @@ API = class API {
 
     await API.dynamo_client.put({
       TableName: 'Lists',
-      Item: list,
+      Item: {...list, tasks: {}},
     }, err => {
       if (err) throw err
     })
+
+    await API.dynamo_client.update({
+      TableName: 'Users',
+      Key: { id: API.user.id },
+      UpdateExpression: 'SET #list_ids = list_append(#list_ids, :new_list_id)',
+      ExpressionAttributeNames: { '#list_ids': 'list_ids' },
+      ExpressionAttributeValues: { ':new_list_id': [list.id] }
+    }, (err) => { throw err })
 
     return list
   }
@@ -136,6 +179,7 @@ API = class API {
       title: properties.title,
       description: properties.description ?? '',
       id: uuid(),
+      list_id: list.id,
       creator_id: API.user.id,
       creation_date: Date.now(),
       status: TASK_STATUS.PENDING,
@@ -143,32 +187,41 @@ API = class API {
     }
     await API.dynamo_client.update({
       TableName: 'Lists',
-      Key: {
-        owner_id: list.owner_id,
-        id: list.id,
-      },
-      UpdateExpression: 'SET #tasks = list_append(#tasks, :new_task)',
+      Key: { id: list.id, },
+      UpdateExpression: 'SET #tasks.#id = :new_task',
       ExpressionAttributeNames: {
         '#tasks': 'tasks',
+        '#id': task.id,
       },
       ExpressionAttributeValues: {
-        ':new_task': [task],
+        ':new_task': task,
       },
     }, (err, data) => console.log(err, '\n', data))
     return task
+  }
+
+  static editTask = async (task: Task) => {
+    await API.dynamo_client.update({
+      TableName: 'Lists',
+      Key: { id: task.list_id },
+      UpdateExpression: 'SET #tasks.#id = :updated_task',
+      ExpressionAttributeNames: {
+        '#tasks': 'tasks',
+        '#id': task.id,
+      },
+      ExpressionAttributeValues: {
+        ':updated_task': task,
+      }
+    }, (err, data) => console.log(err, '\n', data))
   }
   //#endregion
 }
 
 const mapUser = (cognito_user: CognitoUserObject): User => {
-  const user = {
+  return {
     username: cognito_user.username,
     id: cognito_user.attributes.sub,
-    getLists: async () => ([])
-  }
-  return {
-    ...user,
-    getLists: async () => API.getListsFrom(user)
+    list_ids: [],
   }
 }
 

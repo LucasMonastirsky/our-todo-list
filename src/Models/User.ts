@@ -1,10 +1,7 @@
-import { TodoList } from "."
-
 type User = {
   username: string,
   id: string,
-
-  getLists: () => Promise<TodoList[]>,
+  list_ids: string[],
 }
 
 export default User

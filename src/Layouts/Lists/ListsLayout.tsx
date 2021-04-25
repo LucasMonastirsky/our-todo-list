@@ -10,7 +10,7 @@ import { LayoutProps } from '../types'
 import AddTaskModal from './AddTaskModal'
 import ListEditModal from './ListEditModal'
 import ListAddModal from './ListAddModal'
-import { Loading } from '../../Components'
+import { AppText, Loading } from '../../Components'
 
 const ListLayout = (props: LayoutProps) => {
   const [lists, setLists] = useState<TodoList[]>([])
@@ -82,13 +82,17 @@ const ListLayout = (props: LayoutProps) => {
       {adding_task && <AddTaskModal list={current_list} onAdd={addTask} close={()=>setAddingTask(false)} />}
       {editting && <ListEditModal list={current_list} editList={updateList} close={()=>setEditting(false)} />}
       {adding_list && <ListAddModal add={addList} close={setAddingList} />}
-      <ListTab {...{lists}} onSelect={i=>setCurrentListIndex(i)} />
-      <FlatList
-        data={current_list.tasks}
-        renderItem={({item, index})=>(
-          <TaskView {...{task: item, index}} />
-        )}
-      />
+      {!current_list ? <AppText>No lists.</AppText>
+      : <>
+        <ListTab {...{lists}} onSelect={i=>setCurrentListIndex(i)} />
+        <FlatList
+          data={current_list.tasks}
+          renderItem={({item, index})=>(
+            <TaskView {...{task: item, index}} />
+          )}
+        />
+      </>
+      }
       <TaskAddButton onTouch={()=>setAddingTask(true)} />
     </View>
   )

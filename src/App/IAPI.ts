@@ -1,6 +1,7 @@
 import { User, Task, TodoList } from "../Models";
 
 interface IAPI {
+  user: User
   continuePreviousSession: () => Promise<void>
   signIn: (username: string, password: string) => Promise<void>
   signOut: () => Promise<void>
@@ -17,6 +18,7 @@ interface IAPI {
     title: string,
     description?: string,
   }) => Promise<Task>
+  editTask: (task: Task) => Promise<void>
 }
 
 export default IAPI

@@ -6,20 +6,20 @@ import { Task, TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
 import { screen } from '../../Utils'
 
-const default_task = new Task({
+const default_task: Partial<Task> = {
   title: 'Task Title',
   id: '0',
   creator_id: '0',
   position: 0,
-})
+}
 
 const AddTaskModal = (props: {list: TodoList, onAdd: (task: Task)=>any, close: AppModal.Close}) => {
-  const [task, setTask] = useState(default_task)
+  const [title, setTitle] = useState('New Task')
+  const [description, setDescription] = useState('')
 
   const addTask = async () => {
     const user = API.user
-    const final_task = {...task, creator_id: user.id}
-    await API.createTask(props.list, {...final_task})
+    const final_task: Task = await API.createTask(props.list, { title, description })
     props.onAdd(final_task)
     props.close(false)
   }
@@ -27,8 +27,8 @@ const AddTaskModal = (props: {list: TodoList, onAdd: (task: Task)=>any, close: A
   return (
     <AppModal close={props.close}>
       <View style={css.container}>
-        <AppInputMin defaultValue='Task Title' onChangeText={text=>setTask({...task, title: text})} />
-        <AppInputMin style={css.description} onChangeText={text=>setTask({...task, description: text})}
+        <AppInputMin defaultValue='Task Title' onChangeText={setTitle} />
+        <AppInputMin style={css.description} onChangeText={setDescription}
           defaultValue={default_task.description}
           placeholder='Give the task a description'
           placeholderTextColor={colors.light_dark}

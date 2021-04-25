@@ -1,19 +1,29 @@
 import React, { useState } from 'react'
 import { TouchableOpacity, StyleSheet, Animated } from 'react-native'
-import { Task } from '../../Models'
+import { Task, TASK_STATUS } from '../../Models'
 import { colors, style } from '../../Styling'
 import TaskModal from './TaskModal'
 import { createAnimation } from '../../Utils'
 import { AppText } from '../../Components'
+import { API } from '../../App'
 
 const TaskView = (props: { task: Task, index?: number }) => {
   const [modal_active, setModalActive] = useState(false)
   const anim = createAnimation({duration: style.anim_duration / 5 * ((props.index ?? 0) + 1)})
 
+  const claimTask = async () => {
+    await API.editTask({
+      ...props.task,
+      status: TASK_STATUS.IN_PROGRESS,
+      claimed_by_id: API.user.id,
+    })
+    console.log(`Claimed task ${props.task.title}`)
+  }
+
   return (
     <TouchableOpacity onPress={() => setModalActive(true)}>
       <Animated.View style={[css.container, {opacity: anim}]}>
-        <TouchableOpacity style={css.status} onPress={()=>{/* set status as pending */ }}>
+        <TouchableOpacity style={css.status} onPress={claimTask}>
 
         </TouchableOpacity>
         <AppText style={css.title}>{props.task.title}</AppText>
