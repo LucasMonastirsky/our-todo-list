@@ -1,6 +1,7 @@
 import { User, Task, TodoList } from "../Models";
 
 interface IAPI {
+  //#region Auth
   user: User
   continuePreviousSession: () => Promise<void>
   signIn: (username: string, password: string) => Promise<void>
@@ -8,6 +9,11 @@ interface IAPI {
   registerUser: (username: string, password: string, email: string) => Promise<void>
   confirmUser: (username: string, confirmation_code: string) => Promise<void>
   resendConfirmationCode: (username: string) => Promise<void>
+  //#endregion
+
+  //#region Storage
+  getCachedUser: (id: string) => Promise<User>
+  getUser: (id: string) => Promise<User>
   getListsFrom: (user: User) => Promise<TodoList[]>
   createTodoList: (properties: {
     title: string,
@@ -19,6 +25,7 @@ interface IAPI {
     description?: string,
   }) => Promise<Task>
   editTask: (task: Task) => Promise<void>
+  //#endregion
 }
 
 export default IAPI

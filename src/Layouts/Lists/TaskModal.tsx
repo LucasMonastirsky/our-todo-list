@@ -1,12 +1,20 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { View, StyleSheet } from 'react-native'
+import { API } from '../../App'
 import { AppModal, AppText } from '../../Components'
-import { Task } from '../../Models'
+import { User, Task } from '../../Models'
 import { colors, style } from '../../Styling'
 import { formatDate } from '../../Utils'
 
 const TaskModal = (props: { task: Task, close: AppModal.Close }) => {
   const { task } = props
+  const [creator, setCreator] = useState<User>()
+
+  useEffect(() => {
+    (async () => {
+      setCreator(await API.getCachedUser(task.creator_id))
+    })()
+  }, [])
 
   return (
     <AppModal close={props.close}>
@@ -21,7 +29,9 @@ const TaskModal = (props: { task: Task, close: AppModal.Close }) => {
           <Divider />
         </>}
         <View style={css.created_container}>
-          <AppText style={css.created_text}>Created by {task.creator_id} on {formatDate(task.creation_date)}</AppText>
+          <AppText style={css.created_text}>
+            Created by {creator?.username ?? 'loading...'} on {formatDate(task.creation_date)}
+          </AppText>
         </View>
       </View>
     </AppModal>

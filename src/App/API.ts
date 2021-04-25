@@ -58,7 +58,7 @@ API = class API {
       }
     }
     catch (error) {
-      console.error('Error while registering user: ', error)
+      DEBUG.error('Error while registering user: ', error)
       throw {message: error.message ?? 'Unknown error'}
     }
   }
@@ -86,7 +86,7 @@ API = class API {
       API.pending_registration_user = undefined
     }
     catch (error) {
-      console.error('Error while confirming new user: ', error)
+      DEBUG.error('Error while confirming new user: ', error)
       throw error.message ?? 'Unknown error'
     }
   }
@@ -102,19 +102,38 @@ API = class API {
   }
   //#endregion
 
+  //#region Cache
+  private static cache: {
+    users: { [id: string]: User }
+  } = {
+    users: {}
+  }
+  //#endregion
+
   //#region Storage
+  static getCachedUser = async (id: string) => {
+    if (API.cache.users[id] === undefined) {
+      DEBUG.log(`Didn't find user in cache, getting from storage...`)
+      API.cache.users[id] = await API.getUser(id)
+    }
+    DEBUG.log(`Found cached user '${API.cache.users[id].username}'`)
+    return API.cache.users[id]
+  }
+
   static getUser = async (id: string) => {
     DEBUG.log(`Getting user data from id: ${id}`)
-    try {
-      API._user = (await (API.dynamo_client.get({
-        TableName: 'Users',
-        Key: { id },
-      }).promise())).Item as User
-    } catch (error) {
-      DEBUG.error(error)
-    }
-    DEBUG.log(`Found user data: ${API.user}`)
-    return API._user
+
+    const user = (await (API.dynamo_client.get({
+      TableName: 'Users',
+      Key: { id },
+    }).promise())).Item as User
+    if (user === undefined)
+      throw `Could not find user with id ${id}`
+
+    API.cache.users[user.id] = user
+
+    DEBUG.log(`Found user data: ${user}`)
+    return user
   }
 
   static getListsFrom = async (user: User) => {
