@@ -96,7 +96,7 @@ API = class API {
       await Auth.resendSignUp(username)
     }
     catch (error) {
-      console.error('Error while resending confirmation code: ', error)
+      DEBUG.error('Error while resending confirmation code: ', error)
       throw error.message ?? 'Unknown error'
     }
   }
@@ -153,12 +153,12 @@ API = class API {
     }).promise())
 
     if (!query.Responses){
-      DEBUG.log('No responses...')
+      DEBUG.error('No responses...')
       throw 'getListsFrom: no responses'
     }
 
     const result = query.Responses.Lists
-    DEBUG.log(`Got lists from ${user.username}: `, result)
+    DEBUG.log(`Got ${result.length} lists from ${user.username}`)
 
     return result.map(item => ( // convert task map to list
       { ...item, tasks: Object.values(item.tasks)}
@@ -193,6 +193,15 @@ API = class API {
     }, (err) => { throw err })
 
     return list
+  }
+
+  static deleteTodoList = async (id: string) => {
+    DEBUG.log(`Deleting list ${id}`)
+    await (API.dynamo_client.delete({
+      TableName: 'Lists',
+      Key: { id }
+    }).promise())
+    DEBUG.log(`Deleted list ${id}`)
   }
 
   static createTask = async (list: TodoList, properties: {

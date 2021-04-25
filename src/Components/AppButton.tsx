@@ -3,9 +3,11 @@ import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native'
 import { AppText } from '.'
 import { colors, style } from '../Styling'
 
-const AppButton = (props: {label: string, onPress: ()=>any, style?: ViewStyle}) => (
+const AppButton = (props: {label: string, color?: string, onPress: ()=>any, style?: ViewStyle}) => (
   <TouchableOpacity onPress={props.onPress} style={props.style}>
-    <AppText style={css.button}>{props.label}</AppText>
+    <AppText style={[css.button, {backgroundColor: props.color ?? colors.main_light}]}>
+      {props.label}
+    </AppText>
   </TouchableOpacity>
 )
 

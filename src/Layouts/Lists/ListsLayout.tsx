@@ -56,6 +56,12 @@ const ListLayout = (props: LayoutProps) => {
     new_list.tasks[index] = task
     updateList(new_list)
   }
+
+  const onRemoveList = () => {
+    const new_lists = [...lists]
+    new_lists.splice(current_list_index, 1)
+    setLists(new_lists)
+  }
   //#endregion
 
   //#region Render
@@ -87,7 +93,7 @@ const ListLayout = (props: LayoutProps) => {
   else return (
     <View style={css.container}>
       {adding_task && <AddTaskModal list={current_list} onAdd={addTask} close={()=>setAddingTask(false)} />}
-      {editting && <ListEditModal list={current_list} editList={updateList} close={()=>setEditting(false)} />}
+      {editting && <ListEditModal list={current_list} editList={updateList} {...{onRemoveList}} close={()=>setEditting(false)} />}
       {adding_list && <ListAddModal add={addList} close={setAddingList} />}
       {!current_list ? <AppText>No lists.</AppText>
       : <>

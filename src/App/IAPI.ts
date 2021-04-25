@@ -20,6 +20,7 @@ interface IAPI {
     description: string,
     owner_id: string,
   }) => Promise<TodoList>
+  deleteTodoList: (id: string) => Promise<void>
   createTask: (list: TodoList, properties: {
     title: string,
     description?: string,
