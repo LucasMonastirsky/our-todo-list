@@ -13,7 +13,7 @@ const style = {
 
   header_height: 50,
 
-  anim_duration: 500,
+  anim_duration: 350,
 }
 
 export default style

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { FlatList, Image, ImageSourcePropType, Modal, StyleSheet, TouchableOpacity, View } from 'react-native'
-import TaskAddButton from '../../Components/TaskAddButton'
 import TaskView from './TaskView'
 import { Task, TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
@@ -106,7 +105,11 @@ const ListLayout = (props: LayoutProps) => {
         />
       </>
       }
-      <TaskAddButton onTouch={()=>setAddingTask(true)} />
+      <View style={css.add_task_button_container}>
+        <TouchableOpacity style={css.add_task_button_background} onPress={()=>setAddingTask(true)}>
+            <Image style={css.add_task_button_img} source={require('../../Media/Icons/plus.png')}/>
+        </TouchableOpacity>
+      </View>
     </View>
   )
   //#endregion
@@ -166,6 +169,26 @@ const css = StyleSheet.create({
     height: '100%',
     width: '100%',
     backgroundColor: '#000000aa'
+  },
+  add_task_button_container: {
+    height: 75,
+    width: 75,
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
+    padding: style.margin,
+  },
+  add_task_button_background: {
+    backgroundColor: colors.main,
+    flex: 1,
+    borderRadius: 100,
+    padding: '20%',
+  },
+  add_task_button_img: {
+    flex: 1,
+    height: undefined,
+    width: undefined,
   },
 })
 

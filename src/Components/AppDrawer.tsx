@@ -1,7 +1,7 @@
 import React, { ComponentType, useState } from 'react'
 import { View, StyleSheet, Image, TouchableOpacity, TouchableNativeFeedback, Dimensions, Animated } from 'react-native'
 import Drawer from 'react-native-drawer'
-import { AppText, FadeContent } from '.'
+import { AppText } from '.'
 import { colors, style } from '../Styling'
 import { Navigation } from '../App'
 import { ListLayout, OptionsLayout, ProfileLayout } from '../Layouts'
@@ -63,6 +63,16 @@ const AppDrawer = (props: {children?: any, signOut: ()=>any}) => {
   const Item = ({children, onPress}: {children: any, onPress?: ()=>void}) => <TouchableOpacity {...{onPress}}><View style={css.item}>{children}</View></TouchableOpacity>
   const ItemText = ({children}: {children: any}) => <AppText style={css.text}>{children}</AppText>
   const Spacer = () => <View style={css.spacer} />
+
+  const FadeContent = (props: {active: boolean}) => {
+    const anim = createAnimation({
+      from: 1 - +props.active,
+      to: +props.active,
+      condition: props.active
+    })
+  
+    return <Animated.View pointerEvents='none' style={[css.fade_content, {opacity: anim}]}  />
+  }
 
   return (
     <Drawer
@@ -142,6 +152,12 @@ const css = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.light,
     marginVertical: style.border_width,
+  },
+  fade_content: {
+    backgroundColor: '#000000aa',
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
   },
 })
 
