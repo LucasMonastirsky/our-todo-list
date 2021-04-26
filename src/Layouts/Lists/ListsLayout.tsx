@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { FlatList, Image, ImageSourcePropType, Modal, StyleSheet, TouchableOpacity, View } from 'react-native'
 import TaskView from './TaskView'
-import { Task, TodoList } from '../../Models'
+import { Task, TASK_STATUS, TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
 import ListTab from './ListTab'
 import { API, Navigation } from '../../App'
@@ -61,6 +61,14 @@ const ListLayout = (props: LayoutProps) => {
     new_lists.splice(current_list_index, 1)
     setLists(new_lists)
   }
+
+  const onTaskFinished = (task: Task, task_index: number) => {
+    DEBUG.log(`Finished task ${current_list.tasks[task_index].title}`)
+    current_list.tasks.splice(task_index, 1, {...task, status: TASK_STATUS.DONE})
+    const new_lists = [...lists]
+    new_lists.splice(current_list_index, 1, current_list)
+    setLists(new_lists)
+  }
   //#endregion
 
   //#region Render
@@ -99,8 +107,13 @@ const ListLayout = (props: LayoutProps) => {
         <ListTab {...{lists}} onSelect={i=>setCurrentListIndex(i)} />
         <FlatList
           data={current_list.tasks}
-          renderItem={({item, index})=>(
-            <TaskView {...{task: item, index, updateTask: task => updateTask(index, task)}} />
+          renderItem={({item, index})=>item.status === TASK_STATUS.DONE ? null : (
+            <TaskView {...{
+              task: item,
+              index,
+              updateTask: task => updateTask(index, task),
+              onTaskFinished: () => onTaskFinished(item, index)
+            }} />
           )}
         />
       </>

@@ -13,4 +13,6 @@ export default class DEBUG {
   static log = log
   static warn = warn
   static error = error
+
+  static enabled: boolean = true
 }

@@ -1,14 +1,20 @@
-import React, { useState } from 'react'
-import { TouchableOpacity, StyleSheet, Animated } from 'react-native'
+import React, { SyntheticEvent, useState } from 'react'
+import { TouchableOpacity, StyleSheet, Animated, View, NativeSyntheticEvent } from 'react-native'
 import { Task, TASK_STATUS } from '../../Models'
 import { colors, style } from '../../Styling'
 import TaskModal from './TaskModal'
-import { createAnimation } from '../../Utils'
+import { createAnimation, screen } from '../../Utils'
 import { AppText, ProfilePicture } from '../../Components'
 import { API } from '../../App'
 import DEBUG from '../../Utils/DEBUG'
 
-const TaskView = (props: { task: Task, index?: number, updateTask: (task: Task)=>any }) => {
+type PropTypes = {
+  task: Task,
+  index?: number,
+  updateTask: (task: Task) => any
+  onTaskFinished: () => any
+}
+const TaskView = (props: PropTypes) => {
   const [modal_active, setModalActive] = useState(false)
   const anim = createAnimation({duration: style.anim_duration / 5 * ((props.index ?? 0) + 1)})
 
@@ -23,16 +29,78 @@ const TaskView = (props: { task: Task, index?: number, updateTask: (task: Task)=
     DEBUG.log(`Claimed task ${props.task.title}`)
   }
 
+  const finishTask = async () => {
+    props.onTaskFinished()
+    await API.editTask({...props.task, status: TASK_STATUS.DONE})
+  }
+
+  //#region Gestures
+  const gesture_horizontal_start_threshold = 5
+  const gesture_horizontal_confirm_threshold = screen.width / 3
+
+  const [gesture_start_time, setGestureStartTime] = useState(0)
+  const [gesture_start_x, setGestureStartPos] = useState(0)
+  const [gesture_delta_x, setGestureDeltaX] = useState(0)
+  const [gesture_anim, setGestureAnim] = useState<'none'|'canceled'|'confirmed'>('none')
+
+  type GestureEvent = { nativeEvent: { pageX: number } }
+  const gesture_handlers = {
+    onStartShouldSetResponder: () => true,
+    onResponderGrant: ({nativeEvent}: GestureEvent) => {
+      setGestureStartTime(Date.now())
+      setGestureStartPos(nativeEvent.pageX)
+    },
+    onResponderMove: ({nativeEvent}: GestureEvent) => {
+      const delta = nativeEvent.pageX - gesture_start_x
+      if (delta > gesture_horizontal_start_threshold) {
+        setGestureDeltaX(nativeEvent.pageX - gesture_start_x)
+      }
+    },
+    onResponderRelease: ({nativeEvent}: GestureEvent) => {
+      if (gesture_delta_x > gesture_horizontal_start_threshold) {
+        if (gesture_delta_x > gesture_horizontal_confirm_threshold) {
+          setGestureAnim('confirmed')
+        } else {
+          setGestureAnim('canceled')
+        }
+      } else {
+        setModalActive(true)
+      }
+    }
+  }
+
+  const slide_anim = createAnimation({
+    from: gesture_delta_x,
+    to: gesture_anim === 'confirmed'
+      ? screen.width
+      : gesture_anim === 'canceled'
+      ? 0
+      : gesture_delta_x,
+    condition: [gesture_anim],
+    duration: gesture_anim === 'none' ? 0 : style.anim_duration,
+    onDone: () => {
+      if (gesture_anim === 'confirmed') {
+        finishTask()
+      }
+      if (gesture_anim === 'canceled') {
+        setGestureAnim('none')
+        setGestureDeltaX(0)
+      }
+    }
+  })
+  //#endregion
+
   return (
-    <TouchableOpacity onPress={() => setModalActive(true)}>
-      <Animated.View style={[css.container, {opacity: anim}]}>
+    <Animated.View style={{opacity: anim, left: slide_anim }}>
+      <View style={css.container} {...gesture_handlers}>
         <TouchableOpacity style={css.status} onPress={claimTask}>
           {props.task.status === TASK_STATUS.IN_PROGRESS && <ProfilePicture />}
         </TouchableOpacity>
         <AppText style={css.title}>{props.task.title}</AppText>
-      </Animated.View>
+      </View>
+
       {modal_active && <TaskModal task={props.task} close={()=>setModalActive(false)} />}
-    </TouchableOpacity>
+    </Animated.View>
   )
 }
 

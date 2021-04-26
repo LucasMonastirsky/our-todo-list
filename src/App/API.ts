@@ -234,6 +234,7 @@ API = class API {
   }
 
   static editTask = async (task: Task) => {
+    DEBUG.log(`Editting task '${task.title}'...`)
     await API.dynamo_client.update({
       TableName: 'Lists',
       Key: { id: task.list_id },
@@ -244,8 +245,21 @@ API = class API {
       },
       ExpressionAttributeValues: {
         ':updated_task': task,
+      },
+      ReturnValues: DEBUG.enabled ? 'UPDATED_OLD' : 'NONE'
+    }, (error, data) => {
+      if (error)
+        DEBUG.error(`Error while editting task '${task.title}': ${error}`)
+      else if (DEBUG.enabled) {
+        const old_task = data.Attributes!.tasks[task.id]
+        const updated_values: { [key: string]: any } = {}
+        Object.keys(task).forEach(key => {
+          if (task[key as keyof Task] !== old_task[key as keyof Task])
+            updated_values[key] = task[key as keyof Task]
+        })
+        DEBUG.log(`Updated task '${task.title}', with values:`, updated_values)
       }
-    }, (error, data) => error && DEBUG.error(error))
+    })
   }
   //#endregion
 }
