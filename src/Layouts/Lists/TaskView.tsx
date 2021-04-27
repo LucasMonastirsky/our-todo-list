@@ -30,8 +30,8 @@ const TaskView = (props: PropTypes) => {
   }
 
   const finishTask = async () => {
+    await API.editTask({...props.task, status: TASK_STATUS.DONE, completer_id: API.user.id})
     props.onTaskFinished()
-    await API.editTask({...props.task, status: TASK_STATUS.DONE})
   }
 
   //#region Gestures
@@ -41,7 +41,7 @@ const TaskView = (props: PropTypes) => {
   const [gesture_start_time, setGestureStartTime] = useState(0)
   const [gesture_start_x, setGestureStartPos] = useState(0)
   const [gesture_delta_x, setGestureDeltaX] = useState(0)
-  const [gesture_anim, setGestureAnim] = useState<'none'|'canceled'|'confirmed'>('none')
+  const [gesture_anim, setGestureAnim] = useState<'none'|'canceled'|'confirmed'|'done'>('none')
 
   type GestureEvent = { nativeEvent: { pageX: number } }
   const gesture_handlers = {
@@ -71,7 +71,7 @@ const TaskView = (props: PropTypes) => {
 
   const slide_anim = createAnimation({
     from: gesture_delta_x,
-    to: gesture_anim === 'confirmed'
+    to: gesture_anim === 'confirmed' || gesture_anim === 'done'
       ? screen.width
       : gesture_anim === 'canceled'
       ? 0
@@ -81,6 +81,7 @@ const TaskView = (props: PropTypes) => {
     onDone: () => {
       if (gesture_anim === 'confirmed') {
         finishTask()
+        setGestureAnim('done')
       }
       if (gesture_anim === 'canceled') {
         setGestureAnim('none')

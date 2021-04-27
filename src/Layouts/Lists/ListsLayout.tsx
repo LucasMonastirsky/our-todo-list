@@ -62,8 +62,19 @@ const ListLayout = (props: LayoutProps) => {
     setLists(new_lists)
   }
 
-  const onTaskFinished = (task: Task, task_index: number) => {
-    DEBUG.log(`Finished task ${current_list.tasks[task_index].title}`)
+  const onTaskFinished = (task: Task) => {
+    DEBUG.log(`Completed task '${task.title}', updating list state...`)
+
+    let task_index = -1
+    current_list.tasks.some((x, i) => {
+      if (task.id === x.id) {
+        task_index = i
+        return true
+      }
+    })
+    if (task_index < 0)
+     throw `Could not find completed task in list state`
+
     current_list.tasks.splice(task_index, 1, {...task, status: TASK_STATUS.DONE})
     const new_lists = [...lists]
     new_lists.splice(current_list_index, 1, current_list)
@@ -98,14 +109,13 @@ const ListLayout = (props: LayoutProps) => {
   }
 
   const reordered_tasks: Task[] = []
-  const done_tasks: Task[] = []
+  const completed_tasks: Task[] = []
   current_list.tasks.forEach(task => {
     if (task.status !== TASK_STATUS.DONE)
       reordered_tasks.push(task)
     else if (Options.show_completed_tasks)
-      done_tasks.push(task)
+      completed_tasks.push(task)
   })
-  reordered_tasks.push(...done_tasks)
 
   return (
     <View style={css.container}>
@@ -115,14 +125,27 @@ const ListLayout = (props: LayoutProps) => {
       {!current_list ? <AppText>No lists.</AppText>
       : <>
         <ListTab {...{lists}} onSelect={i=>setCurrentListIndex(i)} />
+        <View>
+          <FlatList
+            data={reordered_tasks}
+            renderItem={({item, index})=>(
+              <TaskView {...{
+                task: item,
+                index,
+                updateTask: task => updateTask(index, task),
+                onTaskFinished: () => onTaskFinished(item)
+              }} />
+            )}
+          />
+        </View>
         <FlatList
-          data={reordered_tasks}
+          data={completed_tasks}
           renderItem={({item, index})=>(
             <TaskView {...{
               task: item,
               index,
               updateTask: task => updateTask(index, task),
-              onTaskFinished: () => onTaskFinished(item, index)
+              onTaskFinished: () => {}
             }} />
           )}
         />
@@ -140,7 +163,7 @@ const ListLayout = (props: LayoutProps) => {
 
 const css = StyleSheet.create({
   container: {
-    backgroundColor: colors.main_dark,
+    backgroundColor: colors.main_darker,
     height: '100%',
     width: '100%',
   },
