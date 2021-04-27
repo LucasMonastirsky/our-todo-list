@@ -1,11 +1,15 @@
 import React from 'react'
-import { StyleSheet, View } from 'react-native'
+import { Image, StyleSheet, View } from 'react-native'
 import { colors, style } from '../Styling'
 
-const ProfilePicture = () => {
+const ProfilePicture = ({source}: {source?: string}) => {
+  const source_or_default = source
+    ? { uri: source }
+    : require('../Media/Icons/profile_default.png')
+
   return (
     <View style={css.container}>
-      <View style={css.image} />
+      <Image source={source_or_default} style={css.image} />
     </View>
   )
 }
@@ -19,6 +23,9 @@ const css = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.light,
     borderRadius: 100,
+    aspectRatio: 1,
+    height: 50,
+    width: 50,
   },
 })
 

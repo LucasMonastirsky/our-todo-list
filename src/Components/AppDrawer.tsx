@@ -118,7 +118,7 @@ const css = StyleSheet.create({
     flexDirection: 'row',
   },
   content: {
-    backgroundColor: colors.main_dark,
+    backgroundColor: colors.main_darker,
     flex: 1,
   },
   item: {

@@ -49,8 +49,7 @@ const css = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     alignSelf: 'center',
-    marginTop: 'auto',
-    marginBottom: 'auto',
+    margin: style.margin,
     // borderWidth: 1,
   },
   ball: {

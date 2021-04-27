@@ -4,7 +4,7 @@ import { Task, TASK_STATUS, TodoList  } from "../Models"
 import User from "../Models/User"
 import AWS from 'aws-sdk'
 import { amplify_config, aws_sdk_config } from '../Secrets'
-import {default as react_native_uuid } from 'react-native-uuid'
+import { default as react_native_uuid } from 'react-native-uuid'
 import { IAPI } from '.'
 import DEBUG from "../Utils/DEBUG"
 
@@ -268,14 +268,6 @@ API = class API {
     }
   }
   //#endregion
-}
-
-const mapUser = (cognito_user: CognitoUserObject): User => {
-  return {
-    username: cognito_user.username,
-    id: cognito_user.attributes.sub,
-    list_ids: [],
-  }
 }
 
 type CognitoUserObject = {

@@ -77,7 +77,7 @@ const App = () => {
 const css = StyleSheet.create({
   app: {
     flex: 1,
-    backgroundColor: colors.main_dark,
+    backgroundColor: colors.main_darker,
   },
   content: {
     flexDirection: 'row',
