@@ -4,7 +4,7 @@ import TaskView from './TaskView'
 import { Task, TASK_STATUS, TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
 import ListTab from './ListTab'
-import { API, Navigation } from '../../App'
+import { API, Navigation, Options } from '../../App'
 import { LayoutProps } from '../types'
 import AddTaskModal from './AddTaskModal'
 import ListEditModal from './ListEditModal'
@@ -97,7 +97,17 @@ const ListLayout = (props: LayoutProps) => {
     )
   }
 
-  else return (
+  const reordered_tasks: Task[] = []
+  const done_tasks: Task[] = []
+  current_list.tasks.forEach(task => {
+    if (task.status !== TASK_STATUS.DONE)
+      reordered_tasks.push(task)
+    else if (Options.show_completed_tasks)
+      done_tasks.push(task)
+  })
+  reordered_tasks.push(...done_tasks)
+
+  return (
     <View style={css.container}>
       {adding_task && <AddTaskModal list={current_list} onAdd={addTask} close={()=>setAddingTask(false)} />}
       {editting && <ListEditModal list={current_list} editList={updateList} {...{onRemoveList}} close={()=>setEditting(false)} />}
@@ -106,8 +116,8 @@ const ListLayout = (props: LayoutProps) => {
       : <>
         <ListTab {...{lists}} onSelect={i=>setCurrentListIndex(i)} />
         <FlatList
-          data={current_list.tasks}
-          renderItem={({item, index})=>item.status === TASK_STATUS.DONE ? null : (
+          data={reordered_tasks}
+          renderItem={({item, index})=>(
             <TaskView {...{
               task: item,
               index,

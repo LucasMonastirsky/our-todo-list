@@ -195,6 +195,14 @@ API = class API {
     return list
   }
 
+  static editTodoList = async (old_list: TodoList, new_list: TodoList) => {
+    DEBUG.log(`Editting list '${new_list.title}'`)
+    await (API.dynamo_client.update({
+      TableName: 'Lists',
+      Key: { id: new_list.id }
+    }))
+  }
+
   static deleteTodoList = async (id: string) => {
     DEBUG.log(`Deleting list ${id}`)
     await (API.dynamo_client.delete({

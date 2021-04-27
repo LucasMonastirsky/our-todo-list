@@ -90,10 +90,14 @@ const TaskView = (props: PropTypes) => {
   })
   //#endregion
 
+  const done = props.task.status === TASK_STATUS.DONE
   return (
     <Animated.View style={{opacity: anim, left: slide_anim }}>
-      <View style={css.container} {...gesture_handlers}>
-        <TouchableOpacity style={css.status} onPress={claimTask}>
+      <View 
+        style={[css.container, done && css.done_container]}
+        {...gesture_handlers}
+      >
+        <TouchableOpacity style={[css.status, done && css.done_status]} onPress={claimTask}>
           {props.task.status === TASK_STATUS.IN_PROGRESS && <ProfilePicture />}
         </TouchableOpacity>
         <AppText style={css.title}>{props.task.title}</AppText>
@@ -110,11 +114,17 @@ const css = StyleSheet.create({
     flexDirection: 'row',
     marginTop: style.border_width,
   },
+  done_container: {
+    backgroundColor: colors.main_dark,
+  },
   status: {
     backgroundColor: colors.main,
     aspectRatio: 1,
     borderRightWidth: style.border_width,
     borderRightColor: colors.main_dark,
+  },
+  done_status: {
+    backgroundColor: colors.main_dark,
   },
   status_divider: {
     width: style.border_width,
