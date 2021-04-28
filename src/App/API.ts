@@ -165,7 +165,7 @@ API = class API {
           Keys: user.list_ids.map(id => ({ id }))
         }
       }
-    }).promise())
+    }).promise().catch(err => {DEBUG.error(err); throw err}))
 
     if (!query.Responses){
       DEBUG.error('No responses...')
@@ -288,6 +288,25 @@ API = class API {
       })
       DEBUG.log(`Updated task '${task.title}', with values:`, updated_values)
     }
+  }
+
+  static addUserToList = async (user_id: string, list: TodoList) => {
+    DEBUG.log(`Adding user ${user_id} to list ${list.title}`)
+    if (list.member_ids.includes(user_id)) {
+      const message = `List ${list.title} already includes user ${user_id}`
+      DEBUG.error(message)
+      throw new Error(message)
+    }
+
+    const result = await (API.dynamo_client.update({
+      TableName: 'Lists',
+      Key: { id: list.id },
+      UpdateExpression: 'SET member_ids = list_append(member_ids, :user)',
+      ExpressionAttributeValues: { ':user': [user_id] },
+      ReturnValues: DEBUG.enabled ? 'UPDATED_NEW' : 'NONE'
+    }).promise().catch(err => {DEBUG.error(err); throw err}))
+
+    DEBUG.log(result)
   }
   //#endregion
 }

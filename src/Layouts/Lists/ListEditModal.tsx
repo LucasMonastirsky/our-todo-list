@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { Image, StyleSheet, View } from 'react-native'
 import { API } from '../../App'
 import { AppButton, AppInputMin, AppModal, AppText, Loading } from '../../Components'
 import { TodoList, User } from '../../Models'
@@ -30,7 +30,7 @@ export default (props: {
     }, [])
 
     return (
-      <AppText>{user?.username ?? 'loading...'}</AppText>
+      <AppText>{user?.nickname ?? user?.username ?? 'loading...'}</AppText>
     )
   }
 
@@ -75,7 +75,9 @@ export default (props: {
           <AppInputMin style={css.description} defaultValue={list.description} multiline
             onChangeText={description=>setListChanges(changes => ({ ...changes, description }))} />
           <Spacing />
-          <AppText style={css.members_title}>Members:</AppText>
+          <View style={{flexDirection: 'row'}}>
+            <AppText style={css.members_title}>Members:</AppText>
+          </View>
           {list.member_ids.map(id => <MemberItem {...{id}} />)}
           <View style={css.button_container}>
             <AppButton style={{marginLeft: 'auto'}} label='Delete' color={colors.alert} onPress={()=>setDeleteConfirmationActive(true)} />
@@ -106,6 +108,8 @@ const css = StyleSheet.create({
   },
   members_title: {
 
+  },
+  invite_button: {
   },
   button_container: {
     flexDirection: 'row',

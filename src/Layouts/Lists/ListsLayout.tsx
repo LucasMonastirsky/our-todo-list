@@ -11,6 +11,7 @@ import ListEditModal from './ListEditModal'
 import ListAddModal from './ListAddModal'
 import { AppText, Loading } from '../../Components'
 import DEBUG from '../../Utils/DEBUG'
+import ContactsModal from './ContactsModal'
 
 const ListLayout = (props: LayoutProps) => {
   const [lists, setLists] = useState<TodoList[]>([])
@@ -19,6 +20,7 @@ const ListLayout = (props: LayoutProps) => {
   const [adding_task, setAddingTask] = useState(false)
   const [editting, setEditting] = useState(false)
   const [adding_list, setAddingList] = useState(false)
+  const [viewing_contacts, setViewingContancts] = useState(false)
 
   const current_list = lists[current_list_index]
 
@@ -80,6 +82,12 @@ const ListLayout = (props: LayoutProps) => {
     new_lists.splice(current_list_index, 1, current_list)
     setLists(new_lists)
   }
+
+  const addUserToList = (id: string) => {
+    const new_list = {...current_list}
+    new_list.member_ids.push(id)
+    updateList(new_list)
+  }
   //#endregion
 
   //#region Render
@@ -94,6 +102,7 @@ const ListLayout = (props: LayoutProps) => {
       return (
         <View style={css.header}>
           <Icon source={require('../../Media/Icons/edit.png')} onPress={()=>setEditting(true)} />
+          <Icon source={require('../../Media/Icons/contacts.png')} onPress={()=>setViewingContancts(true)} />
           <Icon source={require('../../Media/Icons/plus.png')} onPress={()=>setAddingList(true)} />
         </View>
       )
@@ -122,6 +131,7 @@ const ListLayout = (props: LayoutProps) => {
       {adding_task && <AddTaskModal list={current_list} onAdd={addTask} close={()=>setAddingTask(false)} />}
       {editting && <ListEditModal list={current_list} editList={updateList} {...{onRemoveList}} close={()=>setEditting(false)} />}
       {adding_list && <ListAddModal add={addList} close={setAddingList} />}
+      {viewing_contacts && <ContactsModal list={current_list} onUserAdded={addUserToList} close={setViewingContancts} />}
       {!current_list ? <AppText>No lists.</AppText>
       : <>
         <ListTab {...{lists}} onSelect={i=>setCurrentListIndex(i)} />

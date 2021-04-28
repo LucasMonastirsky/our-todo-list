@@ -28,6 +28,8 @@ interface IAPI {
     description?: string,
   }) => Promise<Task>
   editTask: (task: Task) => Promise<void>
+
+  addUserToList: (user_id: string, list: TodoList) => Promise<void>
   //#endregion
 }
 
