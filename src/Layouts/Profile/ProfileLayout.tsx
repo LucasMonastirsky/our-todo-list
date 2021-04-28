@@ -1,20 +1,34 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, TextInput, View } from 'react-native'
 import { API, Navigation } from '../../App'
-import { AppText, Loading, ProfilePicture } from '../../Components'
+import { AppButton, AppText, Loading, ProfilePicture } from '../../Components'
 import { TodoList, User } from '../../Models'
 import { colors, style } from '../../Styling'
+import DEBUG from '../../Utils/DEBUG'
 import { LayoutProps } from '../types'
 
 const ProfileLayout = (props: LayoutProps) => {
   const [user, setUser] = useState<User>(API.user)
+  const [user_changes, setUserChanges] = useState<Partial<User>>({})
   const [lists, setLists] = useState<TodoList[]|undefined>()
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {if (props.active) Navigation.header = ()=><View />}, [props.active])
   
   useEffect(() => {
     API.getListsFrom(user).then(setLists)
   }, [])
+
+  const saveChanges = () => {
+    setLoading(true)
+    API.editUser(user.id, user_changes)
+      .then(() => {
+        setUser({...user, ...user_changes})
+        setUserChanges({})
+      }).catch(() => {
+
+      }).finally(() => setLoading(false))
+  }
   
   const Item = ({label, value}: {label: string, value: string}) => (
     <View style={css.item_container}>
@@ -37,8 +51,14 @@ const ProfileLayout = (props: LayoutProps) => {
       <View style={css.pfp_container}>
         <ProfilePicture source={user.image} />
       </View>
-      <AppText style={css.name}>{user.nickname}</AppText>
+      <TextInput style={css.name} onChangeText={text=>setUserChanges({nickname: text})}>{user.nickname}</TextInput>
       <Item label='Username' value={user.username} />
+
+      {loading
+      ? <Loading />
+      : Object.keys(user_changes).length > 0
+      && <AppButton label='Save Changes' onPress={saveChanges} />
+      }
 
       <View style={css.list_section}>
         <AppText style={css.list_section_header}>Lists: </AppText>
@@ -53,6 +73,7 @@ const ProfileLayout = (props: LayoutProps) => {
 
 const css = StyleSheet.create({
   container: {
+    backgroundColor: colors.main_dark,
   },
   pfp_container: {
     height: 100,
@@ -62,6 +83,7 @@ const css = StyleSheet.create({
   name: {
     textAlign: 'center',
     fontSize: style.font_size_big,
+    color: colors.light,
   },
   item_container: {
     flexDirection: 'row',

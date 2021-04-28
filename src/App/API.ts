@@ -136,6 +136,28 @@ API = class API {
     return user
   }
 
+  static editUser = async (id: string, user: Partial<User>) => {
+    DEBUG.log(`Updating user ${id}`)
+    let expression = 'SET '
+    let values: { [key: string]: any } = {}
+    Object.keys(user).forEach((key, index) => {
+      if (index > 0)
+        expression += ', '
+      expression += `${key} = :${index}`
+      values[`:${index}`] = user[key as keyof User]
+    })
+
+    const response = await (API.dynamo_client.update({
+      TableName: 'Users',
+      Key: { id },
+      UpdateExpression: expression,
+      ExpressionAttributeValues: values,
+      ReturnValues: DEBUG.enabled ? 'UPDATED_NEW' : 'NONE'
+    }).promise())
+
+    DEBUG.log(`Updated user ${id} with values:`, response.Attributes)
+  }
+
   static getListsFrom = async (user: User) => {
     DEBUG.log(`Getting lists from user ${user.username}`)
 

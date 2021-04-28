@@ -14,6 +14,7 @@ interface IAPI {
   //#region Storage
   getCachedUser: (id: string) => Promise<User>
   getUser: (id: string) => Promise<User>
+  editUser: (id: string, user: Partial<User>) => Promise<void>
   getListsFrom: (user: User) => Promise<TodoList[]>
   createTodoList: (properties: {
     title: string,
