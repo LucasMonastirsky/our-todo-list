@@ -4,7 +4,6 @@ import { API, Navigation } from '../../App'
 import { AppButton, AppText, Loading, ProfilePicture } from '../../Components'
 import { TodoList, User } from '../../Models'
 import { colors, style } from '../../Styling'
-import DEBUG from '../../Utils/DEBUG'
 import { LayoutProps } from '../types'
 
 const ProfileLayout = (props: LayoutProps) => {
@@ -76,7 +75,10 @@ const css = StyleSheet.create({
     backgroundColor: colors.main_dark,
   },
   pfp_container: {
+    flexDirection: 'row',
     height: 100,
+    aspectRatio: 1,
+    alignSelf: 'center',
     alignItems: 'center',
     marginTop: style.margin,
   },

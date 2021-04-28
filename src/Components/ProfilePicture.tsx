@@ -1,11 +1,23 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Image, StyleSheet, View } from 'react-native'
+import { API } from '../App'
+import { User } from '../Models'
 import { colors, style } from '../Styling'
 
-const ProfilePicture = ({source}: {source?: string}) => {
-  const source_or_default = source
+const ProfilePicture = ({source, user_id}: {source?: string, user_id?: string}) => {
+  const [user, setUser] = useState<User>()
+
+  const source_or_default = user
+    ? { uri: user.image }
+    : source
     ? { uri: source }
     : require('../Media/Icons/profile_default.png')
+
+  useEffect(() => {(async () => {
+    if (user_id) {
+      setUser(await API.getCachedUser(user_id))
+    }
+  })()}, [])
 
   return (
     <View style={css.container}>
@@ -23,9 +35,8 @@ const css = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.light,
     borderRadius: 100,
-    aspectRatio: 1,
-    height: 50,
-    width: 50,
+    height: undefined,
+    width: undefined,
   },
 })
 

@@ -99,7 +99,7 @@ const TaskView = (props: PropTypes) => {
         {...gesture_handlers}
       >
         <TouchableOpacity style={[css.status, done && css.done_status]} onPress={claimTask}>
-          {props.task.status === TASK_STATUS.IN_PROGRESS && <ProfilePicture />}
+          {props.task.status === TASK_STATUS.IN_PROGRESS && <ProfilePicture user_id={props.task.claimed_by_id} />}
         </TouchableOpacity>
         <AppText style={css.title}>{props.task.title}</AppText>
       </View>
