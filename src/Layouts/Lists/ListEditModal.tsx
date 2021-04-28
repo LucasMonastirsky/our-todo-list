@@ -8,15 +8,17 @@ import { screen } from '../../Utils'
 
 export default (props: {
   list: TodoList,
-  editList: (list: TodoList)=>any,
+  editList: (list: Partial<TodoList>)=>any,
   onRemoveList: ()=>any,
   close: AppModal.Close
 }) => {
-  const [list, setList] = useState(props.list)
+  const [list_changes, setListChanges] = useState<Partial<TodoList>>({})
   const [delete_confirmation_active, setDeleteConfirmationActive] = useState(false)
+  const { list } = props
 
-  const save = () => {
-    props.editList(list)
+  const save = async () => {
+    await API.editTodoList(props.list.id, list_changes)
+    props.editList(list_changes)
     props.close(false)
   }
 
@@ -68,15 +70,15 @@ export default (props: {
         ? <DeleteConfirmation />
         : <View style={css.container}>
           <AppInputMin style={css.title} defaultValue={list.title}
-            onChangeText={title=>setList({...list, title})} />
+            onChangeText={title=>setListChanges(changes => ({ ...changes, title }))} />
           <Spacing />
           <AppInputMin style={css.description} defaultValue={list.description} multiline
-            onChangeText={description=>setList({...list, description})} />
+            onChangeText={description=>setListChanges(changes => ({ ...changes, description }))} />
           <Spacing />
           <AppText style={css.members_title}>Members:</AppText>
           {list.member_ids.map(id => <MemberItem {...{id}} />)}
           <View style={css.button_container}>
-            <AppButton style={{marginLeft: 'auto'}} label='Delete' onPress={()=>setDeleteConfirmationActive(true)} />
+            <AppButton style={{marginLeft: 'auto'}} label='Delete' color={colors.alert} onPress={()=>setDeleteConfirmationActive(true)} />
             <AppButton style={css.done_button} label='Done' onPress={save} />
           </View>
         </View>}

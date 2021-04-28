@@ -44,9 +44,9 @@ const ListLayout = (props: LayoutProps) => {
     setLists([...lists, list])
   }
 
-  const updateList = (list: TodoList) => {
+  const updateList = (changes: Partial<TodoList>) => {
     const new_lists = [...lists]
-    new_lists.splice(current_list_index, 1, list)
+    new_lists.splice(current_list_index, 1, {...current_list, ...changes})
     setLists(new_lists)
   }
 

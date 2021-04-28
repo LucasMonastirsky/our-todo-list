@@ -138,20 +138,13 @@ API = class API {
 
   static editUser = async (id: string, user: Partial<User>) => {
     DEBUG.log(`Updating user ${id}`)
-    let expression = 'SET '
-    let values: { [key: string]: any } = {}
-    Object.keys(user).forEach((key, index) => {
-      if (index > 0)
-        expression += ', '
-      expression += `${key} = :${index}`
-      values[`:${index}`] = user[key as keyof User]
-    })
+    const update_query = buildUpdateQuery(user)
 
     const response = await (API.dynamo_client.update({
       TableName: 'Users',
       Key: { id },
-      UpdateExpression: expression,
-      ExpressionAttributeValues: values,
+      UpdateExpression: update_query.expression,
+      ExpressionAttributeValues: update_query.values,
       ReturnValues: DEBUG.enabled ? 'UPDATED_NEW' : 'NONE'
     }).promise())
 
@@ -217,12 +210,19 @@ API = class API {
     return list
   }
 
-  static editTodoList = async (old_list: TodoList, new_list: TodoList) => {
-    DEBUG.log(`Editting list '${new_list.title}'...`)
-    await (API.dynamo_client.update({
+  static editTodoList = async (id: string, new_list: Partial<TodoList>) => {
+    DEBUG.log(`Editting list ${id}`)
+    const update_query = buildUpdateQuery(new_list)
+
+    const response = await (API.dynamo_client.update({
       TableName: 'Lists',
-      Key: { id: new_list.id }
-    }))
+      Key: { id },
+      UpdateExpression: update_query.expression,
+      ExpressionAttributeValues: update_query.values,
+      ReturnValues: DEBUG.enabled ? 'UPDATED_NEW' : 'NONE'
+    }).promise().catch(err => {throw err}))
+
+    DEBUG.log(`Updated list ${id} with values`, response.Attributes )
   }
 
   static deleteTodoList = async (id: string) => {
@@ -290,6 +290,18 @@ API = class API {
     }
   }
   //#endregion
+}
+
+const buildUpdateQuery = (changes: any) => {
+  let expression = 'SET '
+  let values: { [key: string]: any } = {}
+  Object.keys(changes).forEach((key, index) => {
+    if (index > 0)
+      expression += ', '
+    expression += `${key} = :${index}`
+    values[`:${index}`] = changes[key as keyof User]
+  })
+  return { expression, values }
 }
 
 type CognitoUserObject = {
