@@ -60,11 +60,13 @@ const App = () => {
     ? <AuthenticationLayout onLoggedIn={()=>setLoggedIn(true)} />
     : <AppDrawer {...{signOut}}>
         <Animated.View style={[css.content, {left: scroll_animation}]}>
-          {layout_stack.map((Layout, index) => (
-            <View style={[css.layout_container]}>
-              <Layout active={index===active_layout_index} />
-            </View>
-          ))}
+          {layout_stack.map((Layout, index) =>
+            index < layout_stack.length - 2
+            ? <View style={css.hidden_layout} />
+            : <View style={[css.layout_container]}>
+                <Layout active={index===active_layout_index} />
+              </View>
+          )}
         </Animated.View>
       </AppDrawer>
   }
@@ -86,6 +88,9 @@ const css = StyleSheet.create({
   layout_container: {
     width: screen.width,
   },
+  hidden_layout: {
+    width: screen.width,
+  }
 })
 
 export default App

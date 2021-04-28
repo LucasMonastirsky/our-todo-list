@@ -64,7 +64,7 @@ const ListTab = (props: { lists: TodoList[], onSelect: (index: number)=>void, on
 
   return (
     <View style={css.container}>
-      <ScrollView horizontal {...{onScroll}} snapToOffsets={offsets}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} {...{onScroll}} snapToOffsets={offsets}>
         <View style={{width: offset_start}} />
         {tabs}
         <View style={{width: offset_end}} />
