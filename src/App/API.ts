@@ -74,14 +74,16 @@ API = class API {
 
       DEBUG.log(`Adding user '${username}' to storage`)
 
-      await API.dynamo_client.put({
+      const result = await API.dynamo_client.put({
         TableName: 'Users',
         Item: {
+          nickname: API.pending_registration_user.username,
           username: API.pending_registration_user.username,
           id: API.pending_registration_user.id,
           list_ids: [],
         }
-      }, (err, data) => DEBUG.log(err || `Done: ${data}`))
+      }).promise()
+      DEBUG.log(`Created user ${result.Attributes!.nickname} : ${result.Attributes!.id}`)
 
       API.pending_registration_user = undefined
     }
@@ -123,10 +125,10 @@ API = class API {
   static getUser = async (id: string) => {
     DEBUG.log(`Getting user data from id: ${id}`)
 
-    const user = (await (API.dynamo_client.get({
+    const user = (await API.dynamo_client.get({
       TableName: 'Users',
       Key: { id },
-    }).promise())).Item as User
+    }).promise()).Item as User
     if (user === undefined)
       throw `Could not find user with id ${id}`
 
@@ -138,7 +140,7 @@ API = class API {
 
   static editUser = async (id: string, user: Partial<User>) => {
     DEBUG.log(`Updating user ${id}`)
-    const update_query = API.buildUpdateQuery(user)
+    const update_query = buildUpdateQuery(user)
 
     const response = await (API.dynamo_client.update({
       TableName: 'Users',
@@ -159,13 +161,13 @@ API = class API {
       return []
     }
 
-    const query = await (API.dynamo_client.batchGet({
+    const query = await API.dynamo_client.batchGet({
       RequestItems: {
         Lists: {
           Keys: user.list_ids.map(id => ({ id }))
         }
       }
-    }).promise().catch(err => {DEBUG.error(err); throw err}))
+    }).promise()
 
     if (!query.Responses){
       DEBUG.error('No responses...')
@@ -176,7 +178,7 @@ API = class API {
     DEBUG.log(`Got ${result.length} lists from ${user.username}`)
 
     return result.map(item => ( // convert task map to list
-      { ...item, tasks: Object.values(item.tasks), member_ids: API.arrayFromSet(item.member_ids) }
+      { ...item, tasks: Object.values(item.tasks), member_ids: arrayFromSet(item.member_ids) }
     )) as TodoList[]
   }
 
@@ -194,7 +196,7 @@ API = class API {
 
     await API.dynamo_client.put({
       TableName: 'Lists',
-      Item: {...list, tasks: {}, member_ids: API.arrayToSet(list.member_ids)},
+      Item: {...list, tasks: {}, member_ids: arrayToSet(list.member_ids)},
     }, err => {
       if (err) { DEBUG.error(err); throw err }
     })
@@ -205,32 +207,32 @@ API = class API {
       UpdateExpression: 'SET #list_ids = list_append(#list_ids, :new_list_id)',
       ExpressionAttributeNames: { '#list_ids': 'list_ids' },
       ExpressionAttributeValues: { ':new_list_id': [list.id] }
-    }, (err) => { throw err })
+    }).promise()
 
     return list
   }
 
   static editTodoList = async (id: string, new_list: Partial<TodoList>) => {
     DEBUG.log(`Editting list ${id}`)
-    const update_query = API.buildUpdateQuery(new_list)
+    const update_query = buildUpdateQuery(new_list)
 
-    const response = await (API.dynamo_client.update({
+    const response = await API.dynamo_client.update({
       TableName: 'Lists',
       Key: { id },
       UpdateExpression: update_query.expression,
       ExpressionAttributeValues: update_query.values,
       ReturnValues: DEBUG.enabled ? 'UPDATED_NEW' : 'NONE'
-    }).promise().catch(err => {throw err}))
+    }).promise()
 
     DEBUG.log(`Updated list ${id} with values`, response.Attributes )
   }
 
   static deleteTodoList = async (id: string) => {
     DEBUG.log(`Deleting list ${id}...`)
-    await (API.dynamo_client.delete({
+    await API.dynamo_client.delete({
       TableName: 'Lists',
       Key: { id }
-    }).promise())
+    }).promise()
     DEBUG.log(`Deleted list ${id}`)
   }
 
@@ -259,13 +261,14 @@ API = class API {
       ExpressionAttributeValues: {
         ':new_task': task,
       },
-    }, (error, data) => error && DEBUG.error(error))
+    }).promise()
+
     return task
   }
 
   static editTask = async (task: Task) => {
     DEBUG.log(`Editting task '${task.title}'...`)
-    const response = await (API.dynamo_client.update({
+    const response = await API.dynamo_client.update({
       TableName: 'Lists',
       Key: { id: task.list_id },
       UpdateExpression: 'SET #tasks.#id = :updated_task',
@@ -277,9 +280,9 @@ API = class API {
         ':updated_task': task,
       },
       ReturnValues: DEBUG.enabled ? 'UPDATED_OLD' : 'NONE'
-    }).promise())
+    }).promise()
 
-    if (DEBUG.enabled) {
+    if (DEBUG.enabled && response) {
       const old_task = response.Attributes!.tasks[task.id]
       const updated_values: { [key: string]: any } = {}
       Object.keys(task).forEach(key => {
@@ -298,50 +301,50 @@ API = class API {
       throw new Error(message)
     }
 
-    const result = await (API.dynamo_client.update({
+    const result = await API.dynamo_client.update({
       TableName: 'Lists',
       Key: { id: list.id },
       UpdateExpression: 'ADD member_ids :user_id',
-      ExpressionAttributeValues: { ':user_id': API.arrayToSet([user_id]) },
+      ExpressionAttributeValues: { ':user_id': arrayToSet([user_id]) },
       ReturnValues: DEBUG.enabled ? 'UPDATED_NEW' : 'NONE'
-    }).promise().catch(err => {DEBUG.error(err); throw err}))
+    }).promise()
 
     DEBUG.log(result)
   }
 
   static removeUserFromList = async (user_id: string, list: TodoList) => {
-    const result = await (API.dynamo_client.update({
+    const result = await API.dynamo_client.update({
       TableName: 'Lists',
       Key: { id: list.id },
       UpdateExpression: 'DELETE member_ids :user_id',
-      ExpressionAttributeValues: { ':user_id': API.arrayToSet([user_id]) },
+      ExpressionAttributeValues: { ':user_id': arrayToSet([user_id]) },
       ReturnValues: 'UPDATED_NEW',
-    }).promise().catch(err => {DEBUG.error(err); throw err}))
+    }).promise()
     DEBUG.log(result)
   }
   //#endregion
-
-  //#region Utils
-  private static buildUpdateQuery (changes: any) {
-    let expression = 'SET '
-    let values: { [key: string]: any } = {}
-    Object.keys(changes).forEach((key, index) => {
-      if (index > 0)
-        expression += ', '
-      expression += `${key} = :${index}`
-      values[`:${index}`] = changes[key as keyof User]
-    })
-    return { expression, values }
-  }
-
-  private static arrayToSet<Type> (arr: Type[]) {
-    return API.dynamo_client.createSet(arr)
-  }
-
-  private static arrayFromSet (set: any) {
-    return JSON.parse(JSON.stringify(set))
-  }
-  //#endregion
 }
+
+//#region Utils
+function buildUpdateQuery (changes: any) {
+  let expression = 'SET '
+  let values: { [key: string]: any } = {}
+  Object.keys(changes).forEach((key, index) => {
+    if (index > 0)
+      expression += ', '
+    expression += `${key} = :${index}`
+    values[`:${index}`] = changes[key as keyof User]
+  })
+  return { expression, values }
+}
+
+function arrayToSet<Type> (arr: Type[]) { // @ts-ignore
+  return API.dynamo_client.createSet(arr) 
+}
+
+function arrayFromSet (set: any) {
+  return JSON.parse(JSON.stringify(set))
+}
+//#endregion
 
 export default API
