@@ -3,11 +3,18 @@ import { Modal, StyleSheet, TouchableWithoutFeedback, Animated, View } from 'rea
 import { colors, style } from '../Styling'
 import { createAnimation } from '../Utils'
 
-const AppModal = (props: {children: any, close: (value: boolean)=>any, clear?: boolean}) => {
+type Props = {
+  children: any,
+  close: (value: boolean)=>any,
+  clear?: boolean,
+  onRequestClose?: ()=>any,
+}
+const AppModal = (props: Props) => {
   const [active, setActive] = useState(true)
 
   const close = () => {
-    setActive(false)
+    if (!props.onRequestClose || !props.onRequestClose())
+      setActive(false)
   }
 
   const fade_animation = createAnimation({

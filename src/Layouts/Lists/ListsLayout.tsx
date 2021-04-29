@@ -80,6 +80,13 @@ const ListLayout = (props: LayoutProps) => {
     new_list.member_ids.push(id)
     updateList(new_list)
   }
+
+  const removeUserFromList = (id: string) => {
+    const new_list = {...current_list}
+    const user_index = new_list.member_ids.indexOf(id)
+    new_list.member_ids.splice(user_index, 1)
+    updateList(new_list)
+  }
   //#endregion
 
   //#region Render
@@ -117,7 +124,7 @@ const ListLayout = (props: LayoutProps) => {
       {adding_task && <AddTaskModal list={current_list} onAdd={addTask} close={()=>setAddingTask(false)} />}
       {editting && <ListEditModal list={current_list} editList={updateList} {...{onRemoveList}} close={()=>setEditting(false)} />}
       {adding_list && <ListAddModal add={addList} close={setAddingList} />}
-      {viewing_contacts && <ContactsModal list={current_list} onUserAdded={addUserToList} close={setViewingContancts} />}
+      {viewing_contacts && <ContactsModal list={current_list} onUserAdded={addUserToList} onUserRemoved={removeUserFromList} close={setViewingContancts} />}
       {!current_list ? <AppText>No lists.</AppText>
       : <>
         <ListTab {...{lists}} onSelect={i=>setCurrentListIndex(i)} />

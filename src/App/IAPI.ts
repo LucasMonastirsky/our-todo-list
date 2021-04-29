@@ -30,6 +30,7 @@ interface IAPI {
   editTask: (task: Task) => Promise<void>
 
   addUserToList: (user_id: string, list: TodoList) => Promise<void>
+  removeUserFromList: (user_id: string, list: TodoList) => Promise<void>
   //#endregion
 }
 
