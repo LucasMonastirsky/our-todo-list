@@ -22,14 +22,12 @@ export default (props: {add: (list: TodoList)=>any, close: AppModal.Close}) => {
 
   return (
     <AppModal close={props.close}>
-      <View style={css.container}>
-        <AppInputMin defaultValue={list.title}
-          onChangeText={title=>setList({...list, title})} />
-        <AppInputMin defaultValue={list.description}
-          placeholder='Add a description to the list'
-          onChangeText={description=>setList({...list, description})} />
-        <AppButton label='Add List' onPress={addList} style={css.done_button} />
-      </View>
+      <AppInputMin defaultValue={list.title}
+        onChangeText={title=>setList({...list, title})} />
+      <AppInputMin defaultValue={list.description}
+        placeholder='Add a description to the list'
+        onChangeText={description=>setList({...list, description})} />
+      <AppButton label='Add List' onPress={addList} style={css.done_button} />
     </AppModal>
   )
 }

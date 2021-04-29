@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { Modal, StyleSheet, TouchableWithoutFeedback, Animated } from 'react-native'
-import { colors } from '../Styling'
+import { Modal, StyleSheet, TouchableWithoutFeedback, Animated, View } from 'react-native'
+import { colors, style } from '../Styling'
 import { createAnimation } from '../Utils'
 
 const AppModal = (props: {children: any, close: (value: boolean)=>any, clear?: boolean}) => {
@@ -30,7 +30,9 @@ const AppModal = (props: {children: any, close: (value: boolean)=>any, clear?: b
       <TouchableWithoutFeedback onPress={close}>
         <Animated.View style={[css.centered, fade_style]}>
           <TouchableWithoutFeedback>
-            {props.children}
+            <View style={css.container}>
+              {props.children}
+            </View>
           </TouchableWithoutFeedback>
         </Animated.View>
       </TouchableWithoutFeedback>
@@ -39,6 +41,12 @@ const AppModal = (props: {children: any, close: (value: boolean)=>any, clear?: b
 }
 
 const css = StyleSheet.create({
+  container: {
+    marginHorizontal: style.margin,
+    padding: style.padding,
+    borderRadius: style.border_radius_big,
+    backgroundColor: colors.main,
+  },
   centered: {
     justifyContent: 'center',
     flex: 1,

@@ -47,19 +47,17 @@ export default (props: {
   
     return (
       <AppModal close={props.close} clear>
-        <View style={css.container}>
-          <AppText style={{textAlign: 'center'}}>Deleting {props.list.title}</AppText>
-          <View style={css.divider} />
-          {loading
-          ? <View style={css.loading_container}><Loading /></View>
-          : <>
-            <AppText style={{textAlign: 'center'}}>Are you sure?</AppText>
-            <View style={css.delete_confirmation_button_container}>
-              <AppButton label='Confirm' color={colors.alert} onPress={confirm} />
-              <AppButton label='Cancel' onPress={()=>props.close(false)} />
-            </View>
-          </>}
-        </View>
+        <AppText style={{textAlign: 'center'}}>Deleting {props.list.title}</AppText>
+        <View style={css.divider} />
+        {loading
+        ? <View style={css.loading_container}><Loading /></View>
+        : <>
+          <AppText style={{textAlign: 'center'}}>Are you sure?</AppText>
+          <View style={css.delete_confirmation_button_container}>
+            <AppButton label='Confirm' color={colors.alert} onPress={confirm} />
+            <AppButton label='Cancel' onPress={()=>props.close(false)} />
+          </View>
+        </>}
       </AppModal>
     )
   }
@@ -68,7 +66,7 @@ export default (props: {
     <AppModal close={props.close}>
         {delete_confirmation_active
         ? <DeleteConfirmation />
-        : <View style={css.container}>
+        : <>
           <AppInputMin style={css.title} defaultValue={list.title}
             onChangeText={title=>setListChanges(changes => ({ ...changes, title }))} />
           <Spacing />
@@ -83,7 +81,7 @@ export default (props: {
             <AppButton style={{marginLeft: 'auto'}} label='Delete' color={colors.alert} onPress={()=>setDeleteConfirmationActive(true)} />
             <AppButton style={css.done_button} label='Done' onPress={save} />
           </View>
-        </View>}
+        </>}
     </AppModal>
   )
 }
@@ -91,12 +89,6 @@ export default (props: {
 const Spacing = () => <View style={css.spacing} />
 
 const css = StyleSheet.create({
-  container: {
-    marginHorizontal: screen.width / 10,
-    backgroundColor: colors.main,
-    padding: style.padding,
-    borderRadius: style.border_radius_med,
-  },
   spacing: {
     height: style.padding,
   },

@@ -12,6 +12,7 @@ import ListAddModal from './ListAddModal'
 import { AppText, Loading } from '../../Components'
 import DEBUG from '../../Utils/DEBUG'
 import ContactsModal from './ContactsModal'
+import Icon from '../../Components/AppIcon'
 
 const ListLayout = (props: LayoutProps) => {
   const [lists, setLists] = useState<TodoList[]>([])
@@ -84,12 +85,6 @@ const ListLayout = (props: LayoutProps) => {
   //#region Render
   useEffect(() => {
     if (props.active) Navigation.header = () => {
-      const Icon = ({source, onPress}: {source: ImageSourcePropType, onPress: ()=>any}) => (
-        <TouchableOpacity style={css.header_icon_container} {...{onPress}}>
-            <Image style={css.header_icon_img} {...{source}} />
-        </TouchableOpacity>
-      )
-  
       return (
         <View style={css.header}>
           <Icon source={require('../../Media/Icons/edit.png')} onPress={()=>setEditting(true)} />
@@ -146,7 +141,7 @@ const ListLayout = (props: LayoutProps) => {
               task: item,
               index,
               updateTask: task => updateTask(task),
-              onTaskFinished: () => { throw new Error(`Task ${item.title} is already done!`)}
+              onTaskFinished: () => {throw new Error(`Task ${item.title} is already done!`)}
             }} />
           )}
         />
@@ -173,13 +168,6 @@ const css = StyleSheet.create({
     flexDirection: 'row',
     padding: style.padding,
     justifyContent: 'flex-end',
-  },
-  header_icon_container: {
-    marginLeft: style.margin,
-  },
-  header_icon_img: {
-    flex: 1,
-    aspectRatio: 1,
   },
   list_title_container: {
     marginLeft: 'auto',

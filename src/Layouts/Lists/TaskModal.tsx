@@ -18,21 +18,19 @@ const TaskModal = (props: { task: Task, close: AppModal.Close }) => {
 
   return (
     <AppModal close={props.close}>
-      <View style={css.container}>
-        <View style={css.title_container}>
-          <AppText style={css.title}>{task.title}</AppText>
-          <AppText style={css.status}>{task.status}</AppText>
-        </View> 
+      <View style={css.title_container}>
+        <AppText style={css.title}>{task.title}</AppText>
+        <AppText style={css.status}>{task.status}</AppText>
+      </View> 
+      <Divider />
+      {task.description !== '' && <>
+        <AppText style={css.description}>{task.description}</AppText>
         <Divider />
-        {task.description !== '' && <>
-          <AppText style={css.description}>{task.description}</AppText>
-          <Divider />
-        </>}
-        <View style={css.created_container}>
-          <AppText style={css.created_text}>
-            Created by {creator?.username ?? 'loading...'} on {formatDate(task.creation_date)}
-          </AppText>
-        </View>
+      </>}
+      <View style={css.created_container}>
+        <AppText style={css.created_text}>
+          Created by {creator?.username ?? 'loading...'} on {formatDate(task.creation_date)}
+        </AppText>
       </View>
     </AppModal>
   )
@@ -41,12 +39,6 @@ const TaskModal = (props: { task: Task, close: AppModal.Close }) => {
 const Divider = () => <View style={css.divider} />
 
 const css = StyleSheet.create({
-  container: {
-    marginHorizontal: style.margin,
-    padding: style.padding,
-    borderRadius: style.border_radius_big,
-    backgroundColor: colors.main,
-  },
   title_container: {
     flexDirection: 'row',
   },

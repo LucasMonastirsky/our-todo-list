@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { API } from '../../App'
-import { AppButton, AppInputMin, AppModal, AppText, Loading } from '../../Components'
+import { AppButton, AppIcon, AppInputMin, AppModal, AppText, Loading } from '../../Components'
 import { TodoList, User } from '../../Models'
 import { colors, style } from '../../Styling'
 import { screen } from '../../Utils'
@@ -37,8 +37,10 @@ const ContactsModal = (props: { list: TodoList, onUserAdded: (id: string)=>any, 
     {members === undefined && <Loading />}
     {members?.map(user => (
       <View style={css.member_item}>
-        <AppText>{user.nickname}</AppText>
-        {props.list.owner_id === user.id && <AppText style={css.owner_label}>Owner</AppText>}
+        <AppText style={css.member_name}>{user.nickname}</AppText>
+        {props.list.owner_id === user.id
+        ? <AppText style={css.owner_label}>Owner</AppText>
+        : <AppIcon source={require('../../Media/Icons/options.png')} onPress={()=>{}} />}
       </View>
     ))}
     {members !== undefined && <AppButton label='Invite Someone' onPress={()=>setInviting(true)} />}
@@ -46,9 +48,7 @@ const ContactsModal = (props: { list: TodoList, onUserAdded: (id: string)=>any, 
 
   return (
     <AppModal close={props.close}>
-      <View style={css.container}>
-        {content}
-      </View>
+      {content}
     </AppModal>
   )
 }
@@ -73,9 +73,12 @@ const css = StyleSheet.create({
   },
   member_item: {
     flexDirection: 'row',
+    paddingVertical: style.padding,
+  },
+  member_name: {
+    marginRight: 'auto',
   },
   owner_label: {
-    marginLeft: 'auto',
     fontWeight: 'bold',
   }
 })

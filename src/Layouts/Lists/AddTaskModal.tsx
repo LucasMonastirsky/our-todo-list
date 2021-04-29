@@ -26,16 +26,14 @@ const AddTaskModal = (props: {list: TodoList, onAdd: (task: Task)=>any, close: A
 
   return (
     <AppModal close={props.close}>
-      <View style={css.container}>
-        <AppInputMin defaultValue='Task Title' onChangeText={setTitle} />
-        <AppInputMin style={css.description} onChangeText={setDescription}
-          defaultValue={default_task.description}
-          placeholder='Give the task a description'
-          placeholderTextColor={colors.light_dark}
-          multiline
-        />
-        <AppButton label='Add Task' onPress={addTask} style={css.button_add_task} />
-      </View>
+      <AppInputMin defaultValue='Task Title' onChangeText={setTitle} />
+      <AppInputMin style={css.description} onChangeText={setDescription}
+        defaultValue={default_task.description}
+        placeholder='Give the task a description'
+        placeholderTextColor={colors.light_dark}
+        multiline
+      />
+      <AppButton label='Add Task' onPress={addTask} style={css.button_add_task} />
     </AppModal>
   )
 }
