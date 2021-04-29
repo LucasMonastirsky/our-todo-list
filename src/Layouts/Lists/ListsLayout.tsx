@@ -52,34 +52,25 @@ const ListLayout = (props: LayoutProps) => {
     setLists(new_lists)
   }
 
-  const updateTask = (index: number, task: Task) => {
-    const new_list = {...current_list}
-    new_list.tasks[index] = task
-    updateList(new_list)
-  }
-
-  const onRemoveList = () => {
-    const new_lists = [...lists]
-    new_lists.splice(current_list_index, 1)
-    setLists(new_lists)
-  }
-
-  const onTaskFinished = (task: Task) => {
-    DEBUG.log(`Completed task '${task.title}', updating list state...`)
-
+  const updateTask = (task: Task) => {
     let task_index = -1
-    current_list.tasks.some((x, i) => {
+    current_list.tasks.some((x, i) => { //TODO: this could be added to Array.prototype
       if (task.id === x.id) {
         task_index = i
         return true
       }
     })
     if (task_index < 0)
-     throw `Could not find completed task in list state`
+     throw new Error(`Could not find task ${task.title} in ${current_list.title}`)
 
-    current_list.tasks.splice(task_index, 1, {...task, status: TASK_STATUS.DONE})
+    const new_list = {...current_list}
+    new_list.tasks[task_index] = task
+    updateList(new_list)
+  }
+
+  const onRemoveList = () => {
     const new_lists = [...lists]
-    new_lists.splice(current_list_index, 1, current_list)
+    new_lists.splice(current_list_index, 1)
     setLists(new_lists)
   }
 
@@ -142,8 +133,8 @@ const ListLayout = (props: LayoutProps) => {
               <TaskView {...{
                 task: item,
                 index,
-                updateTask: task => updateTask(index, task),
-                onTaskFinished: () => onTaskFinished(item)
+                updateTask: task => updateTask(task),
+                onTaskFinished: () => updateTask({ ...item, status: TASK_STATUS.DONE })
               }} />
             )}
           />
@@ -154,8 +145,8 @@ const ListLayout = (props: LayoutProps) => {
             <TaskView {...{
               task: item,
               index,
-              updateTask: task => updateTask(index, task),
-              onTaskFinished: () => {}
+              updateTask: task => updateTask(task),
+              onTaskFinished: () => { throw new Error(`Task ${item.title} is already done!`)}
             }} />
           )}
         />
