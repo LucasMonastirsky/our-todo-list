@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { FlatList, Image, ImageSourcePropType, Modal, StyleSheet, TouchableOpacity, View } from 'react-native'
 import TaskView from './TaskView'
-import { Task, TASK_STATUS, TodoList } from '../../Models'
+import { Task, TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
 import ListTab from './ListTab'
 import { API, Navigation, Options } from '../../App'
@@ -113,7 +113,7 @@ const ListLayout = (props: LayoutProps) => {
   const reordered_tasks: Task[] = []
   const completed_tasks: Task[] = []
   current_list.tasks.forEach(task => {
-    if (task.status !== TASK_STATUS.DONE)
+    if (task.status !== 'Done')
       reordered_tasks.push(task)
     else if (Options.show_completed_tasks)
       completed_tasks.push(task)
@@ -137,7 +137,7 @@ const ListLayout = (props: LayoutProps) => {
                 index,
                 updateTask: task => updateTask(task),
                 onTaskFinished: () => updateTask({ ...item,
-                  status: TASK_STATUS.DONE,
+                  status: 'Done',
                   completer_id: API.user.id,
                   completion_date: Date.now()
                 })

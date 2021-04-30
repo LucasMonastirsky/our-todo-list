@@ -1,6 +1,6 @@
 type Task = {
   title: string
-  status: TASK_STATUS
+  status: 'Done'|'Claimed'|'Pending'|'Paused'
   description: string
   id: string
   list_id: string
@@ -12,12 +12,4 @@ type Task = {
   position: number
 }
 
-enum TASK_STATUS {
-  DONE = 'Done',
-  IN_PROGRESS = 'In Progress',
-  PENDING = 'Pending',
-  PAUSED = 'Paused',
-}
-
 export default Task
-export { TASK_STATUS }

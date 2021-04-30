@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { View, StyleSheet } from 'react-native'
 import { API } from '../../App'
 import { AppModal, AppText } from '../../Components'
-import { User, Task, TASK_STATUS } from '../../Models'
+import { User, Task } from '../../Models'
 import { colors, style } from '../../Styling'
 import { timeAgo } from '../../Utils'
 
@@ -14,7 +14,7 @@ const TaskModal = (props: { task: Task, close: AppModal.Close }) => {
   useEffect(() => {
     (async () => {
       setCreator(await API.getCachedUser(task.creator_id))
-      if (task.status === TASK_STATUS.DONE)
+      if (task.status === 'Done')
         setCompleter(await API.getCachedUser(task.completer_id!))
     })()
   }, [])
@@ -34,7 +34,7 @@ const TaskModal = (props: { task: Task, close: AppModal.Close }) => {
         <AppText style={css.created_text}>
           Created by {creator?.nickname ?? 'loading...'} {timeAgo(task.creation_date)}
         </AppText>
-        {task.status === TASK_STATUS.DONE &&
+        {task.status === 'Done' &&
           <AppText style={css.created_text}>
             Completed by {completer?.nickname ?? 'loading...'} {timeAgo(task.completion_date!)}
           </AppText>

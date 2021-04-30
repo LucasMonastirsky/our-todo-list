@@ -1,6 +1,6 @@
 import Auth from "@aws-amplify/auth"
 import Amplify from 'aws-amplify'
-import { Task, TASK_STATUS, TodoList  } from "../Models"
+import { Task, TodoList } from "../Models"
 import User from "../Models/User"
 import AWS from 'aws-sdk'
 import { amplify_config, aws_sdk_config } from '../Secrets'
@@ -247,7 +247,7 @@ API = class API {
       list_id: list.id,
       creator_id: API.user.id,
       creation_date: Date.now(),
-      status: TASK_STATUS.PENDING,
+      status: 'Pending',
       position: 0,
     }
     await API.dynamo_client.update({

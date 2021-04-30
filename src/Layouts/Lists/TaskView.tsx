@@ -1,6 +1,6 @@
 import React, { SyntheticEvent, useState } from 'react'
 import { TouchableOpacity, StyleSheet, Animated, View, NativeSyntheticEvent } from 'react-native'
-import { Task, TASK_STATUS } from '../../Models'
+import { Task } from '../../Models'
 import { colors, style } from '../../Styling'
 import TaskModal from './TaskModal'
 import { createAnimation, screen } from '../../Utils'
@@ -19,9 +19,9 @@ const TaskView = (props: PropTypes) => {
   const anim = createAnimation({duration: style.anim_duration / 5 * ((props.index ?? 0) + 1)})
 
   const claimTask = async () => {
-    const new_task = {
+    const new_task: Task = {
       ...props.task,
-      status: TASK_STATUS.IN_PROGRESS,
+      status: 'Claimed',
       claimed_by_id: API.user.id,
     }
     await API.editTask(new_task)
@@ -31,7 +31,7 @@ const TaskView = (props: PropTypes) => {
 
   const finishTask = async () => {
     await API.editTask({...props.task,
-      status: TASK_STATUS.DONE,
+      status: 'Done',
       completer_id: API.user.id,
       completion_date: Date.now()
     })
@@ -49,7 +49,7 @@ const TaskView = (props: PropTypes) => {
 
   type GestureEvent = { nativeEvent: { pageX: number } }
   const gesture_handlers = {
-    onStartShouldSetResponder: () => (props.task.status !== TASK_STATUS.DONE),
+    onStartShouldSetResponder: () => (props.task.status !== 'Done'),
     onResponderGrant: ({nativeEvent}: GestureEvent) => {
       setGestureStartTime(Date.now())
       setGestureStartPos(nativeEvent.pageX)
@@ -95,7 +95,7 @@ const TaskView = (props: PropTypes) => {
   })
   //#endregion
 
-  const done = props.task.status === TASK_STATUS.DONE
+  const done = props.task.status === 'Done'
   return (
     <Animated.View style={{opacity: anim, left: slide_anim }}>
       <View 
@@ -103,7 +103,7 @@ const TaskView = (props: PropTypes) => {
         {...gesture_handlers}
       >
         <TouchableOpacity style={[css.status, done && css.done_status]} onPress={!done?claimTask:()=>{}}>
-          {(props.task.status === TASK_STATUS.IN_PROGRESS || done)
+          {(props.task.status === 'Claimed' || done)
           && <ProfilePicture user_id={props.task.claimed_by_id} />}
         </TouchableOpacity>
         <AppText style={css.title}>{props.task.title}</AppText>
