@@ -15,6 +15,7 @@ type PropTypes = {
   onTaskFinished: () => any
 }
 const TaskView = (props: PropTypes) => {
+  const { task } = props
   const [modal_active, setModalActive] = useState(false)
   const anim = createAnimation({duration: style.anim_duration / 5 * ((props.index ?? 0) + 1)})
 
@@ -49,14 +50,14 @@ const TaskView = (props: PropTypes) => {
 
   type GestureEvent = { nativeEvent: { pageX: number } }
   const gesture_handlers = {
-    onStartShouldSetResponder: () => (props.task.status !== 'Done'),
+    onStartShouldSetResponder: () => true,
     onResponderGrant: ({nativeEvent}: GestureEvent) => {
       setGestureStartTime(Date.now())
       setGestureStartPos(nativeEvent.pageX)
     },
     onResponderMove: ({nativeEvent}: GestureEvent) => {
       const delta = nativeEvent.pageX - gesture_start_x
-      if (delta > gesture_horizontal_start_threshold) {
+      if (delta > gesture_horizontal_start_threshold && task.status !== 'Done') {
         setGestureDeltaX(nativeEvent.pageX - gesture_start_x)
       }
     },
@@ -73,7 +74,7 @@ const TaskView = (props: PropTypes) => {
     }
   }
 
-  const slide_anim = createAnimation({
+  const slide_anim = task.status === 'Done' ? undefined : createAnimation({
     from: gesture_delta_x,
     to: gesture_anim === 'confirmed' || gesture_anim === 'done'
       ? screen.width
@@ -97,7 +98,7 @@ const TaskView = (props: PropTypes) => {
 
   const done = props.task.status === 'Done'
   return (
-    <Animated.View style={{opacity: anim, left: slide_anim }}>
+    <Animated.View style={{opacity: anim, left: done ? 0 : slide_anim }}>
       <View 
         style={[css.container, done && css.done_container]}
         {...gesture_handlers}
