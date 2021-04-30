@@ -2,17 +2,20 @@ import React, { useEffect, useState } from 'react'
 import { View, StyleSheet } from 'react-native'
 import { API } from '../../App'
 import { AppModal, AppText } from '../../Components'
-import { User, Task } from '../../Models'
+import { User, Task, TASK_STATUS } from '../../Models'
 import { colors, style } from '../../Styling'
-import { formatDate } from '../../Utils'
+import { timeAgo } from '../../Utils'
 
 const TaskModal = (props: { task: Task, close: AppModal.Close }) => {
   const { task } = props
   const [creator, setCreator] = useState<User>()
+  const [completer, setCompleter] = useState<User>()
 
   useEffect(() => {
     (async () => {
       setCreator(await API.getCachedUser(task.creator_id))
+      if (task.status === TASK_STATUS.DONE)
+        setCompleter(await API.getCachedUser(task.completer_id!))
     })()
   }, [])
 
@@ -29,8 +32,13 @@ const TaskModal = (props: { task: Task, close: AppModal.Close }) => {
       </>}
       <View style={css.created_container}>
         <AppText style={css.created_text}>
-          Created by {creator?.username ?? 'loading...'} on {formatDate(task.creation_date)}
+          Created by {creator?.nickname ?? 'loading...'} {timeAgo(task.creation_date)}
         </AppText>
+        {task.status === TASK_STATUS.DONE &&
+          <AppText style={css.created_text}>
+            Completed by {completer?.nickname ?? 'loading...'} {timeAgo(task.completion_date!)}
+          </AppText>
+        }
       </View>
     </AppModal>
   )

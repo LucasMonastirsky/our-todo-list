@@ -8,6 +8,7 @@ type Task = {
   creation_date: number
   claimed_by_id?: string
   completer_id?: string
+  completion_date?: number
   position: number
 }
 

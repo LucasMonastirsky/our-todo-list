@@ -30,7 +30,11 @@ const TaskView = (props: PropTypes) => {
   }
 
   const finishTask = async () => {
-    await API.editTask({...props.task, status: TASK_STATUS.DONE, completer_id: API.user.id})
+    await API.editTask({...props.task,
+      status: TASK_STATUS.DONE,
+      completer_id: API.user.id,
+      completion_date: Date.now()
+    })
     props.onTaskFinished()
   }
 

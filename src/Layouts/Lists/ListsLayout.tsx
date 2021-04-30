@@ -136,7 +136,11 @@ const ListLayout = (props: LayoutProps) => {
                 task: item,
                 index,
                 updateTask: task => updateTask(task),
-                onTaskFinished: () => updateTask({ ...item, status: TASK_STATUS.DONE })
+                onTaskFinished: () => updateTask({ ...item,
+                  status: TASK_STATUS.DONE,
+                  completer_id: API.user.id,
+                  completion_date: Date.now()
+                })
               }} />
             )}
           />
