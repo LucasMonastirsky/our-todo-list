@@ -49,7 +49,7 @@ const ListTab = (props: { lists: TodoList[], onSelect: (index: number)=>void, on
     }
 
     return (
-      <View style={[css.item, (selected_index === index ? css.item_selected : {})]} {...{onLayout}}>
+      <View key={list.id} {...{onLayout}} style={[css.item, (selected_index === index ? css.item_selected : {})]}>
         <AppText style={[css.item_text, (selected_index === index ? css.item_text_selected : {})]}>
           {list.title}
         </AppText>

@@ -37,7 +37,7 @@ const ProfileLayout = (props: LayoutProps) => {
   )
 
   const ListItem = (list: TodoList) => (
-    <View style={css.list_container}>
+    <View style={css.list_container} key={list.id}>
       <AppText style={css.list_title}>{list.title}</AppText>
       { user.id === list.owner_id
       && <AppText style={css.owner_label}>Owner</AppText>

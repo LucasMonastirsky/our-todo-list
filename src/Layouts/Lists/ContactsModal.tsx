@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { BackHandler, StyleSheet, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { API } from '../../App'
 import { AppButton, AppIcon, AppInputMin, AppModal, AppText, Loading } from '../../Components'
 import { TodoList, User } from '../../Models'
 import { colors, style } from '../../Styling'
 import { screen } from '../../Utils'
-import DEBUG from '../../Utils/DEBUG'
 
 const ContactsModal = (props: { list: TodoList, onUserAdded: (id: string)=>any, onUserRemoved: (id: string)=>any, close: (x: boolean)=>any } ) => {
   const [members, setMembers] = useState<User[]>()
@@ -73,7 +72,7 @@ const ContactsModal = (props: { list: TodoList, onUserAdded: (id: string)=>any, 
       <View style={css.separator} />
       {members === undefined && <Loading />}
       {members?.map(user => (
-        <View style={css.member_item}>
+        <View style={css.member_item} key={user.id}>
           <AppText style={css.member_name}>{user.nickname}</AppText>
           {props.list.owner_id === user.id
           ? <AppText style={css.owner_label}>Owner</AppText>

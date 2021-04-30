@@ -62,8 +62,8 @@ const App = () => {
         <Animated.View style={[css.content, {left: scroll_animation}]}>
           {layout_stack.map((Layout, index) =>
             index < layout_stack.length - 2
-            ? <View style={css.hidden_layout} />
-            : <View style={[css.layout_container]}>
+            ? <View style={css.hidden_layout} key={index} />
+            : <View style={[css.layout_container]} key={index}>
                 <Layout active={index===active_layout_index} />
               </View>
           )}

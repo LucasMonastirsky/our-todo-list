@@ -76,7 +76,7 @@ export default (props: {
           <View style={{flexDirection: 'row'}}>
             <AppText style={css.members_title}>Members:</AppText>
           </View>
-          {list.member_ids.map(id => <MemberItem {...{id}} />)}
+          {list.member_ids.map(id => <MemberItem {...{id}} key={id} />)}
           <View style={css.button_container}>
             <AppButton style={{marginLeft: 'auto'}} label='Delete' color={colors.alert} onPress={()=>setDeleteConfirmationActive(true)} />
             <AppButton style={css.done_button} label='Done' onPress={save} />
