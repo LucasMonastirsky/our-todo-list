@@ -301,7 +301,9 @@ API = class API {
       throw new Error(message)
     }
 
-    const result = await API.dynamo_client.update({
+    // TODO: updates should be batched together and cancelled if an error is thrown in either one
+
+    const list_result = await API.dynamo_client.update({
       TableName: 'Lists',
       Key: { id: list.id },
       UpdateExpression: 'ADD member_ids :user_id',
@@ -309,7 +311,17 @@ API = class API {
       ReturnValues: DEBUG.enabled ? 'UPDATED_NEW' : 'NONE'
     }).promise()
 
-    DEBUG.log(result)
+    DEBUG.log(`Updated list ${list.id}: `, list_result.Attributes)
+
+    const user_result = await API.dynamo_client.update({
+      TableName: 'Users',
+      Key: { id: user_id },
+      UpdateExpression: 'SET list_ids = list_append(list_ids, :value)',
+      ExpressionAttributeValues: { ':value': [list.id] },
+      ReturnValues: DEBUG.enabled ? 'UPDATED_NEW' : 'NONE'
+    }).promise()
+
+    DEBUG.log(`Updated user ${user_id}: `, user_result.Attributes)
   }
 
   static removeUserFromList = async (user_id: string, list: TodoList) => {

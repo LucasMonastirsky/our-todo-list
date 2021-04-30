@@ -113,7 +113,7 @@ const ListLayout = (props: LayoutProps) => {
 
   const reordered_tasks: Task[] = []
   const completed_tasks: Task[] = []
-  current_list.tasks.forEach(task => {
+  current_list?.tasks.forEach(task => {
     if (task.status !== 'Done')
       reordered_tasks.push(task)
     else if (Options.show_completed_tasks)
