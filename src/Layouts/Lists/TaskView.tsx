@@ -49,7 +49,7 @@ const TaskView = (props: PropTypes) => {
 
   type GestureEvent = { nativeEvent: { pageX: number } }
   const gesture_handlers = {
-    onStartShouldSetResponder: () => true,
+    onStartShouldSetResponder: () => (props.task.status !== TASK_STATUS.DONE),
     onResponderGrant: ({nativeEvent}: GestureEvent) => {
       setGestureStartTime(Date.now())
       setGestureStartPos(nativeEvent.pageX)
