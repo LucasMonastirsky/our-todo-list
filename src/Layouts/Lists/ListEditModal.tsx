@@ -17,6 +17,9 @@ export default (props: {
   const { list } = props
 
   const save = async () => {
+    if (Object.keys(list_changes).length <= 0)
+      props.close(false)
+
     await API.editTodoList(props.list.id, list_changes)
     props.editList(list_changes)
     props.close(false)
