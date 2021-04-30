@@ -83,7 +83,7 @@ API = class API {
           list_ids: [],
         }
       }).promise()
-      DEBUG.log(`Created user ${result.Attributes!.nickname} : ${result.Attributes!.id}`)
+      DEBUG.log(`Created user ${API.pending_registration_user.username} : ${result.Attributes!.id}`)
 
       API.pending_registration_user = undefined
     }

@@ -1,5 +1,5 @@
 import React, { ComponentType, useState } from 'react'
-import { View, StyleSheet, Image, TouchableOpacity, TouchableNativeFeedback, Dimensions, Animated } from 'react-native'
+import { View, StyleSheet, Image, TouchableOpacity, TouchableNativeFeedback, Dimensions, Animated, ImageSourcePropType } from 'react-native'
 import Drawer from 'react-native-drawer'
 import { AppText } from '.'
 import { colors, style } from '../Styling'
@@ -40,29 +40,37 @@ const AppDrawer = (props: {children?: any, signOut: ()=>any}) => {
 
   const DrawerContent = () => (
     <View style={css.drawer}>
-      <Item onPress={()=>goTo(ProfileLayout)}>
-        <View style={css.picture_container}>
-          <Image style={css.picture} source={require('../Media/Icons/profile_default.png')} />
-        </View>
-        <Spacer />
-        <ItemText>Profile</ItemText>
-      </Item>
-      <Item onPress={()=>goTo(ListLayout)}>
-        <ItemText>Lists</ItemText>
-      </Item>
-      <Item onPress={()=>goTo(OptionsLayout)}>
-        <ItemText>Options</ItemText>
-      </Item>
-      <Item onPress={signOut} >
-        <ItemText>Sign Out</ItemText>
-      </Item>
+      <Item onPress={()=>goTo(ProfileLayout)}
+        icon_source={require('../Media/Icons/profile.png')}
+        label='Profile'
+      />
+      <Item onPress={()=>goTo(ListLayout)}
+        icon_source={require('../Media/Icons/lists.png')}
+        label='Lists'
+      />
+      <Item onPress={()=>goTo(OptionsLayout)}
+        icon_source={require('../Media/Icons/options.png')}
+        label='Options'
+      />
+      <Item onPress={signOut}
+        icon_source={require('../Media/Icons/sign_out.png')}
+        label='Sign Out'
+      />
       <AppText style={css.credit_text}>Developed by Lucas Monastirsky</AppText>
     </View>
   )
 
-  const Item = ({children, onPress}: {children: any, onPress?: ()=>void}) => <TouchableOpacity {...{onPress}}><View style={css.item}>{children}</View></TouchableOpacity>
-  const ItemText = ({children}: {children: any}) => <AppText style={css.text}>{children}</AppText>
-  const Spacer = () => <View style={css.spacer} />
+  const Item = (props: {onPress?: ()=>void, icon_source: ImageSourcePropType, label: string}) => (
+    <TouchableOpacity onPress={props.onPress}>
+      <View style={css.item}>
+        <View style={css.picture_container}>
+          <Image style={css.picture} source={props.icon_source} resizeMode='contain' />
+        </View>
+        <View style={css.spacer} />
+        <AppText style={css.text}>{props.label}</AppText>
+      </View>
+    </TouchableOpacity>
+  )
 
   const FadeContent = (props: {active: boolean}) => {
     const anim = createAnimation({
@@ -134,7 +142,6 @@ const css = StyleSheet.create({
 
   },
   picture: {
-    borderRadius: 100,
     flex: 1,
     aspectRatio: 1,
   },
