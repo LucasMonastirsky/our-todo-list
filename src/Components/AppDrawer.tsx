@@ -4,7 +4,7 @@ import Drawer from 'react-native-drawer'
 import { AppText } from '.'
 import { colors, style } from '../Styling'
 import { Navigation } from '../App'
-import { ListLayout, OptionsLayout, ProfileLayout } from '../Layouts'
+import { ContactsLayout, ListLayout, OptionsLayout, ProfileLayout } from '../Layouts'
 import { createAnimation } from '../Utils'
 
 const AppDrawer = (props: {children?: any, signOut: ()=>any}) => {
@@ -47,6 +47,10 @@ const AppDrawer = (props: {children?: any, signOut: ()=>any}) => {
       <Item onPress={()=>goTo(ListLayout)}
         icon_source={require('../Media/Icons/lists.png')}
         label='Lists'
+      />
+      <Item onPress={()=>goTo(ContactsLayout)}
+        icon_source={require('../Media/Icons/contacts.png')}
+        label='Contacts'
       />
       <Item onPress={()=>goTo(OptionsLayout)}
         icon_source={require('../Media/Icons/options.png')}

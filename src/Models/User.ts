@@ -3,6 +3,7 @@ type User = {
   username: string,
   id: string,
   list_ids: string[],
+  contact_ids: string[],
   image?: string,
 }
 

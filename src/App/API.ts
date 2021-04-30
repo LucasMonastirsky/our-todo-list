@@ -332,7 +332,25 @@ API = class API {
       ExpressionAttributeValues: { ':user_id': arrayToSet([user_id]) },
       ReturnValues: 'UPDATED_NEW',
     }).promise()
-    DEBUG.log(result)
+
+    DEBUG.log(result.Attributes)
+  }
+
+  static addContact = async (contact_id: string, user_id: string) => {
+    if (contact_id === user_id)
+      throw new Error(`Users can't add themselves (user id: ${user_id})`)
+    if ((await API.getCachedUser(user_id)).contact_ids.includes(contact_id))
+      throw new Error(`User ${user_id} has already added user ${contact_id}`)
+
+    const result = await API.dynamo_client.update({
+      TableName: 'Users',
+      Key: { id: user_id } ,
+      UpdateExpression: 'SET contact_ids = list_append(contact_ids, :contact_id)',
+      ExpressionAttributeValues: { ':contact_id': [contact_id] },
+      ReturnValues: 'UPDATED_NEW',
+    }).promise()
+
+    DEBUG.log(result.Attributes)
   }
   //#endregion
 }

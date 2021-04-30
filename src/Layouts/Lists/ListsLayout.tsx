@@ -9,7 +9,7 @@ import { LayoutProps } from '../types'
 import AddTaskModal from './AddTaskModal'
 import ListEditModal from './ListEditModal'
 import ListAddModal from './ListAddModal'
-import { AppText, Loading } from '../../Components'
+import { AddFloatingButton, AppText, Loading } from '../../Components'
 import DEBUG from '../../Utils/DEBUG'
 import ContactsModal from './ContactsModal'
 import Icon from '../../Components/AppIcon'
@@ -159,11 +159,7 @@ const ListLayout = (props: LayoutProps) => {
         />
       </>
       }
-      <View style={css.add_task_button_container}>
-        <TouchableOpacity style={css.add_task_button_background} onPress={()=>setAddingTask(true)}>
-            <Image style={css.add_task_button_img} source={require('../../Media/Icons/plus.png')}/>
-        </TouchableOpacity>
-      </View>
+      <AddFloatingButton onPress={()=>setAddingList(true)} />
     </View>
   )
   //#endregion
@@ -216,26 +212,6 @@ const css = StyleSheet.create({
     height: '100%',
     width: '100%',
     backgroundColor: '#000000aa'
-  },
-  add_task_button_container: {
-    height: 75,
-    width: 75,
-    position: 'absolute',
-    right: 0,
-    bottom: 0,
-    zIndex: 1,
-    padding: style.margin,
-  },
-  add_task_button_background: {
-    backgroundColor: colors.main,
-    flex: 1,
-    borderRadius: 100,
-    padding: '20%',
-  },
-  add_task_button_img: {
-    flex: 1,
-    height: undefined,
-    width: undefined,
   },
 })
 
