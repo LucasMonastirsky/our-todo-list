@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { View, StyleSheet, ScrollView } from 'react-native'
+import React, { useRef, useState } from 'react'
+import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
 import { AppText } from '../../Components'
 import { TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
@@ -17,6 +17,8 @@ const ListTab = (props: { lists: TodoList[], onSelect: (index: number)=>void, on
     props.onSelect(new_index)
   }
 
+  const scroll_view_ref = useRef<ScrollView>(null)
+
   const onScroll = (event: { nativeEvent: { contentOffset: { x: number } } }) => {
     const pos = event.nativeEvent.contentOffset.x + 1
     let selection = 0
@@ -25,6 +27,10 @@ const ListTab = (props: { lists: TodoList[], onSelect: (index: number)=>void, on
         selection = index
     })
     setSelectedIndex(selection)
+  }
+
+  const scrollToIndex = (index: number) => {
+    scroll_view_ref.current?.scrollTo({ x: offsets[index]}) 
   }
 
   const tabs = props.lists.map((list, index) => {
@@ -49,11 +55,13 @@ const ListTab = (props: { lists: TodoList[], onSelect: (index: number)=>void, on
     }
 
     return (
-      <View key={list.id} {...{onLayout}} style={[css.item, (selected_index === index ? css.item_selected : {})]}>
-        <AppText style={[css.item_text, (selected_index === index ? css.item_text_selected : {})]}>
-          {list.title}
-        </AppText>
-      </View>
+      <TouchableOpacity key={list.id} onPress={()=>scrollToIndex(index)}>
+        <View {...{onLayout}} style={[css.item, (selected_index === index ? css.item_selected : {})]}>
+          <AppText style={[css.item_text, (selected_index === index ? css.item_text_selected : {})]}>
+            {list.title}
+          </AppText>
+        </View>
+      </TouchableOpacity>
     )
   })
 
@@ -64,7 +72,13 @@ const ListTab = (props: { lists: TodoList[], onSelect: (index: number)=>void, on
 
   return (
     <View style={css.container}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} {...{onScroll}} snapToOffsets={offsets}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        {...{onScroll}}
+        snapToOffsets={offsets}
+        ref={scroll_view_ref}
+      >
         <View style={{width: offset_start}} />
         {tabs}
         <View style={{width: offset_end}} />
