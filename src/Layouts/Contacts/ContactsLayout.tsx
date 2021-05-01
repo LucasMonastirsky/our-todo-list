@@ -4,13 +4,14 @@ import { API, Navigation } from '../../App'
 import { AddFloatingButton, AppButton, AppIcon, AppInputMin, AppModal, AppText } from '../../Components'
 import { User } from '../../Models'
 import { style } from '../../Styling'
+import { LayoutProps } from '../types'
 
-const ContactsLayout = () => {
+const ContactsLayout = (props: LayoutProps) => {
   const [contacts, setContacts] = useState<User[]>([])
   const [adding_contact, setAddingContact] = useState(false)
 
   useEffect(() => {
-    Navigation.header = () => (
+    if (props.active) Navigation.header = () => (
       <View style={css.header}>
         <AppText style={css.header_title}>Contacts</AppText>
       </View>
