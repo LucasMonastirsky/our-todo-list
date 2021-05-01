@@ -4,6 +4,7 @@ import { API, Navigation } from '../../App'
 import { AddFloatingButton, AppButton, AppIcon, AppInputMin, AppModal, AppText } from '../../Components'
 import { User } from '../../Models'
 import { style } from '../../Styling'
+import { indexFromId } from '../../Utils'
 import { LayoutProps } from '../types'
 
 const ContactsLayout = (props: LayoutProps) => {
@@ -34,14 +35,7 @@ const ContactsLayout = (props: LayoutProps) => {
   const removeContact = async (id: string) => {
     await API.removeContact(id, API.user.id)
     const new_contacts = [...contacts]
-    let index = -1
-    new_contacts.some((user, i) => {
-      if (user.id === id) {
-        index = i
-        return true
-      }
-    })
-    new_contacts.splice(index, 1)
+    new_contacts.splice(indexFromId(new_contacts, id), 1)
     setContacts(new_contacts)
   }
 

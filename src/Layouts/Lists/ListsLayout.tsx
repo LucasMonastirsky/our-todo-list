@@ -13,6 +13,7 @@ import { AddFloatingButton, AppText, Loading } from '../../Components'
 import DEBUG from '../../Utils/DEBUG'
 import ContactsModal from './ContactsModal'
 import Icon from '../../Components/AppIcon'
+import { indexFromId } from '../../Utils'
 
 const ListLayout = (props: LayoutProps) => {
   const [lists, setLists] = useState<TodoList[]>([])
@@ -54,13 +55,7 @@ const ListLayout = (props: LayoutProps) => {
   }
 
   const updateTask = (task: Task) => {
-    let task_index = -1
-    current_list.tasks.some((x, i) => { //TODO: this could be added to Array.prototype
-      if (task.id === x.id) {
-        task_index = i
-        return true
-      }
-    })
+    const task_index = indexFromId(current_list.tasks, task.id)
     if (task_index < 0)
      throw new Error(`Could not find task ${task.title} in ${current_list.title}`)
 
@@ -159,7 +154,7 @@ const ListLayout = (props: LayoutProps) => {
         />
       </>
       }
-      <AddFloatingButton onPress={()=>setAddingList(true)} />
+      <AddFloatingButton onPress={()=>setAddingTask(true)} />
     </View>
   )
   //#endregion
