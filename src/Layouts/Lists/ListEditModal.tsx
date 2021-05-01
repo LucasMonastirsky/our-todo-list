@@ -44,8 +44,8 @@ export default (props: {
       setLoading(true)
       await API.deleteTodoList(props.list.id)
       setLoading(false)
-      props.onRemoveList()
       props.close(false)
+      props.onRemoveList()
     }
   
     return (

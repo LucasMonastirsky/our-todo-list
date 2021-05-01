@@ -67,7 +67,7 @@ const ListLayout = (props: LayoutProps) => {
   const onRemoveList = () => {
     const new_lists = [...lists]
     new_lists.splice(current_list_index, 1)
-    setCurrentListIndex(i => i-1)
+    setCurrentListIndex(i => i > 0 ? i-1 : 0)
     setLists(new_lists)
   }
 
