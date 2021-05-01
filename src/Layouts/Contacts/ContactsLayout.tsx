@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { API, Navigation } from '../../App'
-import { AddFloatingButton, AppButton, AppInputMin, AppModal, AppText } from '../../Components'
+import { AddFloatingButton, AppButton, AppIcon, AppInputMin, AppModal, AppText } from '../../Components'
 import { User } from '../../Models'
 import { style } from '../../Styling'
-import DEBUG from '../../Utils/DEBUG'
 
 const ContactsLayout = () => {
   const [contacts, setContacts] = useState<User[]>([])
@@ -31,10 +30,28 @@ const ContactsLayout = () => {
     setAddingContact(false)
   }
 
+  const removeContact = async (id: string) => {
+    await API.removeContact(id, API.user.id)
+    const new_contacts = [...contacts]
+    let index = -1
+    new_contacts.some((user, i) => {
+      if (user.id === id) {
+        index = i
+        return true
+      }
+    })
+    new_contacts.splice(index, 1)
+    setContacts(new_contacts)
+  }
+
   const ContactItem = ({user}: {user: User}) => {
     return (
       <View style={css.item} key={user.id}>
         <AppText style={css.item_name}>{user.nickname}</AppText>
+        <AppIcon style={css.item_icon}
+          source={require('../../Media/Icons/remove.png')}
+          onPress={()=>removeContact(user.id)}
+        />
       </View>
     )
   }
@@ -76,9 +93,13 @@ const css = StyleSheet.create({
   },
   item: {
     padding: style.padding,
+    flexDirection: 'row',
   },
   item_name:  {
     fontSize: style.font_size_med,
+  },
+  item_icon: {
+    marginLeft: 'auto',
   },
   modal_title: {
     fontSize: style.font_size_big,

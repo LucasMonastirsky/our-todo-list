@@ -125,12 +125,18 @@ API = class API {
   static getUser = async (id: string) => {
     DEBUG.log(`Getting user data from id: ${id}`)
 
-    const user = (await API.dynamo_client.get({
+    const result = await API.dynamo_client.get({
       TableName: 'Users',
       Key: { id },
-    }).promise()).Item as User
-    if (user === undefined)
+    }).promise()
+
+    if (result.Item === undefined)
       throw `Could not find user with id ${id}`
+
+    const user = {
+      ...result.Item,
+      contact_ids: arrayFromSet(result.Item.contact_ids!)
+    } as User
 
     API.cache.users[user.id] = user
 
@@ -330,7 +336,7 @@ API = class API {
       Key: { id: list.id },
       UpdateExpression: 'DELETE member_ids :user_id',
       ExpressionAttributeValues: { ':user_id': arrayToSet([user_id]) },
-      ReturnValues: 'UPDATED_NEW',
+      ReturnValues: DEBUG.enabled ? 'UPDATED_NEW' : 'NONE',
     }).promise()
 
     DEBUG.log(result.Attributes)
@@ -345,12 +351,24 @@ API = class API {
     const result = await API.dynamo_client.update({
       TableName: 'Users',
       Key: { id: user_id } ,
-      UpdateExpression: 'SET contact_ids = list_append(contact_ids, :contact_id)',
-      ExpressionAttributeValues: { ':contact_id': [contact_id] },
-      ReturnValues: 'UPDATED_NEW',
+      UpdateExpression: 'ADD contact_ids :contact_id',
+      ExpressionAttributeValues: { ':contact_id': arrayToSet([contact_id]) },
+      ReturnValues: DEBUG.enabled ? 'UPDATED_NEW' : 'NONE',
     }).promise()
 
-    DEBUG.log(result.Attributes)
+    DEBUG.log(`Added user ${contact_id} to contacts of ${user_id}`)
+  }
+
+  static removeContact = async (contact_id: string, user_id: string) => {
+    const result = await API.dynamo_client.update({
+      TableName: 'Users',
+      Key: { id: user_id },
+      UpdateExpression: 'DELETE contact_ids :contact_id',
+      ExpressionAttributeValues: { ':contact_id': arrayToSet([contact_id]) },
+      ReturnValues: DEBUG.enabled ? 'UPDATED_NEW' : 'NONE',
+    }).promise()
+
+    DEBUG.log(`Removed user ${contact_id} from contacts of ${user_id}`)
   }
   //#endregion
 }
@@ -369,11 +387,11 @@ function buildUpdateQuery (changes: any) {
 }
 
 function arrayToSet<Type> (arr: Type[]) { // @ts-ignore
-  return API.dynamo_client.createSet(arr) 
+  return API.dynamo_client.createSet(arr)
 }
 
 function arrayFromSet (set: any) {
-  return JSON.parse(JSON.stringify(set))
+  return [...JSON.parse(JSON.stringify(set))].filter(x => x !== '')
 }
 //#endregion
 

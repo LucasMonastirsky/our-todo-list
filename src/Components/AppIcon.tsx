@@ -1,9 +1,13 @@
 import React from 'react'
-import { Image, ImageSourcePropType, StyleSheet, TouchableOpacity } from 'react-native'
+import { Image, ImageSourcePropType, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native'
 import { style } from '../Styling'
 
-const Icon = ({source, onPress}: {source: ImageSourcePropType, onPress: ()=>any}) => (
-  <TouchableOpacity style={css.header_icon_container} {...{onPress}}>
+const Icon = ({source, onPress, style}: {
+  source: ImageSourcePropType,
+  onPress: (...args: any[])=>any,
+  style?: ViewStyle
+}) => (
+  <TouchableOpacity style={[css.header_icon_container, style]}  {...{onPress}}>
       <Image style={css.header_icon_img} {...{source}} />
   </TouchableOpacity>
 )
