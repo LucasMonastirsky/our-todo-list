@@ -12,8 +12,10 @@ const style = {
   border_radius_big: 7,
 
   header_height: 50,
-
+ 
   anim_duration: 350,
+
+  elevation_step: 3,
 }
 
 export default style

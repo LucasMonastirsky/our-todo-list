@@ -5,7 +5,7 @@ import { colors, style } from '../Styling'
 
 const AppButton = (props: {label: string, color?: string, onPress: ()=>any, style?: ViewStyle}) => (
   <TouchableOpacity onPress={props.onPress} style={props.style}>
-    <AppText style={[css.button, {backgroundColor: props.color ?? colors.main_light}]}>
+    <AppText style={[css.button, {backgroundColor: props.color ?? colors.main}]}>
       {props.label}
     </AppText>
   </TouchableOpacity>
@@ -13,7 +13,7 @@ const AppButton = (props: {label: string, color?: string, onPress: ()=>any, styl
 
 const css = StyleSheet.create({
   button: {
-    backgroundColor: colors.main_light,
+    backgroundColor: colors.main,
     fontSize: style.font_size_med,
     padding: style.padding,
     paddingHorizontal: style.padding * 2,

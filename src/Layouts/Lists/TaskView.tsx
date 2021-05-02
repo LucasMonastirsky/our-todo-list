@@ -103,9 +103,11 @@ const TaskView = (props: PropTypes) => {
         style={[css.container, done && css.done_container]}
         {...gesture_handlers}
       >
-        <TouchableOpacity style={[css.status, done && css.done_status]} onPress={!done?claimTask:()=>{}}>
+        <TouchableOpacity style={css.status_container} onPress={!done?claimTask:()=>{}}>
           {(props.task.status === 'Claimed' || done)
-          && <ProfilePicture user_id={props.task.claimed_by_id} />}
+          ? <ProfilePicture user_id={props.task.claimed_by_id} />
+          : <View style={css.status_unclaimed} />
+          }
         </TouchableOpacity>
         <AppText style={css.title}>{props.task.title}</AppText>
       </View>
@@ -120,15 +122,19 @@ const css = StyleSheet.create({
     backgroundColor: colors.main,
     flexDirection: 'row',
     marginTop: style.border_width,
+    padding: style.padding / 2,
   },
   done_container: {
     backgroundColor: colors.main_dark,
   },
-  status: {
-    backgroundColor: colors.main,
+  status_container: {
     aspectRatio: 1,
-    borderRightWidth: style.border_width,
-    borderRightColor: colors.main_dark,
+  },
+  status_unclaimed: {
+    backgroundColor: colors.main_dark,
+    borderRadius: style.border_radius_big,
+    margin: style.margin,
+    flex: 1,
   },
   done_status: {
     backgroundColor: colors.main_dark,

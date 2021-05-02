@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Image, StyleSheet, View } from 'react-native'
+import { Image, StyleSheet, TextInput, View } from 'react-native'
 import { API } from '../../App'
 import { AppButton, AppInputMin, AppModal, AppText, Loading } from '../../Components'
 import { TodoList, User } from '../../Models'
@@ -33,7 +33,7 @@ export default (props: {
     }, [])
 
     return (
-      <AppText>{user?.nickname ?? user?.username ?? 'loading...'}</AppText>
+      <AppText style={css.member_item}>{user?.nickname ?? user?.username ?? 'loading...'}</AppText>
     )
   }
 
@@ -70,47 +70,50 @@ export default (props: {
         {delete_confirmation_active
         ? <DeleteConfirmation />
         : <>
-          <AppInputMin style={css.title} defaultValue={list.title}
+          <TextInput style={css.title} defaultValue={list.title}
             onChangeText={title=>setListChanges(changes => ({ ...changes, title }))} />
-          <Spacing />
-          <AppInputMin style={css.description} defaultValue={list.description} multiline
+          <AppInputMin style={css.description}
+            multiline
+            defaultValue={list.description}
+            placeholder='No description available'
             onChangeText={description=>setListChanges(changes => ({ ...changes, description }))} />
-          <Spacing />
-          <View style={{flexDirection: 'row'}}>
-            <AppText style={css.members_title}>Members:</AppText>
-          </View>
+          <AppText style={css.members_title}>Members:</AppText>
           {list.member_ids.map(id => <MemberItem {...{id}} key={id} />)}
           <View style={css.button_container}>
-            <AppButton style={{marginLeft: 'auto'}} label='Delete' color={colors.alert} onPress={()=>setDeleteConfirmationActive(true)} />
-            <AppButton style={css.done_button} label='Done' onPress={save} />
+            <AppButton label='Delete' color={colors.alert} onPress={()=>setDeleteConfirmationActive(true)} />
+            <AppButton label='Done' onPress={save} />
           </View>
         </>}
     </AppModal>
   )
 }
 
-const Spacing = () => <View style={css.spacing} />
-
 const css = StyleSheet.create({
-  spacing: {
-    height: style.padding,
-  },
   title: {
     fontSize: style.font_size_big,
+    color: colors.light,
+    textAlign: 'center',
+    backgroundColor: colors.main,
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
+    elevation: style.elevation,
   },
   description: {
     fontSize: style.font_size_small,
   },
   members_title: {
-
+    backgroundColor: colors.main,
+    padding: style.padding,
+  },
+  member_item: {
+    padding: style.padding,
   },
   invite_button: {
   },
   button_container: {
     flexDirection: 'row',
-  },
-  done_button: {
-    marginLeft: style.margin,
+    justifyContent: 'space-evenly',
+    padding: style.padding,
   },
   divider: {
     height: style.border_width,

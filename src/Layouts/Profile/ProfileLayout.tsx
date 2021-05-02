@@ -72,7 +72,7 @@ const ProfileLayout = (props: LayoutProps) => {
 
 const css = StyleSheet.create({
   container: {
-    backgroundColor: colors.main_dark,
+    backgroundColor: colors.background,
   },
   pfp_container: {
     flexDirection: 'row',

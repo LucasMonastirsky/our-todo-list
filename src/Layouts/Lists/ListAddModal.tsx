@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, TextInput, View } from 'react-native'
 import { AppButton, AppInputMin, AppModal } from '../../Components'
 import { TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
@@ -22,7 +22,7 @@ export default (props: {add: (list: TodoList)=>any, close: AppModal.Close}) => {
 
   return (
     <AppModal close={props.close}>
-      <AppInputMin defaultValue={list.title}
+      <TextInput style={css.title_input} defaultValue={list.title}
         onChangeText={title=>setList({...list, title})} />
       <AppInputMin defaultValue={list.description}
         placeholder='Add a description to the list'
@@ -39,7 +39,15 @@ const css = StyleSheet.create({
     padding: style.padding,
     borderRadius: style.border_radius_med,
   },
+  title_input: {
+    color: colors.light,
+    textAlign: 'center',
+    fontSize: style.font_size_big,
+    backgroundColor: colors.main,
+    borderTopLeftRadius: style.border_radius_big,
+    borderTopRightRadius: style.border_radius_big,
+  },
   done_button: {
-    marginLeft: 'auto',
+    margin: style.padding,
   },
 })

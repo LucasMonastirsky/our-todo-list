@@ -80,6 +80,7 @@ API = class API {
           nickname: API.pending_registration_user.username,
           username: API.pending_registration_user.username,
           id: API.pending_registration_user.id,
+          image: `https://i.stack.imgur.com/l60Hf.png`,
           list_ids: [],
         }
       }).promise()

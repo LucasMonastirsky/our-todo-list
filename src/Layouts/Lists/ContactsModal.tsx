@@ -61,15 +61,13 @@ const ContactsModal = (props: { list: TodoList, onUserAdded: (id: string)=>any, 
   const content = inviting
     ? <>
       <AppText style={css.title}>Invite Someone</AppText>
-      <View style={css.separator} />
       <AppInputMin placeholder='User ID' onChangeText={setInviteId} />
-      <AppButton label='Invite' onPress={invite} />
+      <AppButton style={css.invite_button} label='Invite' onPress={invite} />
     </>
     : editting_user
     ? <EditUser user={editting_user} />
     : <>
       <AppText style={css.title}>Members</AppText>
-      <View style={css.separator} />
       {members === undefined && <Loading />}
       {members?.map(user => (
         <View style={css.member_item} key={user.id}>
@@ -79,7 +77,7 @@ const ContactsModal = (props: { list: TodoList, onUserAdded: (id: string)=>any, 
           : <AppIcon source={require('../../Media/Icons/options.png')} onPress={()=>setEdittingUser(user)} />}
         </View>
       ))}
-      {members !== undefined && <AppButton label='Invite Someone' onPress={()=>setInviting(true)} />}
+      {members !== undefined && <AppButton style={css.invite_button} label='Invite Someone' onPress={()=>setInviting(true)} />}
     </>
 
   return (
@@ -97,8 +95,12 @@ const css = StyleSheet.create({
     marginHorizontal: screen.width / 10,
   },
   title: {
-    alignSelf: 'center',
-    fontSize: style.font_size_big
+    textAlign: 'center',
+    fontSize: style.font_size_big,
+    backgroundColor: colors.main,
+    borderTopLeftRadius: style.border_radius_big,
+    borderTopRightRadius: style.border_radius_big,
+    elevation: style.elevation,
   },
   separator: {
     borderRadius: style.border_radius_med,
@@ -109,14 +111,17 @@ const css = StyleSheet.create({
   },
   member_item: {
     flexDirection: 'row',
-    paddingVertical: style.padding,
+    padding: style.padding,
   },
   member_name: {
     marginRight: 'auto',
   },
   owner_label: {
     fontWeight: 'bold',
-  }
+  },
+  invite_button: {
+    margin: style.margin
+  },
 })
 
 export default ContactsModal

@@ -50,9 +50,8 @@ const AppModal = (props: Props) => {
 const css = StyleSheet.create({
   container: {
     marginHorizontal: style.margin,
-    padding: style.padding,
     borderRadius: style.border_radius_big,
-    backgroundColor: colors.main,
+    backgroundColor: colors.main_dark,
   },
   centered: {
     justifyContent: 'center',

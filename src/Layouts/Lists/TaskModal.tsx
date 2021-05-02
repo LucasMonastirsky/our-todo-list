@@ -25,7 +25,6 @@ const TaskModal = (props: { task: Task, close: AppModal.Close }) => {
         <AppText style={css.title}>{task.title}</AppText>
         <AppText style={css.status}>{task.status}</AppText>
       </View> 
-      <Divider />
       {task.description !== '' && <>
         <AppText style={css.description}>{task.description}</AppText>
         <Divider />
@@ -49,6 +48,10 @@ const Divider = () => <View style={css.divider} />
 const css = StyleSheet.create({
   title_container: {
     flexDirection: 'row',
+    backgroundColor: colors.main,
+    borderTopLeftRadius: style.border_radius_big,
+    borderTopRightRadius: style.border_radius_big,
+    padding: style.padding,
   },
   title: {
     fontSize: style.font_size_big,
@@ -74,6 +77,7 @@ const css = StyleSheet.create({
   },
   created_text: {
     fontSize: style.font_size_small,
+    margin: style.padding,
   },
 })
 

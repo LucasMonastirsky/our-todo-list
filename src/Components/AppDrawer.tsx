@@ -130,7 +130,7 @@ const css = StyleSheet.create({
     flexDirection: 'row',
   },
   content: {
-    backgroundColor: colors.main_darker,
+    backgroundColor: colors.background,
     flex: 1,
   },
   item: {

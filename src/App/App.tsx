@@ -70,7 +70,7 @@ const App = () => {
         </Animated.View>
       </AppDrawer>
   }
-
+DEBUG.log(colors.background)
   return (
     <View style={css.app}>{content()}</View>
   )
@@ -79,7 +79,7 @@ const App = () => {
 const css = StyleSheet.create({
   app: {
     flex: 1,
-    backgroundColor: colors.main_darker,
+    backgroundColor: colors.background,
   },
   content: {
     flexDirection: 'row',

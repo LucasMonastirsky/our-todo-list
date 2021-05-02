@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, TextInput, View } from 'react-native'
 import { API } from '../../App'
 import { AppButton, AppInputMin, AppModal } from '../../Components'
 import { Task, TodoList } from '../../Models'
@@ -26,7 +26,7 @@ const AddTaskModal = (props: {list: TodoList, onAdd: (task: Task)=>any, close: A
 
   return (
     <AppModal close={props.close}>
-      <AppInputMin defaultValue='Task Title' onChangeText={setTitle} />
+      <TextInput style={css.title_input} defaultValue='Task Title' onChangeText={setTitle} />
       <AppInputMin style={css.description} onChangeText={setDescription}
         defaultValue={default_task.description}
         placeholder='Give the task a description'
@@ -45,13 +45,19 @@ const css = StyleSheet.create({
     padding: style.padding,
     borderRadius: style.border_radius_med,
   },
+  title_input: {
+    color: colors.light,
+    fontSize: style.font_size_big,
+    backgroundColor: colors.main,
+    borderTopLeftRadius: style.border_radius_big,
+    borderTopRightRadius: style.border_radius_big,
+    textAlign: 'center',
+  },
   description: {
     fontSize: style.font_size_small,
   },
   button_add_task: {
-    marginTop: 'auto',
-    marginLeft: 'auto',
-    marginRight: style.margin,
+    margin: style.padding,
   },
 })
 
