@@ -19,7 +19,8 @@ const AppDrawer = (props: {children?: any, signOut: ()=>any}) => {
   }
 
   const goTo = (layout: (args?: any)=>JSX.Element) => {
-    Navigation.goTo(layout)
+    if (!(Navigation.current_layout === layout))
+      Navigation.goTo(layout)
     setDrawerActive(false)
   }
 
