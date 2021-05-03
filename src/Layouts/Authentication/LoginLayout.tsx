@@ -5,19 +5,30 @@ import { AppButton, AppInput, AppText, Loading } from '../../Components'
 import { colors, style } from '../../Styling'
 import { screen } from '../../Utils'
 
-const LoginLayout = (props: {onLogin: (username: string, password: string)=>any, onRegister: ()=>any}) => {
+const LoginLayout = (props: {onLogin: ()=>any, onRegister: ()=>any}) => {
   const [loading, setLoading] = useState(false)
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  const [username, _setUsername] = useState('')
+  const [password, _setPassword] = useState('')
+  const [error_message, setErrorMessage] = useState<string>()
+
+  const setUsername = (value: string) => {
+    _setUsername(value)
+    setErrorMessage(undefined)
+  }
+
+  const setPassword = (value: string) => {
+    _setPassword(value)
+    setErrorMessage(undefined)
+  }
 
   const login = async () => {
-    if (password.length < 8) // TODO: add alerts
-      return
+    if (password.length < 8)
+      return setErrorMessage(`Incorrect password`)
 
     setLoading(true)
     API.signIn(username, password)
-      .then(() => props.onLogin(username, password))
-      .catch(error => {})
+      .then(props.onLogin)
+      .catch(err => setErrorMessage(err.message))
       .finally(() => setLoading(false))
   }
 
@@ -32,6 +43,7 @@ const LoginLayout = (props: {onLogin: (username: string, password: string)=>any,
       <View style={{flex: 1}}>
         <AppInput label="Username" type="username" onChangeText={setUsername} />
         <AppInput label="Password" type="password" onChangeText={setPassword} />
+        {error_message && <AppText style={css.error_message}>{error_message}</AppText>}
         <Separator />
         <AppButton label="Sign In" onPress={login} />
         <AppButton label="New Account" onPress={props.onRegister} />
@@ -65,6 +77,10 @@ const css = StyleSheet.create({
     marginBottom: style.margin,
     fontWeight: 'bold',
     alignSelf: 'center',
+  },
+  error_message: {
+    color: colors.alert,
+    marginTop: style.margin,
   },
   separator: {
     margin: style.margin,

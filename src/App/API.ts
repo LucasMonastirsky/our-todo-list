@@ -31,7 +31,7 @@ API = class API {
 
   static signIn = async (username: string, password: string) => {
     DEBUG.log(`Authenticating user '${username}`)
-    await Auth.signIn(username, password)
+    await Auth.signIn(username, password).catch(e => { DEBUG.error(e); throw e })
     DEBUG.log(`Authenticated user ${username}`)
     const cognito_user = await Auth.currentAuthenticatedUser()
     const user = await API.getUser(cognito_user.attributes.sub)
