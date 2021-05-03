@@ -1,9 +1,8 @@
-import React, { SyntheticEvent, useState } from 'react'
-import { TouchableOpacity, StyleSheet, Animated, View, NativeSyntheticEvent } from 'react-native'
+import React, { useState } from 'react'
+import { TouchableOpacity, StyleSheet, Animated, View, TextInput } from 'react-native'
 import { Task } from '../../Models'
 import { colors, style } from '../../Styling'
-import TaskModal from './TaskModal'
-import { createAnimation, screen } from '../../Utils'
+import { createAnimation, screen, timeAgo } from '../../Utils'
 import { AppText, ProfilePicture } from '../../Components'
 import { API } from '../../App'
 import DEBUG from '../../Utils/DEBUG'
@@ -17,6 +16,7 @@ type PropTypes = {
 const TaskView = (props: PropTypes) => {
   const { task } = props
   const [modal_active, setModalActive] = useState(false)
+  const [details_active, setDetailsActive] = useState(false)
   const anim = createAnimation({duration: style.anim_duration / 5 * ((props.index ?? 0) + 1)})
 
   const claimTask = async () => {
@@ -69,7 +69,7 @@ const TaskView = (props: PropTypes) => {
           setGestureAnim('canceled')
         }
       } else {
-        setModalActive(true)
+        setDetailsActive(x => !x)
       }
     }
   }
@@ -99,20 +99,38 @@ const TaskView = (props: PropTypes) => {
   const done = props.task.status === 'Done'
   return (
     <Animated.View style={{opacity: anim, left: done ? 0 : slide_anim }}>
-      <View 
-        style={[css.container, done && css.done_container]}
+      <View style={[css.container, done && css.done_container]}
         {...gesture_handlers}
       >
-        <TouchableOpacity style={css.status_container} onPress={!done?claimTask:()=>{}}>
-          {(props.task.status === 'Claimed' || done)
-          ? <ProfilePicture user_id={props.task.claimed_by_id} />
-          : <View style={css.status_unclaimed} />
-          }
-        </TouchableOpacity>
-        <AppText style={css.title}>{props.task.title}</AppText>
-      </View>
+        <View style={{flexDirection: 'row'}}>
+          <TouchableOpacity style={css.status_container} onPress={!done?claimTask:()=>{}}>
+            {(props.task.status === 'Claimed' || done)
+            ? <ProfilePicture user_id={props.task.claimed_by_id} />
+            : <View style={css.status_unclaimed} />
+            }
+          </TouchableOpacity>
+          <View style={css.title_container}>
+            <AppText style={css.title}>{props.task.title}</AppText>
+            {details_active &&
+              <AppText style={css.created_by}>
+                Created by Lucas M {timeAgo(props.task.creation_date)}
+              </AppText>
+            }
+          </View>
+        </View>
 
-      {modal_active && <TaskModal task={props.task} close={()=>setModalActive(false)} />}
+        {details_active && <>
+        <View style={css.details_container}>
+            <View style={css.details_separator} />
+            <TextInput style={css.description}
+              placeholder='No available description'
+              placeholderTextColor={colors.light_dark}
+              defaultValue={task.description}
+              autoCorrect={false}
+            />
+          </View>
+        </>}
+      </View>
     </Animated.View>
   )
 }
@@ -120,7 +138,6 @@ const TaskView = (props: PropTypes) => {
 const css = StyleSheet.create({
   container: {
     backgroundColor: colors.main,
-    flexDirection: 'row',
     marginTop: style.border_width,
     padding: style.padding / 2,
   },
@@ -129,6 +146,7 @@ const css = StyleSheet.create({
   },
   status_container: {
     aspectRatio: 1,
+    height: 40,
   },
   status_unclaimed: {
     backgroundColor: colors.main_dark,
@@ -143,10 +161,29 @@ const css = StyleSheet.create({
     width: style.border_width,
     backgroundColor: colors.main_dark,
   },
-  title: {
-    padding: style.padding,
+  title_container: {
     marginLeft: style.margin,
-    marginBottom: style.font_size_med / 6,
+    justifyContent: 'center',
+  }, 
+  title: {
+  },
+  created_by: {
+    fontSize: style.font_size_small,
+  },
+  details_container: {
+    padding: style.padding / 2,
+  },
+  details_separator: {
+    height: style.border_width,
+    backgroundColor: colors.light,
+    marginHorizontal: style.margin,
+    marginVertical: style.padding,
+  },
+  description: {
+    fontSize: style.font_size_small,
+    textAlign: 'center',
+    color: colors.light,
+    padding: 0,
   },
 })
 
