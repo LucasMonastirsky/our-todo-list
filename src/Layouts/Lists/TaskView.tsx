@@ -8,10 +8,11 @@ import { API } from '../../App'
 import DEBUG from '../../Utils/DEBUG'
 
 type PropTypes = {
-  task: Task,
-  index?: number,
+  task: Task
+  index?: number
   updateTask: (task: Task) => any
   onTaskFinished: () => any
+  setScrollEnabled: (value: boolean) => any
 }
 const TaskView = (props: PropTypes) => {
   const { task } = props
@@ -48,7 +49,7 @@ const TaskView = (props: PropTypes) => {
   const gesture_horizontal_start_threshold = 5
   const gesture_horizontal_confirm_threshold = screen.width / 3
 
-  const [gesture_start_x, setGestureStartPos] = useState(0)
+  const [gesture_start_x, setGestureStartX] = useState(0)
   const [gesture_delta_x, setGestureDeltaX] = useState(0)
   const [gesture_anim, setGestureAnim] = useState<'none'|'canceled'|'confirmed'|'done'>('none')
 
@@ -56,12 +57,13 @@ const TaskView = (props: PropTypes) => {
   const gesture_handlers = {
     onStartShouldSetResponder: () => true,
     onResponderGrant: ({nativeEvent}: GestureEvent) => {
-      setGestureStartPos(nativeEvent.pageX)
+      setGestureStartX(nativeEvent.pageX)
     },
     onResponderMove: ({nativeEvent}: GestureEvent) => {
       const delta = nativeEvent.pageX - gesture_start_x
       if (delta > gesture_horizontal_start_threshold && task.status !== 'Done') {
         setGestureDeltaX(nativeEvent.pageX - gesture_start_x)
+        props.setScrollEnabled(false)
       }
     },
     onResponderRelease: ({nativeEvent}: GestureEvent) => {
@@ -74,6 +76,12 @@ const TaskView = (props: PropTypes) => {
       } else {
         setDetailsActive(x => !x)
       }
+
+      props.setScrollEnabled(true)
+    },
+    onResponderEnd: ({nativeEvent}: GestureEvent) => {
+      if (gesture_anim === 'none')
+        setGestureAnim('canceled')
     }
   }
 

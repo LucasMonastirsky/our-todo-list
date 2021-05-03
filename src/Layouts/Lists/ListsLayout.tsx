@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { FlatList, Image, ImageSourcePropType, Modal, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { FlatList, Image, ImageSourcePropType, Modal, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import TaskView from './TaskView'
 import { Task, TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
@@ -23,6 +23,7 @@ const ListLayout = (props: LayoutProps) => {
   const [editting, setEditting] = useState(false)
   const [adding_list, setAddingList] = useState(false)
   const [viewing_contacts, setViewingContancts] = useState(false)
+  const [scroll_enabled, setScrollEnabled] = useState(true)
 
   const current_list = lists[current_list_index]
 
@@ -51,7 +52,7 @@ const ListLayout = (props: LayoutProps) => {
   const updateList = (changes: Partial<TodoList>) => {
     const new_lists = [...lists]
     new_lists.splice(current_list_index, 1, {...current_list, ...changes})
-    setLists(new_lists)
+    setLists([...new_lists])
   }
 
   const updateTask = (task: Task) => {
@@ -106,15 +107,6 @@ const ListLayout = (props: LayoutProps) => {
     )
   }
 
-  const reordered_tasks: Task[] = []
-  const completed_tasks: Task[] = []
-  current_list?.tasks.forEach(task => {
-    if (task.status !== 'Done')
-      reordered_tasks.push(task)
-    else if (Options.show_completed_tasks)
-      completed_tasks.push(task)
-  })
-
   return (
     <View style={css.container}>
       {adding_task && <AddTaskModal list={current_list} onAdd={addTask} close={()=>setAddingTask(false)} />}
@@ -124,37 +116,39 @@ const ListLayout = (props: LayoutProps) => {
       {!current_list ? <AppText>No lists.</AppText>
       : <>
         <ListTab {...{lists}} onSelect={i=>setCurrentListIndex(i)} />
-        <View>
-          <FlatList
-            data={reordered_tasks}
-            renderItem={({item, index})=>(
-              <TaskView {...{
-                task: item,
-                index,
-                updateTask: task => updateTask(task),
-                onTaskFinished: () => updateTask({ ...item,
-                  status: 'Done',
-                  completer_id: API.user.id,
-                  completion_date: Date.now()
-                })
-              }} />
-            )}
-          />
-        </View>
-        <FlatList
-          data={completed_tasks}
-          renderItem={({item, index})=>(
+        {/* this needs optimization */}
+        <ScrollView scrollEnabled={scroll_enabled}>
+          {current_list.tasks.filter(x=>x.status !== 'Done').map((item, index)=>(
             <TaskView {...{
               task: item,
               index,
+              setScrollEnabled,
+              updateTask: task => updateTask(task),
+              onTaskFinished: () => updateTask({ ...item,
+                status: 'Done',
+                completer_id: API.user.id,
+                completion_date: Date.now()
+              })}
+            } />
+          ))}
+          {current_list.tasks.filter(x=>x.status === 'Done').map((item, index)=>(
+            <TaskView {...{
+              task: item,
+              index,
+              setScrollEnabled,
               updateTask: task => updateTask(task),
               onTaskFinished: () => {throw new Error(`Task ${item.title} is already done!`)}
-            }} />
-          )}
-        />
+              }}
+            />
+        ))}
+        </ScrollView>
       </>
       }
-      <AddFloatingButton onPress={()=>setAddingTask(true)} />
+      <TouchableOpacity onPress={()=>setAddingTask(true)}>
+        <View style={css.add_button_container}>
+          <Image style={css.add_button_icon} source={require('../../Media/Icons/plus.png')} />
+        </View>
+      </TouchableOpacity>
     </View>
   )
   //#endregion
@@ -162,7 +156,7 @@ const ListLayout = (props: LayoutProps) => {
 
 const css = StyleSheet.create({
   container: {
-    backgroundColor: colors.main_darker,
+    backgroundColor: colors.background,
     height: '100%',
     width: '100%',
   },
@@ -207,6 +201,18 @@ const css = StyleSheet.create({
     height: '100%',
     width: '100%',
     backgroundColor: '#000000aa'
+  },
+  add_button_container: {
+    backgroundColor: colors.main,
+    borderTopWidth: style.border_width,
+    borderColor: colors.background,
+    height: 50,
+    alignItems: 'center',
+  },
+  add_button_icon: {
+    flex: 1,
+    aspectRatio: 1,
+    margin: style.margin,
   },
 })
 

@@ -96,7 +96,7 @@ const css = StyleSheet.create({
     backgroundColor: colors.main,
     borderTopLeftRadius: 5,
     borderTopRightRadius: 5,
-    elevation: style.elevation,
+    elevation: style.elevation_step,
   },
   description: {
     fontSize: style.font_size_small,
