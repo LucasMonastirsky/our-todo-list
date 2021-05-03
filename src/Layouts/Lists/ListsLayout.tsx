@@ -127,7 +127,8 @@ const ListLayout = (props: LayoutProps) => {
               onTaskFinished: () => updateTask({ ...item,
                 status: 'Done',
                 completer_id: API.user.id,
-                completion_date: Date.now()
+                completion_date: Date.now(),
+                claimed_by_id: API.user.id,
               })}
             } />
           ))}
