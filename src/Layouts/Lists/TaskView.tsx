@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { TouchableOpacity, StyleSheet, Animated, View, TextInput } from 'react-native'
 import { Task } from '../../Models'
 import { colors, style } from '../../Styling'
@@ -15,9 +15,14 @@ type PropTypes = {
 }
 const TaskView = (props: PropTypes) => {
   const { task } = props
-  const [modal_active, setModalActive] = useState(false)
   const [details_active, setDetailsActive] = useState(false)
+  const [creator_name, setCreatorName] = useState<string>()
   const anim = createAnimation({duration: style.anim_duration / 5 * ((props.index ?? 0) + 1)})
+
+  useEffect(() => {
+    API.getCachedUser(task.creator_id)
+    .then(user => setCreatorName(user.nickname))
+  }, [])
 
   const claimTask = async () => {
     const new_task: Task = {
@@ -43,7 +48,6 @@ const TaskView = (props: PropTypes) => {
   const gesture_horizontal_start_threshold = 5
   const gesture_horizontal_confirm_threshold = screen.width / 3
 
-  const [gesture_start_time, setGestureStartTime] = useState(0)
   const [gesture_start_x, setGestureStartPos] = useState(0)
   const [gesture_delta_x, setGestureDeltaX] = useState(0)
   const [gesture_anim, setGestureAnim] = useState<'none'|'canceled'|'confirmed'|'done'>('none')
@@ -52,7 +56,6 @@ const TaskView = (props: PropTypes) => {
   const gesture_handlers = {
     onStartShouldSetResponder: () => true,
     onResponderGrant: ({nativeEvent}: GestureEvent) => {
-      setGestureStartTime(Date.now())
       setGestureStartPos(nativeEvent.pageX)
     },
     onResponderMove: ({nativeEvent}: GestureEvent) => {
@@ -113,7 +116,7 @@ const TaskView = (props: PropTypes) => {
             <AppText style={css.title}>{props.task.title}</AppText>
             {details_active &&
               <AppText style={css.created_by}>
-                Created by Lucas M {timeAgo(props.task.creation_date)}
+                Created by {creator_name ?? '???'} {timeAgo(props.task.creation_date)}
               </AppText>
             }
           </View>

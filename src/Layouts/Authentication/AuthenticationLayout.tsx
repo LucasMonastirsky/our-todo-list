@@ -21,7 +21,7 @@ const AuthenticationLayout = (props: {onLoggedIn: ()=>any}) => {
     API.continuePreviousSession()
       .then(() => props.onLoggedIn())
       .catch(error => {
-        DEBUG.log(`${error}, proceeding to login layout`)
+        DEBUG.log(`Error while trying to continue session: '${error.message ?? error}', proceeding to login layout`)
         setLoading(false)
       })
   }, [])

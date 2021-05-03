@@ -1,8 +1,7 @@
 const colors = {
-  main: '#5e8d9c',
-  main_dark: '#37535C',
+  main: '#6CAEC2',
+  main_dark: '#426E7A',
   background: '#1c2326',
-  main_light: '#A3D7F0',
   light: '#efefef',
   light_dark: '#d0d0d0',
   gray: '#909090',

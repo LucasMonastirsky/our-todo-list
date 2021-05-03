@@ -70,7 +70,7 @@ const App = () => {
         </Animated.View>
       </AppDrawer>
   }
-DEBUG.log(colors.background)
+
   return (
     <View style={css.app}>{content()}</View>
   )

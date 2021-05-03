@@ -22,30 +22,28 @@ API = class API {
   static get user() { return API._user! }
 
   static continuePreviousSession = async () => {
+    DEBUG.log(`Continuing previous session...`)
     const cognito_user = await Auth.currentAuthenticatedUser()
-    DEBUG.log(`Found session from user '${cognito_user.username}'`)
+    DEBUG.log(`Found session from user ${cognito_user.username}`)
     API._user = await API.getUser(cognito_user.attributes.sub)
+    DEBUG.log(`Continuing session from user:`, API._user.username)
   }
 
   static signIn = async (username: string, password: string) => {
-    try {
-      await Auth.signIn(username, password)
-      API._user = await API.getUser((await Auth.currentAuthenticatedUser()).attributes.sub)
-    }
-    catch (error) {
-      DEBUG.log('Error while signing in: ', error)
-      throw error.message ?? 'Unknown error'
-    }
+    DEBUG.log(`Authenticating user '${username}`)
+    await Auth.signIn(username, password)
+    DEBUG.log(`Authenticated user ${username}`)
+    const cognito_user = await Auth.currentAuthenticatedUser()
+    const user = await API.getUser(cognito_user.attributes.sub)
+    API._user = user
+    DEBUG.log(`Signed in user:`, user)
   }
 
   static signOut = async () => {
-    try {
-      await Auth.signOut()
-    }
-    catch (error) {
-      DEBUG.log('Error while signing out: ', error)
-      throw error.message ?? 'Unknown error'
-    }
+    DEBUG.log(`Signing out...`)
+    await Auth.signOut()
+    API._user = undefined
+    DEBUG.log(`Signed out successfully`)
   }
 
   private static pending_registration_user?: { username: string, id: string }
@@ -74,17 +72,18 @@ API = class API {
 
       DEBUG.log(`Adding user '${username}' to storage`)
 
-      const result = await API.dynamo_client.put({
+      const user = {
+        nickname: API.pending_registration_user.username,
+        username: API.pending_registration_user.username,
+        id: API.pending_registration_user.id,
+        image: `https://i.stack.imgur.com/l60Hf.png`,
+        list_ids: [],
+      }
+      await API.dynamo_client.put({
         TableName: 'Users',
-        Item: {
-          nickname: API.pending_registration_user.username,
-          username: API.pending_registration_user.username,
-          id: API.pending_registration_user.id,
-          image: `https://i.stack.imgur.com/l60Hf.png`,
-          list_ids: [],
-        }
+        Item: user,
       }).promise()
-      DEBUG.log(`Created user ${API.pending_registration_user.username} : ${result.Attributes!.id}`)
+      DEBUG.log(`Created user ${user.username} :`, user)
 
       API.pending_registration_user = undefined
     }
@@ -133,6 +132,7 @@ API = class API {
 
     if (result.Item === undefined)
       throw `Could not find user with id ${id}`
+    DEBUG.log(`Found user data: `, result.Item)
 
     const user = {
       ...result.Item,
@@ -141,7 +141,7 @@ API = class API {
 
     API.cache.users[user.id] = user
 
-    DEBUG.log(`Found user data: `, user)
+    DEBUG.log(`Formatted data: `, user)
     return user
   }
 
@@ -392,7 +392,7 @@ function arrayToSet<Type> (arr: Type[]) { // @ts-ignore
 }
 
 function arrayFromSet (set: any) {
-  return [...JSON.parse(JSON.stringify(set))].filter(x => x !== '')
+  return set ? [...JSON.parse(JSON.stringify(set))].filter(x => x !== '') : []
 }
 //#endregion
 
