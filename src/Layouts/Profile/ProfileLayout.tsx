@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { StyleSheet, TextInput, View } from 'react-native'
 import { API, Navigation } from '../../App'
 import { AppButton, AppText, Loading, ProfilePicture } from '../../Components'
+import Icon from '../../Components/AppIcon'
 import { TodoList, User } from '../../Models'
 import { colors, style } from '../../Styling'
 import { LayoutProps } from '../types'
+import EditProfile from './EditProfile'
 
 const ProfileLayout = (props: LayoutProps) => {
   const [user, setUser] = useState<User>(API.user)
@@ -12,7 +14,7 @@ const ProfileLayout = (props: LayoutProps) => {
   const [lists, setLists] = useState<TodoList[]|undefined>()
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {if (props.active) Navigation.header = ()=><View />}, [props.active])
+  useEffect(() => {if (props.active) Navigation.header = ()=><Header />}, [props.active])
   
   useEffect(() => {
     API.getListsFrom(user).then(setLists)
@@ -29,6 +31,14 @@ const ProfileLayout = (props: LayoutProps) => {
       }).finally(() => setLoading(false))
   }
   
+  const Header = () => {
+    return (
+      <View style={css.header}>
+        <Icon source={require('../../Media/Icons/edit.png')} onPress={()=>Navigation.goTo(EditProfile)} />
+      </View>
+    )
+  }
+
   const Item = ({label, value}: {label: string, value: string}) => (
     <View style={css.item_container}>
       <AppText style={css.item_label}>{label}:</AppText>
@@ -71,6 +81,12 @@ const ProfileLayout = (props: LayoutProps) => {
 }
 
 const css = StyleSheet.create({
+  header: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    flexDirection: 'row',
+    padding: style.padding,
+  },
   container: {
     backgroundColor: colors.background,
   },

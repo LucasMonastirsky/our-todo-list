@@ -1,10 +1,12 @@
 import React from 'react'
 import { View, TextInput, StyleSheet, TextInputProps } from 'react-native'
+import { AppText } from '.'
 import { colors, style } from '../Styling'
 
-const AppInputMin = (props: TextInputProps) => {
+const AppInputMin = (props: TextInputProps & { title?: string }) => {
   return (
     <View style={css.input_container}>
+      {props.title && <AppText style={css.title}>{props.title}</AppText>}
       <TextInput
         placeholderTextColor={colors.light_dark}
         textAlign='center'
@@ -26,6 +28,9 @@ const css = StyleSheet.create({
     fontSize: style.font_size_med,
     color: colors.light,
     padding: style.padding,
+  },
+  title: {
+    fontSize: style.font_size_small,
   },
 })
 
