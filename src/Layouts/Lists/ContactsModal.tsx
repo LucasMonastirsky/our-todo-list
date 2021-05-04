@@ -100,7 +100,7 @@ const css = StyleSheet.create({
     backgroundColor: colors.main,
     borderTopLeftRadius: style.border_radius_big,
     borderTopRightRadius: style.border_radius_big,
-    elevation: style.elevation,
+    elevation: style.elevation_step,
   },
   separator: {
     borderRadius: style.border_radius_med,

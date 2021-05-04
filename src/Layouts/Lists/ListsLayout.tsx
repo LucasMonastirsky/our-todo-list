@@ -36,10 +36,10 @@ const ListLayout = (props: LayoutProps) => {
 
   //#region Methods
   const addTask = (task: Task) => {
-    const updated_list = {...current_list, tasks: [
+    const updated_list = {...current_list, tasks: {
       ...current_list.tasks,
-      task
-    ]}
+      [task.id]: task
+    }}
     const updated_lists = [...lists]
     updated_lists.splice(current_list_index, 1, updated_list)
     setLists(updated_lists)
@@ -56,12 +56,11 @@ const ListLayout = (props: LayoutProps) => {
   }
 
   const updateTask = (task: Task) => {
-    const task_index = indexFromId(current_list.tasks, task.id)
-    if (task_index < 0)
+    if (current_list.tasks[task.id] === undefined)
      throw new Error(`Could not find task ${task.title} in ${current_list.title}`)
 
     const new_list = {...current_list}
-    new_list.tasks[task_index] = task
+    new_list.tasks[task.id] = task
     updateList(new_list)
   }
 
@@ -118,8 +117,9 @@ const ListLayout = (props: LayoutProps) => {
         <ListTab {...{lists}} onSelect={i=>setCurrentListIndex(i)} />
         {/* this needs optimization */}
         <ScrollView scrollEnabled={scroll_enabled}>
-          {current_list.tasks.filter(x=>x.status !== 'Done').map((item, index)=>(
+          {Object.values(current_list.tasks).filter(x=>x.status !== 'Done').map((item, index)=>(
             <TaskView {...{
+              key: item.id,
               task: item,
               index,
               setScrollEnabled,
@@ -132,8 +132,9 @@ const ListLayout = (props: LayoutProps) => {
               })}
             } />
           ))}
-          {current_list.tasks.filter(x=>x.status === 'Done').map((item, index)=>(
+          {Object.values(current_list.tasks).filter(x=>x.status === 'Done').map((item, index)=>(
             <TaskView {...{
+              key: item.id,
               task: item,
               index,
               setScrollEnabled,

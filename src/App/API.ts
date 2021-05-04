@@ -184,9 +184,7 @@ API = class API {
     const result = query.Responses.Lists
     DEBUG.log(`Got ${result.length} lists from ${user.username}`)
 
-    return result.map(item => ( // convert task map to list
-      { ...item, tasks: Object.values(item.tasks), member_ids: arrayFromSet(item.member_ids) }
-    )) as TodoList[]
+    return result as TodoList[]
   }
 
   static createTodoList = async (properties: {
@@ -197,7 +195,7 @@ API = class API {
     const list: TodoList = {
       ...properties,
       member_ids: [properties.owner_id],
-      tasks: [],
+      tasks: {},
       id: uuid()
     }
 
