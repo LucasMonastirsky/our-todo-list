@@ -18,11 +18,16 @@ const TaskView = (props: PropTypes) => {
   const { task } = props
   const [details_active, setDetailsActive] = useState(false)
   const [creator_name, setCreatorName] = useState<string>()
+  const [completer_name, setCompleterName] = useState<string>()
   const anim = createAnimation({duration: style.anim_duration / 5 * ((props.index ?? 0) + 1)})
 
   useEffect(() => {
     API.getCachedUser(task.creator_id)
     .then(user => setCreatorName(user.nickname))
+
+    if (task.status === 'Done')
+      API.getCachedUser(task.completer_id!)
+        .then(user => setCompleterName(user.nickname))
   }, [])
 
   const claimTask = async () => {
@@ -139,6 +144,12 @@ const TaskView = (props: PropTypes) => {
               defaultValue={task.description}
               autoCorrect={false}
             />
+            {task.status === 'Done' && <>
+              <View style={css.details_separator} />
+              <AppText style={css.completed_by}>
+                Completed by {completer_name} {timeAgo(task.completion_date!)}
+              </AppText>
+            </>}
           </View>
         </>}
       </View>
@@ -195,6 +206,10 @@ const css = StyleSheet.create({
     textAlign: 'center',
     color: colors.light,
     padding: 0,
+  },
+  completed_by: {
+    fontSize: style.font_size_small,
+    color: colors.light_dark,
   },
 })
 
