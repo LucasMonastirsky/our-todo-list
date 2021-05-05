@@ -27,21 +27,21 @@ API = class API {
     const cognito_user = await Auth.currentAuthenticatedUser()
     DEBUG.log(`Found session from user ${cognito_user.username}`)
     API._user = await API.getUser(cognito_user.attributes.sub)
-    DEBUG.log(`Continuing session from user:`, API._user.username)
+    DEBUG.log(`Continuing session from user ${API._user.username}`)
   }
 
   static signIn = async (username: string, password: string) => {
-    DEBUG.log(`Authenticating user '${username}`)
+    DEBUG.log(`Authenticating user ${username}...`)
     await Auth.signIn(username, password).catch(e => { DEBUG.error(e); throw e })
-    DEBUG.log(`Authenticated user ${username}`)
+    DEBUG.log(`Authenticated user ${username}, getting user data...`)
     const cognito_user = await Auth.currentAuthenticatedUser()
     const user = await API.getUser(cognito_user.attributes.sub)
     API._user = user
-    DEBUG.log(`Signed in user:`, user)
+    DEBUG.log(`Signed in user ${user.username}`)
   }
 
   static signOut = async () => {
-    DEBUG.log(`Signing out...`)
+    DEBUG.log(`Signing out user ${API.user.username}...`)
     await Auth.signOut()
     API._user = undefined
     DEBUG.log(`Signed out successfully`)
@@ -57,51 +57,45 @@ API = class API {
       }
     }
     catch (error) {
-      DEBUG.error('Error while registering user: ', error)
+      DEBUG.error(`Error while registering user ${username}`)
       throw {message: error.message ?? 'Unknown error'}
     }
   }
 
   static confirmUser = async (username: string, confirmation_code: string) => {
-    try {
-      DEBUG.log('signUp return: ', await Auth.confirmSignUp(username, confirmation_code))
+    DEBUG.log(`Confirming user ${username}...`)
+    await Auth.confirmSignUp(username, confirmation_code)
+    DEBUG.log(`Confirmation returned successfully`)
 
-      if (!API.pending_registration_user)
-        throw 'No user pending registration in API'
-      if (API.pending_registration_user.username !== username)
-        throw 'User pending registration differs from requested user'
+    if (!API.pending_registration_user)
+      throw new Error('No user pending registration in API')
+    if (API.pending_registration_user.username !== username)
+      throw new Error('User pending registration differs from requested user')
 
-      DEBUG.log(`Adding user '${username}' to storage`)
+    DEBUG.log(`Adding user ${username} to storage...`)
 
-      const user = {
-        nickname: API.pending_registration_user.username,
-        username: API.pending_registration_user.username,
-        id: API.pending_registration_user.id,
-        image: `https://i.stack.imgur.com/l60Hf.png`,
-        list_ids: [],
-      }
-      await API.dynamo_client.put({
-        TableName: 'Users',
-        Item: user,
-      }).promise()
-      DEBUG.log(`Created user ${user.username} :`, user)
-
-      API.pending_registration_user = undefined
+    const user = {
+      nickname: API.pending_registration_user.username,
+      username: API.pending_registration_user.username,
+      id: API.pending_registration_user.id,
+      image: `https://i.stack.imgur.com/l60Hf.png`,
+      list_ids: [],
     }
-    catch (error) {
-      DEBUG.error('Error while confirming new user: ', error)
-      throw error.message ?? 'Unknown error'
-    }
+
+    await API.dynamo_client.put({
+      TableName: 'Users',
+      Item: user,
+    }).promise()
+
+    API.pending_registration_user = undefined
+
+    DEBUG.log(`Created user ${user.username} with id ${user.id}`)
   }
 
   static resendConfirmationCode = async (username: string) => {
-    try {
-      await Auth.resendSignUp(username)
-    }
-    catch (error) {
-      DEBUG.error('Error while resending confirmation code: ', error)
-      throw error.message ?? 'Unknown error'
-    }
+    DEBUG.log(`Resending confirmation code for user ${username}...`)
+    await Auth.resendSignUp(username)
+    DEBUG.log(`Confirmation code resent`)
   }
   //#endregion
 
@@ -119,12 +113,13 @@ API = class API {
       DEBUG.log(`Didn't find user in cache, getting from storage...`)
       API.cache.users[id] = await API.getUser(id)
     }
-    DEBUG.log(`Found cached user '${API.cache.users[id].username}'`)
+    else DEBUG.log(`Found cached user ${API.cache.users[id].username}`)
+
     return API.cache.users[id]
   }
 
   static getUser = async (id: string) => {
-    DEBUG.log(`Getting user data from id: ${id}`)
+    DEBUG.log(`Getting user data from id ${id}...`)
 
     const result = await API.dynamo_client.get({
       TableName: 'Users',
@@ -133,7 +128,7 @@ API = class API {
 
     if (result.Item === undefined)
       throw `Could not find user with id ${id}`
-    DEBUG.log(`Found user data: `, result.Item)
+    else DEBUG.log(`Found data for user ${result.Item.username}`)
 
     const user = {
       ...result.Item,
@@ -142,12 +137,12 @@ API = class API {
 
     API.cache.users[user.id] = user
 
-    DEBUG.log(`Formatted data: `, user)
+    DEBUG.log(`Formatted user data successfully`,)
     return user
   }
 
   static editUser = async (id: string, user: Partial<User>) => {
-    DEBUG.log(`Updating user ${id}`, user)
+    DEBUG.log(`Updating user ${id}...`)
     const update_query = buildUpdateQuery(user)
 
     const response = await (API.dynamo_client.update({
@@ -158,11 +153,11 @@ API = class API {
       ReturnValues: DEBUG.enabled ? 'UPDATED_NEW' : 'NONE'
     }).promise())
 
-    DEBUG.log(`Updated user ${id} with values:`, response.Attributes)
+    DEBUG.log(`Updated user ${id} with values`, response.Attributes)
   }
 
   static getListsFrom = async (user: User) => {
-    DEBUG.log(`Getting lists from user ${user.username}`)
+    DEBUG.log(`Getting lists from user ${user.username}...`)
 
     if (user.list_ids.length < 1) {
       DEBUG.log('User has no lists')
@@ -177,13 +172,11 @@ API = class API {
       }
     }).promise()
 
-    if (!query.Responses){
-      DEBUG.error('No responses...')
-      throw 'getListsFrom: no responses'
-    }
+    if (!query.Responses)
+      throw new Error(`Error while getting lists from user ${user.username}: no responses`)
 
     const result = query.Responses.Lists
-    DEBUG.log(`Got ${result.length} lists from ${user.username}`)
+    DEBUG.log(`Got ${result.length} lists from user ${user.username}`)
 
     return result as TodoList[]
   }
@@ -193,6 +186,8 @@ API = class API {
     description: string,
     owner_id: string,
   }) => {
+    DEBUG.log(`Creating list ${properties.title}...`)
+
     const list: TodoList = {
       ...properties,
       member_ids: [properties.owner_id],
@@ -207,6 +202,8 @@ API = class API {
       if (err) { DEBUG.error(err); throw err }
     })
 
+    DEBUG.log(`Created list ${list.title}, updating user ${list.owner_id}...`)
+
     await API.dynamo_client.update({
       TableName: 'Users',
       Key: { id: API.user.id },
@@ -215,11 +212,13 @@ API = class API {
       ExpressionAttributeValues: { ':new_list_id': [list.id] }
     }).promise()
 
+    DEBUG.log(`Updated user ${list.owner_id} successfully`)
+
     return list
   }
 
   static editTodoList = async (id: string, new_list: Partial<TodoList>) => {
-    DEBUG.log(`Editting list ${id}`)
+    DEBUG.log(`Editting list ${id}...`)
     const update_query = buildUpdateQuery(new_list)
 
     const response = await API.dynamo_client.update({
@@ -246,6 +245,8 @@ API = class API {
     title: string,
     description?: string,
   }) => {
+    DEBUG.log(`Creating task ${properties.title}...`)
+    
     const task: Task = {
       title: properties.title,
       description: properties.description ?? '',
@@ -268,6 +269,8 @@ API = class API {
         ':new_task': task,
       },
     }).promise()
+
+    DEBUG.log(`Created task ${properties.title}`)
 
     return task
   }
@@ -295,12 +298,13 @@ API = class API {
         if (task[key as keyof Task] !== old_task[key as keyof Task])
           updated_values[key] = task[key as keyof Task]
       })
-      DEBUG.log(`Updated task '${task.title}', with values:`, updated_values)
+      DEBUG.log(`Updated task ${task.title} with values`, updated_values)
     }
+    else DEBUG.log(`Updated task ${task.title}`)
   }
 
   static addUserToList = async (user_id: string, list: TodoList) => {
-    DEBUG.log(`Adding user ${user_id} to list ${list.title}`)
+    DEBUG.log(`Adding user ${user_id} to list ${list.title}...`)
     if (list.member_ids.includes(user_id)) {
       const message = `List ${list.title} already includes user ${user_id}`
       DEBUG.error(message)
@@ -317,7 +321,7 @@ API = class API {
       ReturnValues: DEBUG.enabled ? 'UPDATED_NEW' : 'NONE'
     }).promise()
 
-    DEBUG.log(`Updated list ${list.id}: `, list_result.Attributes)
+    DEBUG.log(`Updated list ${list.id}`)
 
     const user_result = await API.dynamo_client.update({
       TableName: 'Users',
@@ -327,10 +331,15 @@ API = class API {
       ReturnValues: DEBUG.enabled ? 'UPDATED_NEW' : 'NONE'
     }).promise()
 
-    DEBUG.log(`Updated user ${user_id}: `, user_result.Attributes)
+    DEBUG.log(`Updated user ${user_id}`)
   }
 
   static removeUserFromList = async (user_id: string, list: TodoList) => {
+    DEBUG.log(`Removing user ${user_id} from list ${list.title}...`)
+
+    if (!list.member_ids.includes(user_id))
+      throw new Error(`User ${user_id} is not a member of list ${list.title}`)
+
     const result = await API.dynamo_client.update({
       TableName: 'Lists',
       Key: { id: list.id },
@@ -339,10 +348,12 @@ API = class API {
       ReturnValues: DEBUG.enabled ? 'UPDATED_NEW' : 'NONE',
     }).promise()
 
-    DEBUG.log(result.Attributes)
+    DEBUG.log(`Removed user ${user_id} from list ${list.title}`)
   }
 
   static addContact = async (contact_id: string, user_id: string) => {
+    DEBUG.log(`Adding user ${contact_id} to contacts of ${user_id}`)
+
     if (contact_id === user_id)
       throw new Error(`Users can't add themselves (user id: ${user_id})`)
     if ((await API.getCachedUser(user_id)).contact_ids.includes(contact_id))
@@ -360,6 +371,7 @@ API = class API {
   }
 
   static removeContact = async (contact_id: string, user_id: string) => {
+    DEBUG.log(`Removing user ${contact_id} from contacts of ${user_id}`)
     const result = await API.dynamo_client.update({
       TableName: 'Users',
       Key: { id: user_id },
@@ -387,7 +399,7 @@ API = class API {
     if (response.status !== 201) {
       throw new Error(`S3 upload returned error: ${response.text}`)
     }
-    DEBUG.log(`Uploaded profile picture; uri: ${response.headers.Location}`)
+    DEBUG.log(`Uploaded new profile picture for user ${API.user.username} with uri: ${response.headers.Location}`)
     return response.headers.Location
   }
   //#endregion
