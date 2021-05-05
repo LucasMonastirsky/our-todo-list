@@ -4,8 +4,9 @@ import { API } from '../../App'
 import { AppButton, AppInputMin, ProfilePicture } from '../../Components'
 import { User } from '../../Models'
 import { style } from '../../Styling'
-import { launchImageLibrary } from 'react-native-image-picker'
+import { ImagePickerResponse, launchImageLibrary } from 'react-native-image-picker'
 import DEBUG from '../../Utils/DEBUG'
+import { RNS3 } from 'react-native-aws3'
 
 const EditProfile = () => {
   const [changes, setChanges] = useState<Partial<User>>({})
@@ -20,6 +21,17 @@ const EditProfile = () => {
     )
   }
 
+  const uploadChanges = async () => {
+    let uploaded_image_url
+    if (changes.image)
+      uploaded_image_url = await API.uploadProfilePicture(changes.image)
+
+    await API.editUser(user.id, {
+      ...changes,
+      image: uploaded_image_url,
+    })
+  }
+
   return (
     <View style={css.container}>
       <View style={css.image_container}>
@@ -32,7 +44,7 @@ const EditProfile = () => {
         defaultValue={user.nickname} 
         onChangeText={text=>setChanges({...changes, nickname: text})}
       />
-      <AppButton label='Save Changes' onPress={()=>{}} />
+      <AppButton label='Save Changes' onPress={uploadChanges} />
     </View>
   )
 }

@@ -3,10 +3,11 @@ import Amplify from 'aws-amplify'
 import { Task, TodoList } from "../Models"
 import User from "../Models/User"
 import AWS from 'aws-sdk'
-import { amplify_config, aws_sdk_config } from '../Secrets'
+import { amplify_config, aws_sdk_config, secrets } from '../Secrets'
 import { default as react_native_uuid } from 'react-native-uuid'
 import { IAPI } from '.'
 import DEBUG from "../Utils/DEBUG"
+import { RNS3 } from 'react-native-aws3'
 
 AWS.config.update(aws_sdk_config)
 Amplify.configure(amplify_config)
@@ -146,7 +147,7 @@ API = class API {
   }
 
   static editUser = async (id: string, user: Partial<User>) => {
-    DEBUG.log(`Updating user ${id}`)
+    DEBUG.log(`Updating user ${id}`, user)
     const update_query = buildUpdateQuery(user)
 
     const response = await (API.dynamo_client.update({
@@ -368,6 +369,26 @@ API = class API {
     }).promise()
 
     DEBUG.log(`Removed user ${contact_id} from contacts of ${user_id}`)
+  }
+
+  static uploadProfilePicture = async (uri: string) => {
+    DEBUG.log(`Uploading new image...`)
+    const response = await RNS3.put({
+      name: API.user.id,
+      uri,
+      type: 'image/jpeg',
+    }, {
+      bucket: 'our-todo-profile-pictures',
+      region: secrets.region,
+      accessKey: secrets.access_key,
+      secretKey: secrets.secret_key,
+      successActionStatus: 201,
+    })
+    if (response.status !== 201) {
+      throw new Error(`S3 upload returned error: ${response.text}`)
+    }
+    DEBUG.log(`Uploaded profile picture; uri: ${response.headers.Location}`)
+    return response.headers.Location
   }
   //#endregion
 }
