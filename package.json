@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@react-native-community/netinfo": "^6.0.0",
+    "@react-native-community/push-notification-ios": "^1.8.0",
     "amazon-cognito-identity-js": "^4.6.0",
     "aws-amplify": "^3.3.26",
     "aws-sdk": "^2.889.0",
@@ -19,6 +20,7 @@
     "react-native-aws3": "0.0.9",
     "react-native-drawer": "^2.5.1",
     "react-native-image-picker": "^3.5.0",
+    "react-native-push-notification": "^7.2.3",
     "react-native-uuid": "^2.0.1"
   },
   "devDependencies": {
@@ -29,6 +31,7 @@
     "@types/react-native": "^0.64.0",
     "@types/react-native-aws3": "0.0.0",
     "@types/react-native-drawer": "^2.5.3",
+    "@types/react-native-push-notification": "^7.2.0",
     "@types/react-test-renderer": "^16.9.2",
     "babel-jest": "^26.6.3",
     "eslint": "^7.14.0",
