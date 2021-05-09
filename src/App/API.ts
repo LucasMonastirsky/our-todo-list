@@ -4,7 +4,6 @@ import { Task, TodoList } from "../Models"
 import User from "../Models/User"
 import AWS from 'aws-sdk'
 import { amplify_config, aws_sdk_config, secrets } from '../Secrets'
-import { default as react_native_uuid } from 'react-native-uuid'
 import { IAPI } from '.'
 import DEBUG from "../Utils/DEBUG"
 import { RNS3 } from 'react-native-aws3'
@@ -12,11 +11,11 @@ import { RNS3 } from 'react-native-aws3'
 AWS.config.update(aws_sdk_config)
 Amplify.configure(amplify_config)
 
-const uuid = () => `${react_native_uuid.v4()}`
+const dynamo_client =  new AWS.DynamoDB.DocumentClient()
+const lambda_client = new AWS.Lambda()
 
 let API: IAPI
 API = class API {
-  private static dynamo_client =  new AWS.DynamoDB.DocumentClient()
 
   //#region Auth
   private static _user?: User
@@ -82,7 +81,7 @@ API = class API {
       list_ids: [],
     }
 
-    await API.dynamo_client.put({
+    await dynamo_client.put({
       TableName: 'Users',
       Item: user,
     }).promise()
@@ -121,7 +120,7 @@ API = class API {
   static getUser = async (id: string) => {
     DEBUG.log(`Getting user data from id ${id}...`)
 
-    const result = await API.dynamo_client.get({
+    const result = await dynamo_client.get({
       TableName: 'Users',
       Key: { id },
     }).promise()
@@ -145,7 +144,7 @@ API = class API {
     DEBUG.log(`Updating user ${id}...`)
     const update_query = buildUpdateQuery(user)
 
-    const response = await (API.dynamo_client.update({
+    const response = await (dynamo_client.update({
       TableName: 'Users',
       Key: { id },
       UpdateExpression: update_query.expression,
@@ -164,7 +163,7 @@ API = class API {
       return []
     }
 
-    const query = await API.dynamo_client.batchGet({
+    const query = await dynamo_client.batchGet({
       RequestItems: {
         Lists: {
           Keys: user.list_ids.map(id => ({ id }))
@@ -187,33 +186,8 @@ API = class API {
     owner_id: string,
   }) => {
     DEBUG.log(`Creating list ${properties.title}...`)
-
-    const list: TodoList = {
-      ...properties,
-      member_ids: [properties.owner_id],
-      tasks: {},
-      id: uuid()
-    }
-
-    await API.dynamo_client.put({
-      TableName: 'Lists',
-      Item: {...list, tasks: {}, member_ids: arrayToSet(list.member_ids)},
-    }, err => {
-      if (err) { DEBUG.error(err); throw err }
-    })
-
-    DEBUG.log(`Created list ${list.title}, updating user ${list.owner_id}...`)
-
-    await API.dynamo_client.update({
-      TableName: 'Users',
-      Key: { id: API.user.id },
-      UpdateExpression: 'SET #list_ids = list_append(#list_ids, :new_list_id)',
-      ExpressionAttributeNames: { '#list_ids': 'list_ids' },
-      ExpressionAttributeValues: { ':new_list_id': [list.id] }
-    }).promise()
-
-    DEBUG.log(`Updated user ${list.owner_id} successfully`)
-
+    const list = await invokeLambda('create_todo_list', properties)
+    DEBUG.log(`Created list successfully`)
     return list
   }
 
@@ -221,7 +195,7 @@ API = class API {
     DEBUG.log(`Editting list ${id}...`)
     const update_query = buildUpdateQuery(new_list)
 
-    const response = await API.dynamo_client.update({
+    const response = await dynamo_client.update({
       TableName: 'Lists',
       Key: { id },
       UpdateExpression: update_query.expression,
@@ -234,10 +208,9 @@ API = class API {
 
   static deleteTodoList = async (id: string) => {
     DEBUG.log(`Deleting list ${id}...`)
-    await API.dynamo_client.delete({
-      TableName: 'Lists',
-      Key: { id }
-    }).promise()
+    
+    await invokeLambda('delete_todo_list', { id })
+
     DEBUG.log(`Deleted list ${id}`)
   }
 
@@ -246,29 +219,12 @@ API = class API {
     description?: string,
   }) => {
     DEBUG.log(`Creating task ${properties.title}...`)
-    
-    const task: Task = {
-      title: properties.title,
-      description: properties.description ?? '',
-      id: uuid(),
+
+    const task = await invokeLambda('create_task', {
+      ...properties,
+      user_id: API.user.id,
       list_id: list.id,
-      creator_id: API.user.id,
-      creation_date: Date.now(),
-      status: 'Pending',
-      position: 0,
-    }
-    await API.dynamo_client.update({
-      TableName: 'Lists',
-      Key: { id: list.id, },
-      UpdateExpression: 'SET #tasks.#id = :new_task',
-      ExpressionAttributeNames: {
-        '#tasks': 'tasks',
-        '#id': task.id,
-      },
-      ExpressionAttributeValues: {
-        ':new_task': task,
-      },
-    }).promise()
+    })
 
     DEBUG.log(`Created task ${properties.title}`)
 
@@ -277,7 +233,7 @@ API = class API {
 
   static editTask = async (task: Task) => {
     DEBUG.log(`Editting task '${task.title}'...`)
-    const response = await API.dynamo_client.update({
+    const response = await dynamo_client.update({
       TableName: 'Lists',
       Key: { id: task.list_id },
       UpdateExpression: 'SET #tasks.#id = :updated_task',
@@ -313,7 +269,7 @@ API = class API {
 
     // TODO: updates should be batched together and cancelled if an error is thrown in either one
 
-    const list_result = await API.dynamo_client.update({
+    const list_result = await dynamo_client.update({
       TableName: 'Lists',
       Key: { id: list.id },
       UpdateExpression: 'ADD member_ids :user_id',
@@ -323,7 +279,7 @@ API = class API {
 
     DEBUG.log(`Updated list ${list.id}`)
 
-    const user_result = await API.dynamo_client.update({
+    const user_result = await dynamo_client.update({
       TableName: 'Users',
       Key: { id: user_id },
       UpdateExpression: 'SET list_ids = list_append(list_ids, :value)',
@@ -340,7 +296,7 @@ API = class API {
     if (!list.member_ids.includes(user_id))
       throw new Error(`User ${user_id} is not a member of list ${list.title}`)
 
-    const result = await API.dynamo_client.update({
+    const result = await dynamo_client.update({
       TableName: 'Lists',
       Key: { id: list.id },
       UpdateExpression: 'DELETE member_ids :user_id',
@@ -359,7 +315,7 @@ API = class API {
     if ((await API.getCachedUser(user_id)).contact_ids.includes(contact_id))
       throw new Error(`User ${user_id} has already added user ${contact_id}`)
 
-    const result = await API.dynamo_client.update({
+    const result = await dynamo_client.update({
       TableName: 'Users',
       Key: { id: user_id } ,
       UpdateExpression: 'ADD contact_ids :contact_id',
@@ -372,7 +328,7 @@ API = class API {
 
   static removeContact = async (contact_id: string, user_id: string) => {
     DEBUG.log(`Removing user ${contact_id} from contacts of ${user_id}`)
-    const result = await API.dynamo_client.update({
+    const result = await dynamo_client.update({
       TableName: 'Users',
       Key: { id: user_id },
       UpdateExpression: 'DELETE contact_ids :contact_id',
@@ -406,6 +362,15 @@ API = class API {
 }
 
 //#region Utils
+async function invokeLambda(function_name: string, params: any) {
+  const response = await lambda_client.invoke({
+    FunctionName: function_name,
+    Payload: JSON.stringify(params)
+  }).promise()
+
+  return JSON.parse(response.Payload as string).body
+}
+
 function buildUpdateQuery (changes: any) {
   let expression = 'SET '
   let values: { [key: string]: any } = {}
