@@ -2,31 +2,6 @@
 
 This project consists of a minimalist React Native app where one can manage shared todo-lists in a simple and effective manner. For example, one could have a list named "Household Tasks" that is shared with the people they live with. When any user adds an item to the list, any other user will be able to **claim** that task, notifying others that someone is taking care of the task. Upon completion, they will mark the task as completed and everyone else will be able to see that.
 
-## How to Run
-
-If you'd like to run the application, an AWS account with a Cognito User Pool and DynamoDB service is needed, and a configuration file needs to be created with the necessary credentials. Under the `src` folder, create a file named `Secrets.ts`. Inside the file, two objects need to be exported; see the following example:
-
-    export const amplify_config = {
-      aws_cognito_region: "", // The Cognito user pool's region (example: `us-east-2`)
-      aws_user_pools_id:  "", // The User Pool Id of the Cognito user pool (found under the `General Settings` tab)
-      aws_user_pools_web_client_id: '', // The app client's id, located under the `App Clients` tab
-      Auth: {
-        userPoolId: "", // Same as `aws_user_pools_id`
-      }
-    }
-
-    export const aws_sdk_config = {
-      region: '', // The region of AWS account
-      credentials: { // To generate these credentials, follow this guide: https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/getting-your-credentials.html
-        accessKeyId: '',
-        secretAccessKey: ''
-      },
-    }
-
-For the database, create two tables in DynamoDB: `Users`, and `Lists`. Both tables must be indexed by the property `id`.
-
-For the authentication, create a Cognito User Pool with **Username login**. When creating the app client, **disable** the `Generate client secret` box, and enable `username-password based authentication`.
-
 ## Technologies Used
 [React Native](https://reactnative.dev/)
 
@@ -35,6 +10,12 @@ For the authentication, create a Cognito User Pool with **Username login**. When
 [AWS Cognito](https://aws.amazon.com/cognito/)
 
 [AWS DynamoDB](https://aws.amazon.com/dynamodb/)
+
+[AWS S3](https://aws.amazon.com/s3/)
+
+[AWS Lambda](https://aws.amazon.com/lambda/)
+
+[AWS SNS](https://aws.amazon.com/sns/)
 
 [Love](https://time.com/4969114/fda-granola-love/)
 
