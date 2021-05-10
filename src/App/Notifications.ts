@@ -18,8 +18,10 @@ PushNotification.createChannel({
 );
 
 PushNotification.configure({
-  onRegister: function (token) {
-    DEBUG.log(`Registered for push notifications with token ${token.token}`);
+  onRegister: function ({token}) {
+    // @ts-ignore
+    Notifications._token = token
+    DEBUG.log(`Registered for push notifications with token ${token}`);
   },
 
   onNotification: function (notification) {
@@ -43,10 +45,15 @@ PushNotification.configure({
   },
 });
 
-export const push = (title: string, description: string) => {
-  PushNotification.localNotification({
-    channelId: channel_id,
-    title,
-    message: description,
-  })
+export default class Notifications {
+  private static _token: string
+  static get token() { return Notifications._token }
+
+  static push = (title: string, description: string) => {
+    PushNotification.localNotification({
+      channelId: channel_id,
+      title,
+      message: description,
+    })
+  }
 }

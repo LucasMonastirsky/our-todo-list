@@ -7,6 +7,7 @@ import { amplify_config, aws_sdk_config, secrets } from '../Secrets'
 import { IAPI } from '.'
 import DEBUG from "../Utils/DEBUG"
 import { RNS3 } from 'react-native-aws3'
+import Notifications from "./Notifications"
 
 AWS.config.update(aws_sdk_config)
 Amplify.configure(amplify_config)
@@ -24,18 +25,39 @@ API = class API {
   static continuePreviousSession = async () => {
     DEBUG.log(`Continuing previous session...`)
     const cognito_user = await Auth.currentAuthenticatedUser()
-    DEBUG.log(`Found session from user ${cognito_user.username}`)
+  
+    DEBUG.log(`Getting user from storage...`)
     API._user = await API.getUser(cognito_user.attributes.sub)
+
+    DEBUG.log(`Updating notification token...`)
+    await invokeLambda('update_user_notification_token', {
+      notification_arn: cognito_user.attributes.sub,
+      notification_token: Notifications.token,
+    })
+
     DEBUG.log(`Continuing session from user ${API._user.username}`)
   }
 
   static signIn = async (username: string, password: string) => {
     DEBUG.log(`Authenticating user ${username}...`)
     await Auth.signIn(username, password).catch(e => { DEBUG.error(e); throw e })
+
     DEBUG.log(`Authenticated user ${username}, getting user data...`)
     const cognito_user = await Auth.currentAuthenticatedUser()
+
+    DEBUG.log(`Uploading notification token...`)
+    const query = buildUpdateQuery({notification_token: Notifications.token})
+    await dynamo_client.update({
+      TableName: 'Users',
+      Key: { id: cognito_user.attributes.sub },
+      UpdateExpression: query.expression,
+      ExpressionAttributeValues: query.values,
+    }).promise()
+
+    DEBUG.log(`Getting user from storage...`)
     const user = await API.getUser(cognito_user.attributes.sub)
     API._user = user
+
     DEBUG.log(`Signed in user ${user.username}`)
   }
 
@@ -71,20 +93,13 @@ API = class API {
     if (API.pending_registration_user.username !== username)
       throw new Error('User pending registration differs from requested user')
 
-    DEBUG.log(`Adding user ${username} to storage...`)
+    DEBUG.log(`Creating user ${username} in storage...`)
 
-    const user = {
-      nickname: API.pending_registration_user.username,
-      username: API.pending_registration_user.username,
-      id: API.pending_registration_user.id,
-      image: `https://i.stack.imgur.com/l60Hf.png`,
-      list_ids: [],
-    }
-
-    await dynamo_client.put({
-      TableName: 'Users',
-      Item: user,
-    }).promise()
+    const user = await invokeLambda('create_user', {
+      username,
+      user_id: API.pending_registration_user.id,
+      notification_token: Notifications.token,
+    })
 
     API.pending_registration_user = undefined
 
@@ -186,7 +201,10 @@ API = class API {
     owner_id: string,
   }) => {
     DEBUG.log(`Creating list ${properties.title}...`)
-    const list = await invokeLambda('create_todo_list', properties)
+    const list = await invokeLambda('create_todo_list', {
+      ...properties,
+      notification_token: Notifications.token,
+    })
     DEBUG.log(`Created list successfully`)
     return list
   }
