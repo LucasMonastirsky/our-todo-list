@@ -277,25 +277,10 @@ API = class API {
       throw new Error(message)
     }
 
-    // TODO: updates should be batched together and cancelled if an error is thrown in either one
-
-    const list_result = await dynamo_client.update({
-      TableName: 'Lists',
-      Key: { id: list.id },
-      UpdateExpression: 'ADD member_ids :user_id',
-      ExpressionAttributeValues: { ':user_id': arrayToSet([user_id]) },
-      ReturnValues: DEBUG.enabled ? 'UPDATED_NEW' : 'NONE'
-    }).promise()
-
-    DEBUG.log(`Updated list ${list.id}`)
-
-    const user_result = await dynamo_client.update({
-      TableName: 'Users',
-      Key: { id: user_id },
-      UpdateExpression: 'SET list_ids = list_append(list_ids, :value)',
-      ExpressionAttributeValues: { ':value': [list.id] },
-      ReturnValues: DEBUG.enabled ? 'UPDATED_NEW' : 'NONE'
-    }).promise()
+    await invokeLambda('add_user_to_list', {
+      invited_user_id: user_id,
+      list_id: list.id,
+    })
 
     DEBUG.log(`Updated user ${user_id}`)
   }
