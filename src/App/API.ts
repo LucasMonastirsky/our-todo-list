@@ -31,7 +31,7 @@ API = class API {
 
     DEBUG.log(`Updating notification token...`)
     await invokeLambda('update_user_notification_token', {
-      notification_arn: cognito_user.attributes.sub,
+      user_id: cognito_user.attributes.sub,
       notification_token: Notifications.token,
     })
 
@@ -45,7 +45,11 @@ API = class API {
     DEBUG.log(`Authenticated user ${username}, getting user data...`)
     const cognito_user = await Auth.currentAuthenticatedUser()
 
-    // TODO: Update notification token here
+    DEBUG.log(`Updating notification token...`)
+    await invokeLambda('update_user_notification_token', {
+      user_id: cognito_user.attributes.sub,
+      notification_token: Notifications.token,
+    })
 
     DEBUG.log(`Getting user from storage...`)
     const user = await API.getUser(cognito_user.attributes.sub)
