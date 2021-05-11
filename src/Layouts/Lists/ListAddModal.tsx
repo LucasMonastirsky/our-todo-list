@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { StyleSheet, TextInput, View } from 'react-native'
+import { StyleSheet, TextInput } from 'react-native'
 import { AppButton, AppInputMin, AppModal } from '../../Components'
 import { TodoList } from '../../Models'
 import { colors, style } from '../../Styling'

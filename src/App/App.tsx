@@ -6,7 +6,6 @@ import { AuthenticationLayout } from '../Layouts';
 import { Layout } from '../Layouts/types';
 import { colors, style } from '../Styling';
 import { createAnimation, screen, useAsyncState } from '../Utils';
-import DEBUG from '../Utils/DEBUG';
 
 const App = () => {
   const [active_layout_index, setActiveLayoutIndex] = useState(0)

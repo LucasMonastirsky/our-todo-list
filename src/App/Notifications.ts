@@ -1,6 +1,5 @@
 import PushNotificationIOS from '@react-native-community/push-notification-ios'
 import PushNotification from 'react-native-push-notification'
-import { create } from 'react-test-renderer';
 import DEBUG from '../Utils/DEBUG';
 
 const channel_id = 'our_todo_main_channel'

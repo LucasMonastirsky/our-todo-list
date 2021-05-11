@@ -12,26 +12,21 @@ exports.handler = async (event) => {
 
   const db = new AWS.DynamoDB.DocumentClient()
 
-  const values = {
-    ':0': event.status,
-    ':1': event.user_id,
-  }
-  if (event.status === 'Done')
-    values[':2'] = Date.now()
-
-  const expression = `SET tasks.#id.#status = :0, tasks.#id.#0 = :1` + (event.status === 'Done' ? ', tasks.#id.completion_date = :2' : '')
-  console.log(expression)
-
   const { Attributes: list } = await db.update({
     TableName: 'Lists',
     Key: { id: event.list_id },
-    UpdateExpression: expression,
+    UpdateExpression: `SET tasks.#id.#status = :0, tasks.#id.#0 = :1`
+      + (event.status === 'Done' ? ', tasks.#id.completion_date = :2' : ''),
     ExpressionAttributeNames: {
       '#id': event.task_id,
       '#status': 'status',
       '#0': event.status === 'Claimed' ? 'completer_id' : 'claimed_by_id'
     },
-    ExpressionAttributeValues: values,
+    ExpressionAttributeValues: {
+      ':0': event.status,
+      ':1': event.user_id,
+      ':2': (event.status === 'Done' ? Date.now() : undefined)
+    },
     ReturnValues: 'ALL_NEW'
   }).promise()
   const task = list.tasks[event.task_id]
@@ -47,7 +42,7 @@ exports.handler = async (event) => {
       task,
     })
   }).promise()
-
+  
   console.log(`Published message to topic`)
 
   return {

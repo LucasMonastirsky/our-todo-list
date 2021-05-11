@@ -4,9 +4,8 @@ import { API } from '../../App'
 import { AppButton, AppInputMin, ProfilePicture } from '../../Components'
 import { User } from '../../Models'
 import { style } from '../../Styling'
-import { ImagePickerResponse, launchImageLibrary } from 'react-native-image-picker'
+import { launchImageLibrary } from 'react-native-image-picker'
 import DEBUG from '../../Utils/DEBUG'
-import { RNS3 } from 'react-native-aws3'
 
 const EditProfile = () => {
   const [changes, setChanges] = useState<Partial<User>>({})

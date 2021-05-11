@@ -5,7 +5,6 @@ import { colors, style } from '../../Styling'
 import { createAnimation, screen, timeAgo } from '../../Utils'
 import { AppText, ProfilePicture } from '../../Components'
 import { API } from '../../App'
-import DEBUG from '../../Utils/DEBUG'
 
 type PropTypes = {
   task: Task

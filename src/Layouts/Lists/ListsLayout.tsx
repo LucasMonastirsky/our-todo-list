@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from 'react'
-import { FlatList, Image, ImageSourcePropType, Modal, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import TaskView from './TaskView'
 import { Task, TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
 import ListTab from './ListTab'
-import { API, Navigation, Options } from '../../App'
+import { API, Navigation } from '../../App'
 import { LayoutProps } from '../types'
 import AddTaskModal from './AddTaskModal'
 import ListEditModal from './ListEditModal'
 import ListAddModal from './ListAddModal'
-import { AddFloatingButton, AppText, Loading } from '../../Components'
-import DEBUG from '../../Utils/DEBUG'
+import { AppText, Loading } from '../../Components'
 import ContactsModal from './ContactsModal'
 import Icon from '../../Components/AppIcon'
-import { indexFromId } from '../../Utils'
 
 const ListLayout = (props: LayoutProps) => {
   const [lists, setLists] = useState<TodoList[]>([])

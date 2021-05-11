@@ -1,5 +1,5 @@
 import React from 'react'
-import { Image, ImageSourcePropType, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native'
+import { Image, ImageSourcePropType, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native'
 import { style } from '../Styling'
 
 const Icon = ({source, onPress, style}: {

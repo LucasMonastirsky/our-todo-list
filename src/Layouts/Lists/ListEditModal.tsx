@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { Image, StyleSheet, TextInput, View } from 'react-native'
+import { StyleSheet, TextInput, View } from 'react-native'
 import { API } from '../../App'
 import { AppButton, AppInputMin, AppModal, AppText, Loading } from '../../Components'
 import { TodoList, User } from '../../Models'
 import { colors, style } from '../../Styling'
-import { screen } from '../../Utils'
 
 export default (props: {
   list: TodoList,
