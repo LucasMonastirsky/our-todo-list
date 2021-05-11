@@ -21,6 +21,7 @@ exports.handler = async (event) => {
     EndpointArn: user_result.Item.notification_arn,
     Attributes: {
       Token: event.notification_token,
+      Enabled: true,
     }
   }).promise()
 
