@@ -25,12 +25,16 @@ PushNotification.configure({
   },
 
   onNotification: function (notification) {
-    DEBUG.log("NOTIFICATION:", notification);
-    PushNotification.localNotification({
-      title: 'SNS Notification',
-      channelId: 'abc',
-      message: 'Notification Message'
-    })
+    const data = JSON.parse(notification.data.default)
+    DEBUG.log(`Received ${data.type} notification`);
+
+    if (data.type === 'task_created') {
+      PushNotification.localNotification({
+        title: `New task in ${data.list_title}`,
+        channelId: channel_id,
+        message: `${data.task.title}`
+      })
+    }
 
     notification.finish(PushNotificationIOS.FetchResult.NoData);
   },
@@ -44,6 +48,10 @@ PushNotification.configure({
     console.error(err.message, err);
   },
 });
+
+type NotificationType =
+  'task_created' |
+  'added_to_list'
 
 export default class Notifications {
   private static _token: string

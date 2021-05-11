@@ -34,6 +34,8 @@ interface IAPI {
   addContact: (contact_id: string, user_id: string) => Promise<void>
   removeContact: (contact_id: string, user_id: string) => Promise<void>
 
+  updateTaskStatus: (task: Task, status: 'Claimed'|'Done') => Promise<Task>
+
   uploadProfilePicture: (uri: string) => Promise<string>
   //#endregion
 }

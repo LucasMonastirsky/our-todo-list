@@ -45,14 +45,7 @@ API = class API {
     DEBUG.log(`Authenticated user ${username}, getting user data...`)
     const cognito_user = await Auth.currentAuthenticatedUser()
 
-    DEBUG.log(`Uploading notification token...`)
-    const query = buildUpdateQuery({notification_token: Notifications.token})
-    await dynamo_client.update({
-      TableName: 'Users',
-      Key: { id: cognito_user.attributes.sub },
-      UpdateExpression: query.expression,
-      ExpressionAttributeValues: query.values,
-    }).promise()
+    // TODO: Update notification token here
 
     DEBUG.log(`Getting user from storage...`)
     const user = await API.getUser(cognito_user.attributes.sub)
@@ -203,7 +196,6 @@ API = class API {
     DEBUG.log(`Creating list ${properties.title}...`)
     const list = await invokeLambda('create_todo_list', {
       ...properties,
-      notification_token: Notifications.token,
     })
     DEBUG.log(`Created list successfully`)
     return list
@@ -376,6 +368,21 @@ API = class API {
     DEBUG.log(`Uploaded new profile picture for user ${API.user.username} with uri: ${response.headers.Location}`)
     return response.headers.Location
   }
+
+  static updateTaskStatus = async (task: Task, status: 'Claimed'|'Done') => {
+    DEBUG.log(`Updating status of task '${task.title}'`)
+    
+    const updated_task = await invokeLambda('update_task_status', {
+      user_id: API.user.id,
+      task_id: task.id,
+      list_id: task.list_id,
+      status,
+    })
+
+    DEBUG.log(`Updated status of task '${task.title} to ${status}`)
+
+    return updated_task
+  }
   //#endregion
 }
 
@@ -385,6 +392,9 @@ async function invokeLambda(function_name: string, params: any) {
     FunctionName: function_name,
     Payload: JSON.stringify(params)
   }).promise()
+
+  if (response.StatusCode !== 200)
+    throw new Error(`Lambda returned status code ${response.StatusCode}`)
 
   return JSON.parse(response.Payload as string).body
 }

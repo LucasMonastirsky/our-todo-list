@@ -31,22 +31,12 @@ const TaskView = (props: PropTypes) => {
   }, [])
 
   const claimTask = async () => {
-    const new_task: Task = {
-      ...props.task,
-      status: 'Claimed',
-      claimed_by_id: API.user.id,
-    }
-    await API.editTask(new_task)
-    props.updateTask(new_task)
-    DEBUG.log(`Claimed task ${props.task.title}`)
+    const updated_task = await API.updateTaskStatus(task, 'Claimed')
+    props.updateTask(updated_task)
   }
 
   const finishTask = async () => {
-    await API.editTask({...props.task,
-      status: 'Done',
-      completer_id: API.user.id,
-      completion_date: Date.now()
-    })
+    await API.updateTaskStatus(task, 'Done')
     props.onTaskFinished()
   }
 
