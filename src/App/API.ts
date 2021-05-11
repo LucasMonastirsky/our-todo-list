@@ -412,7 +412,7 @@ function buildUpdateQuery (changes: any) {
 }
 
 function arrayToSet<Type> (arr: Type[]) { // @ts-ignore
-  return API.dynamo_client.createSet(arr)
+  return dynamo_client.createSet(arr)
 }
 
 function arrayFromSet (set: any) {

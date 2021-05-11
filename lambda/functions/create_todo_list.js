@@ -28,7 +28,7 @@ exports.handler = async (event) => {
   let db = new AWS.DynamoDB.DocumentClient()
   await db.put({
     TableName: 'Lists',
-    Item: list,
+    Item: {...list, member_ids: db.createSet(list.member_ids)},
   }).promise()
 
   console.log(`Updating user with new list id...`)
