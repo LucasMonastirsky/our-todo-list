@@ -84,6 +84,18 @@ const notification_handlers: { [index: string]: NotificationHandler } = {
       })
     },
   },
+  added_to_list: {
+    foreground: async data => {
+
+    },
+    background: async data => {
+      PushNotification.localNotification({
+        title: `${data.sender_nickname} added you to ${data.list.title}`,
+        channelId: channel_id,
+        message: ``,
+      })
+    },
+  }
 }
 
 type NotificationType =

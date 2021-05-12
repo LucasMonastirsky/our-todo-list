@@ -31,7 +31,7 @@ API = class API {
 
     DEBUG.log(`Updating notification token...`)
     await invokeLambda('update_user_notification_token', {
-      user_id: cognito_user.attributes.sub,
+      user_id: API.user.id,
       notification_token: Notifications.token,
     })
 
@@ -200,6 +200,7 @@ API = class API {
     DEBUG.log(`Creating list ${properties.title}...`)
     const list = await invokeLambda('create_todo_list', {
       ...properties,
+      user_id: API.user.id,
     })
     DEBUG.log(`Created list successfully`)
     return list
@@ -223,7 +224,10 @@ API = class API {
   static deleteTodoList = async (id: string) => {
     DEBUG.log(`Deleting list ${id}...`)
     
-    await invokeLambda('delete_todo_list', { id })
+    await invokeLambda('delete_todo_list', {
+      id,
+      user_id: API.user.id,
+    })
 
     DEBUG.log(`Deleted list ${id}`)
   }
@@ -236,8 +240,8 @@ API = class API {
 
     const task = await invokeLambda('create_task', {
       ...properties,
-      user_id: API.user.id,
       list_id: list.id,
+      user_id: API.user.id,
     })
 
     DEBUG.log(`Created task ${properties.title}`)
@@ -282,6 +286,7 @@ API = class API {
     }
 
     await invokeLambda('add_user_to_list', {
+      user_id: API.user.id,
       invited_user_id: user_id,
       list_id: list.id,
     })
