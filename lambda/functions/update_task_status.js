@@ -32,6 +32,15 @@ exports.handler = async (event) => {
   const task = list.tasks[event.task_id]
 
   console.log(`Updated task ${task.title}`)
+  console.log(`Getting user data...`)
+
+  const { Item: user } = await db.get({
+    TableName: 'Users',
+    Key: { id: event.user_id },
+    AttributesToGet: [ 'id', 'nickname' ]
+  }).promise()
+
+  console.log(`Got user data:`, user)
   console.log(`Publishing message to topic...`)
 
   const sns = new AWS.SNS()
@@ -40,6 +49,8 @@ exports.handler = async (event) => {
     Message: JSON.stringify({
       type: event.status === 'Claimed' ? 'task_claimed' : 'task_completed',
       task,
+      user_id: user.id,
+      user_nickname: user.nickname,
     })
   }).promise()
   

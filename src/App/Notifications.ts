@@ -1,6 +1,7 @@
 import PushNotificationIOS from '@react-native-community/push-notification-ios'
 import PushNotification from 'react-native-push-notification'
 import DEBUG from '../Utils/DEBUG';
+import API from './API';
 
 const channel_id = 'our_todo_main_channel'
 
@@ -23,17 +24,14 @@ PushNotification.configure({
     DEBUG.log(`Registered for push notifications with token ${token}`);
   },
 
-  onNotification: function (notification) {
+  onNotification: async function (notification) {
     const data = JSON.parse(notification.data.default)
-    DEBUG.log(`Received ${data.type} notification`);
+    const ground = notification.foreground ? 'foreground' : 'background'
+    DEBUG.log(`Received ${data.type} notification in ${ground}`);
 
-    if (data.type === 'task_created') {
-      PushNotification.localNotification({
-        title: `New task in ${data.list_title}`,
-        channelId: channel_id,
-        message: `${data.task.title}`
-      })
-    }
+    if (data.user_id !== API.user) // ignore notifications created by self
+      await notification_handlers[data.type][ground](data)
+    else DEBUG.log(`Ignored notification from self`)
 
     notification.finish(PushNotificationIOS.FetchResult.NoData);
   },
@@ -48,19 +46,53 @@ PushNotification.configure({
   },
 });
 
+type NotificationHandler = { foreground: (data:any)=>any, background: (data:any)=>any}
+const notification_handlers: { [index: string]: NotificationHandler } = {
+  task_created: {
+    foreground: async data => {
+
+    },
+    background: async data => {
+      PushNotification.localNotification({
+        title: `New task in ${data.list_title}`,
+        channelId: channel_id,
+        message: `${data.task.title} by ${data.user_nickname}`
+      })
+    }
+  },
+  task_claimed: {
+    foreground: async data => {
+
+    },
+    background: async data => {
+      PushNotification.localNotification({
+        title: `${data.user_nickname} claimed ${data.task.title}`,
+        channelId: channel_id,
+        message: ``,
+      })
+    },
+  },
+  task_completed: {
+    foreground: async data => {
+
+    },
+    background: async data => {
+      PushNotification.localNotification({
+        title: `${data.user_nickname} completed ${data.task.title}`,
+        channelId: channel_id,
+        message: ``,
+      })
+    },
+  },
+}
+
 type NotificationType =
   'task_created' |
+  'task_claimed' |
+  'task_completed' |
   'added_to_list'
 
 export default class Notifications {
   private static _token: string
   static get token() { return Notifications._token }
-
-  static push = (title: string, description: string) => {
-    PushNotification.localNotification({
-      channelId: channel_id,
-      title,
-      message: description,
-    })
-  }
 }

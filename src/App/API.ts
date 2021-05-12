@@ -368,7 +368,7 @@ API = class API {
       status,
     })
 
-    DEBUG.log(`Updated status of task '${task.title} to ${status}`)
+    DEBUG.log(`Updated status of task '${task.title}' to ${status}`)
 
     return updated_task
   }

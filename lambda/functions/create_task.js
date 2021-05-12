@@ -36,19 +36,27 @@ exports.handler = async (event) => {
   }).promise()
   
   console.log(`Got list '${list.title}':`, list)
-  console.log(`Publishing message to topic...`)
+  console.log(`Getting user data...`)
 
-  const notification_data = {
-    type: 'task_created',
-    task,
-    list_title: list.title,
-    list_id: list.id,
-  }
+  const { Item: user } = await db.get({
+    TableName: 'Users',
+    Key: { id: event.user_id },
+    AttributesToGet: [ 'id', 'nickname' ]
+  }).promise()
+
+  console.log(`Publishing message to topic...`)
 
   const sns = new AWS.SNS()
   await sns.publish({
     TopicArn: list.topic_arn,
-    Message: JSON.stringify(notification_data),
+    Message: JSON.stringify({
+      type: 'task_created',
+      user_id: user.id,
+      user_nickname: user.nickname,
+      task,
+      list_title: list.title,
+      list_id: list.id,
+    }),
   }).promise()
 
   console.log(`Published message to topic`)
