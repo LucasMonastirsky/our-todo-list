@@ -6,6 +6,7 @@ import { createAnimation, Dictionary, screen, timeAgo } from '../../Utils'
 import { AppText, ProfilePicture } from '../../Components'
 import { API } from '../../App'
 import { StateSetter } from '../../Types'
+import DEBUG from '../../Utils/DEBUG'
 
 type PropTypes = {
   task: Task
@@ -22,7 +23,7 @@ const TaskView = (props: PropTypes) => {
 
   useEffect(() => {
     API.getCachedUser(task.creator_id)
-    .then(user => setCreatorName(user.nickname))
+      .then(user => setCreatorName(user.nickname))
 
     if (task.status === 'Done')
       API.getCachedUser(task.completer_id!)
@@ -30,19 +31,37 @@ const TaskView = (props: PropTypes) => {
   }, [])
 
   const claimTask = async () => {
-    const updated_task = await API.updateTaskStatus(task, 'Claimed')
     props.setLists(previous_lists => {
-      previous_lists.map[task.list_id].tasks[task.id] = updated_task
-      return new Dictionary<TodoList>(previous_lists.map)
+      previous_lists.map[task.list_id].tasks[task.id] = { ...task,
+        claimed_by_id: API.user.id,
+        status: 'Claimed',
+      }
+      return previous_lists.clone()
     })
+    API.updateTaskStatus(task, 'Claimed')
+      .catch(e => props.setLists(previous_lists => { // undo changes if the API fails
+        DEBUG.error(`Error while updating task status for ${task.title}:`, e)
+        previous_lists.map[task.list_id].tasks[task.id] = task
+        return previous_lists.clone()
+      })
+    )
   }
 
   const finishTask = async () => {
-    const updated_task = await API.updateTaskStatus(task, 'Done')
     props.setLists(previous_lists => {
-      previous_lists.map[task.list_id].tasks[task.id] = updated_task
-      return new Dictionary<TodoList>(previous_lists.map)
+      previous_lists.map[task.list_id].tasks[task.id] = { ...task,
+        completer_id: API.user.id,
+        completion_date: Date.now(),
+        status: 'Done',
+      }
+      return previous_lists.clone()
     })
+    API.updateTaskStatus(task, 'Done')
+      .catch(e => props.setLists(previous_lists => { // undo changes if the API fails
+        DEBUG.error(`Error while completing task ${task.title}:`, e)
+        previous_lists.map[task.list_id].tasks[task.id] = task
+        return previous_lists.clone()
+      }))
   }
 
   //#region Gestures

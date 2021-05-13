@@ -87,7 +87,7 @@ export default (props: {
             placeholder='No description available'
             onChangeText={description=>setListChanges(changes => ({ ...changes, description }))} />
           <AppText style={css.members_title}>Members:</AppText>
-          {/* {list.member_ids.map(id => <MemberItem {...{id}} key={id} />)} */}
+          {list.member_ids.map(id => <MemberItem {...{id}} key={id} />)}
           <View style={css.button_container}>
             <AppButton label='Delete' color={colors.alert} onPress={()=>setDeleteConfirmationActive(true)} />
             <AppButton label='Done' onPress={save} />

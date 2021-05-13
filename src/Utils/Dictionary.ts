@@ -13,12 +13,16 @@ export default class Dictionary<T> {
     this.map[id] = value
   }
 
-  public get values(): T[] {
+  get values(): T[] {
     return Object.values(this.map)
   }
   
-  public get keys(): string[] {
+  get keys(): string[] {
     return Object.keys(this.map)
+  }
+
+  clone (): Dictionary<T> {
+    return new Dictionary<T>(this.map)
   }
 }
 
