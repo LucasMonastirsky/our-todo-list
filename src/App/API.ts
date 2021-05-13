@@ -8,6 +8,7 @@ import { IAPI } from '.'
 import DEBUG from "../Utils/DEBUG"
 import { RNS3 } from 'react-native-aws3'
 import Notifications from "./Notifications"
+import { Dictionary } from "../Utils"
 
 AWS.config.update(aws_sdk_config)
 Amplify.configure(amplify_config)
@@ -172,7 +173,7 @@ API = class API {
 
     if (user.list_ids.length < 1) {
       DEBUG.log('User has no lists')
-      return []
+      return new Dictionary<TodoList>({})
     }
 
     const query = await dynamo_client.batchGet({
@@ -186,10 +187,14 @@ API = class API {
     if (!query.Responses)
       throw new Error(`Error while getting lists from user ${user.username}: no responses`)
 
-    const result = query.Responses.Lists
-    DEBUG.log(`Got ${result.length} lists from user ${user.username}`)
+    const list_map: Dictionary<TodoList> = new Dictionary<TodoList>({})
+    query.Responses.Lists.forEach(list => {
+      list.member_ids = arrayFromSet(list.member_ids)
+      list_map.set(list.id, list as TodoList)
+    })
+    DEBUG.log(`Got ${Object.keys(list_map).length} lists from user ${user.username}`)
 
-    return result as TodoList[]
+    return list_map
   }
 
   static createTodoList = async (properties: {

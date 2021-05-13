@@ -4,11 +4,13 @@ import { API } from '../../App'
 import { AppButton, AppInputMin, AppModal, AppText, Loading } from '../../Components'
 import { TodoList, User } from '../../Models'
 import { colors, style } from '../../Styling'
+import { StateSetter } from '../../Types'
+import { Dictionary } from '../../Utils'
+import DEBUG from '../../Utils/DEBUG'
 
 export default (props: {
   list: TodoList,
-  editList: (list: Partial<TodoList>)=>any,
-  onRemoveList: ()=>any,
+  setLists: StateSetter<Dictionary<TodoList>>,
   close: AppModal.Close
 }) => {
   const [list_changes, setListChanges] = useState<Partial<TodoList>>({})
@@ -20,7 +22,11 @@ export default (props: {
       props.close(false)
 
     await API.editTodoList(props.list.id, list_changes)
-    props.editList(list_changes)
+    props.setLists(previous_lists => {
+      const original_list = previous_lists.get(list.id)
+      previous_lists.set(list.id, {...original_list, ...list_changes})
+      return previous_lists
+    })
     props.close(false)
   }
 
@@ -43,8 +49,12 @@ export default (props: {
       setLoading(true)
       await API.deleteTodoList(props.list.id)
       setLoading(false)
+      props.setLists(previous_lists => {
+        delete previous_lists.map[list.id]
+        return previous_lists
+      })
       props.close(false)
-      props.onRemoveList()
+      // props.onRemoveList()
     }
   
     return (
@@ -63,7 +73,7 @@ export default (props: {
       </AppModal>
     )
   }
-
+  DEBUG.warn(list)
   return (
     <AppModal close={props.close}>
         {delete_confirmation_active
@@ -77,7 +87,7 @@ export default (props: {
             placeholder='No description available'
             onChangeText={description=>setListChanges(changes => ({ ...changes, description }))} />
           <AppText style={css.members_title}>Members:</AppText>
-          {list.member_ids.map(id => <MemberItem {...{id}} key={id} />)}
+          {/* {list.member_ids.map(id => <MemberItem {...{id}} key={id} />)} */}
           <View style={css.button_container}>
             <AppButton label='Delete' color={colors.alert} onPress={()=>setDeleteConfirmationActive(true)} />
             <AppButton label='Done' onPress={save} />

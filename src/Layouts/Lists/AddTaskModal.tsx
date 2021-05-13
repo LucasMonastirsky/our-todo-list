@@ -4,7 +4,8 @@ import { API } from '../../App'
 import { AppButton, AppInputMin, AppModal } from '../../Components'
 import { Task, TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
-import { screen } from '../../Utils'
+import { StateSetter } from '../../Types'
+import { Dictionary, screen } from '../../Utils'
 
 const default_task: Partial<Task> = {
   title: 'Task Title',
@@ -13,14 +14,21 @@ const default_task: Partial<Task> = {
   position: 0,
 }
 
-const AddTaskModal = (props: {list: TodoList, onAdd: (task: Task)=>any, close: AppModal.Close}) => {
+type PropTypes = {
+  list: TodoList,
+  setLists: StateSetter<Dictionary<TodoList>>,
+  close: AppModal.Close
+}
+const AddTaskModal = (props: PropTypes) => {
   const [title, setTitle] = useState('New Task')
   const [description, setDescription] = useState('')
 
   const addTask = async () => {
-    const user = API.user
     const final_task: Task = await API.createTask(props.list, { title, description })
-    props.onAdd(final_task)
+    props.setLists(previous_lists => {
+      previous_lists.get(final_task.list_id).tasks[final_task.id] = final_task
+      return previous_lists
+    })
     props.close(false)
   }
 

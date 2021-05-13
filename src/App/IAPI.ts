@@ -1,4 +1,5 @@
 import { User, Task, TodoList } from "../Models";
+import { Dictionary } from "../Utils";
 
 interface IAPI {
   //#region Auth
@@ -15,7 +16,7 @@ interface IAPI {
   getCachedUser: (id: string) => Promise<User>
   getUser: (id: string) => Promise<User>
   editUser: (id: string, user: Partial<User>) => Promise<void>
-  getListsFrom: (user: User) => Promise<TodoList[]>
+  getListsFrom: (user: User) => Promise<Dictionary<TodoList>>
   createTodoList: (properties: {
     title: string,
     description: string,

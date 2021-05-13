@@ -3,10 +3,11 @@ import { StyleSheet, TextInput } from 'react-native'
 import { AppButton, AppInputMin, AppModal } from '../../Components'
 import { TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
-import { screen } from '../../Utils'
+import { Dictionary, screen } from '../../Utils'
 import { API } from '../../App'
+import { StateSetter } from '../../Types'
 
-export default (props: {add: (list: TodoList)=>any, close: AppModal.Close}) => {
+export default (props: {setLists: StateSetter<Dictionary<TodoList>>, close: AppModal.Close}) => {
   const [list, setList] = useState({
     title: 'Untitled List',
     description: '',
@@ -14,9 +15,11 @@ export default (props: {add: (list: TodoList)=>any, close: AppModal.Close}) => {
   })
 
   const addList = async () => {
-    const user = API.user
-    const final_list = {...list, member_ids: [user.id]}
-    props.add(await API.createTodoList(final_list))
+    const final_list = await API.createTodoList(list)
+    props.setLists(previous_lists => {
+      previous_lists.map[final_list.id] = final_list
+      return previous_lists
+    })
     props.close(false)
   }
 

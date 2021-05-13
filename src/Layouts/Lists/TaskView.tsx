@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { TouchableOpacity, StyleSheet, Animated, View, TextInput } from 'react-native'
-import { Task } from '../../Models'
+import { Task, TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
-import { createAnimation, screen, timeAgo } from '../../Utils'
+import { createAnimation, Dictionary, screen, timeAgo } from '../../Utils'
 import { AppText, ProfilePicture } from '../../Components'
 import { API } from '../../App'
+import { StateSetter } from '../../Types'
 
 type PropTypes = {
   task: Task
   index?: number
-  updateTask: (task: Task) => any
-  onTaskFinished: () => any
+  setLists: StateSetter<Dictionary<TodoList>>
   setScrollEnabled: (value: boolean) => any
 }
 const TaskView = (props: PropTypes) => {
@@ -31,12 +31,18 @@ const TaskView = (props: PropTypes) => {
 
   const claimTask = async () => {
     const updated_task = await API.updateTaskStatus(task, 'Claimed')
-    props.updateTask(updated_task)
+    props.setLists(previous_lists => {
+      previous_lists.map[task.list_id].tasks[task.id] = updated_task
+      return new Dictionary<TodoList>(previous_lists.map)
+    })
   }
 
   const finishTask = async () => {
-    await API.updateTaskStatus(task, 'Done')
-    props.onTaskFinished()
+    const updated_task = await API.updateTaskStatus(task, 'Done')
+    props.setLists(previous_lists => {
+      previous_lists.map[task.list_id].tasks[task.id] = updated_task
+      return new Dictionary<TodoList>(previous_lists.map)
+    })
   }
 
   //#region Gestures

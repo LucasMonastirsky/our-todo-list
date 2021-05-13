@@ -4,15 +4,22 @@ import { API } from '../../App'
 import { AppButton, AppIcon, AppInputMin, AppModal, AppText, Loading } from '../../Components'
 import { TodoList, User } from '../../Models'
 import { colors, style } from '../../Styling'
-import { screen } from '../../Utils'
+import { StateSetter } from '../../Types'
+import { Dictionary, screen } from '../../Utils'
 
-const ContactsModal = (props: { list: TodoList, onUserAdded: (id: string)=>any, onUserRemoved: (id: string)=>any, close: (x: boolean)=>any } ) => {
+type PropTypes = {
+  list: TodoList,
+  setLists: StateSetter<Dictionary<TodoList>>,
+  close: (x: boolean)=>any
+}
+const ContactsModal = (props: PropTypes) => {
   const [members, setMembers] = useState<User[]>()
   const [inviting, setInviting] = useState(false)
   const [invite_id, setInviteId] = useState('')
   const [editting_user, setEdittingUser] = useState<User>()
 
   useEffect(() => {
+    console.log(props.list.member_ids)
     props.list.member_ids.forEach(id => {
       API.getCachedUser(id).then(user => {
         setMembers(prev => [...prev ?? [], user])
@@ -31,7 +38,10 @@ const ContactsModal = (props: { list: TodoList, onUserAdded: (id: string)=>any, 
     await API.addUserToList(invite_id, props.list)
     const new_user = await API.getCachedUser(invite_id)
     setMembers(old_members => [...old_members!, new_user])
-    props.onUserAdded(invite_id)
+    props.setLists(previous_lists => {
+      previous_lists.map[props.list.id].member_ids.push(new_user.id)
+      return previous_lists
+    })
     setInviting(false)
   }
 
@@ -43,8 +53,11 @@ const ContactsModal = (props: { list: TodoList, onUserAdded: (id: string)=>any, 
       old_members!.splice(member_index, 1)
       return old_members
     })
-
-    props.onUserRemoved(editting_user!.id)
+    props.setLists(previous_lists => {
+      const index = previous_lists.map[props.list.id].member_ids.indexOf(editting_user!.id)
+      previous_lists.map[props.list.id].member_ids.splice(index, 1)
+      return previous_lists
+    })
     setEdittingUser(undefined)
   }
 

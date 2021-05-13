@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import TaskView from './TaskView'
-import { Task, TodoList } from '../../Models'
+import { TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
 import ListTab from './ListTab'
 import { API, Navigation } from '../../App'
@@ -12,9 +12,10 @@ import ListAddModal from './ListAddModal'
 import { AppText, Loading } from '../../Components'
 import ContactsModal from './ContactsModal'
 import Icon from '../../Components/AppIcon'
+import { Dictionary } from '../../Utils'
 
 const ListLayout = (props: LayoutProps) => {
-  const [lists, setLists] = useState<TodoList[]>([])
+  const [lists, setLists] = useState<Dictionary<TodoList>>(new Dictionary<TodoList>({}))
   const [getting_lists, setGettingLists] = useState(true)
   const [current_list_index, setCurrentListIndex] = useState(0)
   const [adding_task, setAddingTask] = useState(false)
@@ -23,7 +24,7 @@ const ListLayout = (props: LayoutProps) => {
   const [viewing_contacts, setViewingContancts] = useState(false)
   const [scroll_enabled, setScrollEnabled] = useState(true)
 
-  const current_list = lists[current_list_index]
+  const current_list = lists.values[current_list_index]
 
   useEffect(()=>{ // get lists
     API.getListsFrom(API.user).then(result => {
@@ -31,57 +32,6 @@ const ListLayout = (props: LayoutProps) => {
       setGettingLists(false)
     })
   }, [])
-
-  //#region Methods
-  const addTask = (task: Task) => {
-    const updated_list = {...current_list, tasks: {
-      ...current_list.tasks,
-      [task.id]: task
-    }}
-    const updated_lists = [...lists]
-    updated_lists.splice(current_list_index, 1, updated_list)
-    setLists(updated_lists)
-  }
-
-  const addList = (list: TodoList) => {
-    setLists([...lists, list])
-  }
-
-  const updateList = (changes: Partial<TodoList>) => {
-    const new_lists = [...lists]
-    new_lists.splice(current_list_index, 1, {...current_list, ...changes})
-    setLists([...new_lists])
-  }
-
-  const updateTask = (task: Task) => {
-    if (current_list.tasks[task.id] === undefined)
-     throw new Error(`Could not find task ${task.title} in ${current_list.title}`)
-
-    const new_list = {...current_list}
-    new_list.tasks[task.id] = task
-    updateList(new_list)
-  }
-
-  const onRemoveList = () => {
-    const new_lists = [...lists]
-    new_lists.splice(current_list_index, 1)
-    setCurrentListIndex(i => i > 0 ? i-1 : 0)
-    setLists(new_lists)
-  }
-
-  const addUserToList = (id: string) => {
-    const new_list = {...current_list}
-    new_list.member_ids.push(id)
-    updateList(new_list)
-  }
-
-  const removeUserFromList = (id: string) => {
-    const new_list = {...current_list}
-    const user_index = new_list.member_ids.indexOf(id)
-    new_list.member_ids.splice(user_index, 1)
-    updateList(new_list)
-  }
-  //#endregion
 
   //#region Render
   useEffect(() => {
@@ -106,10 +56,10 @@ const ListLayout = (props: LayoutProps) => {
 
   return (
     <View style={css.container}>
-      {adding_task && <AddTaskModal list={current_list} onAdd={addTask} close={()=>setAddingTask(false)} />}
-      {editting && <ListEditModal list={current_list} editList={updateList} {...{onRemoveList}} close={()=>setEditting(false)} />}
-      {adding_list && <ListAddModal add={addList} close={setAddingList} />}
-      {viewing_contacts && <ContactsModal list={current_list} onUserAdded={addUserToList} onUserRemoved={removeUserFromList} close={setViewingContancts} />}
+      {adding_task && <AddTaskModal list={current_list} {...{setLists}} close={()=>setAddingTask(false)} />}
+      {editting && <ListEditModal list={current_list} {...{setLists}} close={()=>setEditting(false)} />}
+      {adding_list && <ListAddModal {...{setLists}} close={setAddingList} />}
+      {viewing_contacts && <ContactsModal list={current_list} {...{setLists}} close={setViewingContancts} />}
       {!current_list ? <AppText>No lists.</AppText>
       : <>
         <ListTab {...{lists}} onSelect={i=>setCurrentListIndex(i)} />
@@ -121,14 +71,15 @@ const ListLayout = (props: LayoutProps) => {
               task: item,
               index,
               setScrollEnabled,
-              updateTask: task => updateTask(task),
-              onTaskFinished: () => updateTask({ ...item,
-                status: 'Done',
-                completer_id: API.user.id,
-                completion_date: Date.now(),
-                claimed_by_id: API.user.id,
-              })}
-            } />
+              setLists,
+              // updateTask: task => updateTask(task),
+              // onTaskFinished: () => updateTask({ ...item,
+              //   status: 'Done',
+              //   completer_id: API.user.id,
+              //   completion_date: Date.now(),
+              //   claimed_by_id: API.user.id,
+              // })}
+            }} />
           ))}
           {Object.values(current_list.tasks).filter(x=>x.status === 'Done').map((item, index)=>(
             <TaskView {...{
@@ -136,10 +87,10 @@ const ListLayout = (props: LayoutProps) => {
               task: item,
               index,
               setScrollEnabled,
-              updateTask: task => updateTask(task),
-              onTaskFinished: () => {throw new Error(`Task ${item.title} is already done!`)}
-              }}
-            />
+              setLists,
+              // updateTask: task => updateTask(task),
+              // onTaskFinished: () => {throw new Error(`Task ${item.title} is already done!`)}
+            }} />
         ))}
         </ScrollView>
       </>

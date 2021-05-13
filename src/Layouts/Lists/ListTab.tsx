@@ -3,9 +3,9 @@ import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
 import { AppText } from '../../Components'
 import { TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
-import { screen } from '../../Utils'
+import { Dictionary, screen } from '../../Utils'
 
-const ListTab = (props: { lists: TodoList[], onSelect: (index: number)=>void, onPress?: ()=>void }) => {
+const ListTab = (props: { lists: Dictionary<TodoList>, onSelect: (index: number)=>void, onPress?: ()=>void }) => {
   const [selected_index, _setSelectedIndex] = useState(0)
   const [positions, setPositions] = useState<number[]>([])
   const [widths, setWidths] = useState<number[]>([])
@@ -33,7 +33,7 @@ const ListTab = (props: { lists: TodoList[], onSelect: (index: number)=>void, on
     scroll_view_ref.current?.scrollTo({ x: offsets[index]}) 
   }
 
-  const tabs = props.lists.map((list, index) => {
+  const tabs = props.lists.values.map((list, index) => {
     const onLayout = (event: any) => {
       const width = event.nativeEvent.layout.width
       setWidths(arr => {
@@ -50,7 +50,7 @@ const ListTab = (props: { lists: TodoList[], onSelect: (index: number)=>void, on
 
       if (index === 0)
         setOffsetStart((screen.width - width) / 2)
-      if (index === props.lists.length - 1)
+      if (index === props.lists.keys.length - 1)
         setOffsetEnd((screen.width - width) / 2)
     }
 
