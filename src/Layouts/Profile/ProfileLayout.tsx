@@ -5,13 +5,14 @@ import { AppButton, AppText, Loading, ProfilePicture } from '../../Components'
 import Icon from '../../Components/AppIcon'
 import { TodoList, User } from '../../Models'
 import { colors, style } from '../../Styling'
+import { Dictionary } from '../../Utils'
 import { LayoutProps } from '../types'
 import EditProfile from './EditProfile'
 
 const ProfileLayout = (props: LayoutProps) => {
   const [user, setUser] = useState<User>(API.user)
   const [user_changes, setUserChanges] = useState<Partial<User>>({})
-  const [lists, setLists] = useState<TodoList[]|undefined>()
+  const [lists, setLists] = useState<Dictionary<TodoList>|undefined>()
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {if (props.active) Navigation.header = ()=><Header />}, [props.active])
@@ -73,7 +74,7 @@ const ProfileLayout = (props: LayoutProps) => {
         <AppText style={css.list_section_header}>Lists: </AppText>
         {lists === undefined
         ? <Loading />
-        : lists.map(ListItem)
+        : lists.values.map(ListItem)
         }
       </View>
     </View>
