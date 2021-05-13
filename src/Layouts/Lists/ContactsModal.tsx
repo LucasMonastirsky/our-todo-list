@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, TouchableOpacity, View } from 'react-native'
 import { API } from '../../App'
 import { AppButton, AppIcon, AppInputMin, AppModal, AppText, Loading } from '../../Components'
 import { TodoList, User } from '../../Models'
@@ -15,7 +15,6 @@ type PropTypes = {
 const ContactsModal = (props: PropTypes) => {
   const [members, setMembers] = useState<User[]>()
   const [inviting, setInviting] = useState(false)
-  const [invite_id, setInviteId] = useState('')
   const [editting_user, setEdittingUser] = useState<User>()
 
   useEffect(() => {
@@ -34,7 +33,7 @@ const ContactsModal = (props: PropTypes) => {
     }
   }
 
-  const invite = async () => {
+  const invite = async (invite_id: string) => {
     await API.addUserToList(invite_id, props.list)
     const new_user = await API.getCachedUser(invite_id)
     setMembers(old_members => [...old_members!, new_user])
@@ -71,11 +70,27 @@ const ContactsModal = (props: PropTypes) => {
     </>
   }
 
+  const InviteContact = (props: {id:string}) => {
+    const [user, setUser] = useState<User>()
+
+    useEffect(() => {
+      API.getCachedUser(props.id).then(setUser)
+    })
+
+    return !user
+    ? <Loading />
+    : <>
+      <TouchableOpacity style={css.member_item} onPress={()=>invite(props.id)}>
+        <AppText style={css.member_name}>{user.nickname}</AppText>
+        <AppIcon source={require('../../Media/Icons/plus.png')} onPress={()=>{}} />
+      </TouchableOpacity>
+    </>
+  }
+  console.log(API.user.contact_ids)
   const content = inviting
     ? <>
-      <AppText style={css.title}>Invite Someone</AppText>
-      <AppInputMin placeholder='User ID' onChangeText={setInviteId} />
-      <AppButton style={css.invite_button} label='Invite' onPress={invite} />
+      <AppText style={css.title}>Invite a Contact</AppText>
+      {API.user.contact_ids.map(id => <InviteContact {...{id}} />)}
     </>
     : editting_user
     ? <EditUser user={editting_user} />
