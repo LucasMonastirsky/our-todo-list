@@ -1,5 +1,4 @@
 const AWS = require('aws-sdk')
-const { v4: uuid } = require('uuid')
 
 exports.handler = async (event) => {
   ['title', 'user_id', 'list_id'].forEach(key => {
@@ -10,7 +9,7 @@ exports.handler = async (event) => {
   const task = {
     title: event.title,
     description: event.description ?? '',
-    id: uuid(),
+    id: event.id,
     list_id: event.list_id,
     creator_id: event.user_id,
     creation_date: Date.now(),

@@ -240,6 +240,7 @@ API = class API {
   static createTask = async (list: TodoList, properties: {
     title: string,
     description?: string,
+    id: string,
   }) => {
     DEBUG.log(`Creating task ${properties.title}...`)
 

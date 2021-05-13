@@ -6,6 +6,7 @@ import { Task, TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
 import { StateSetter } from '../../Types'
 import { Dictionary, screen, DEBUG } from '../../Utils'
+import { default as uuid } from 'react-native-uuid'
 
 const default_task: Partial<Task> = {
   title: 'Task Title',
@@ -24,13 +25,14 @@ const AddTaskModal = (props: PropTypes) => {
   const [description, setDescription] = useState('')
 
   const addTask = async () => {
-    const temp_id = `${Date.now()}` // TODO: create real ID in client and send to API
+    const id = `${uuid.v4()}`
+    console.log(`got uuid ${id}`)
     props.setLists(previous_lists => {
-      previous_lists.map[props.list.id].tasks[temp_id] = {
+      previous_lists.map[props.list.id].tasks[id] = {
         title,
         description,
         status: 'Pending',
-        id: temp_id,
+        id: id,
         list_id: props.list.id,
         creator_id: API.user.id,
         creation_date: Date.now(),
@@ -38,19 +40,18 @@ const AddTaskModal = (props: PropTypes) => {
       }
       return previous_lists.clone()
     })
-    API.createTask(props.list, { title, description })
+    API.createTask(props.list, { title, description, id })
       .then(new_task => {
         DEBUG.log(`Got new task from API, replacing temporary local task...`)
         props.setLists(previous_lists => {
           previous_lists.map[props.list.id].tasks[new_task.id] = new_task
-          delete previous_lists.map[props.list.id].tasks[temp_id]
           return previous_lists.clone()
         })
       })
       .catch(e => {
         DEBUG.error(`Error while creating task ${title}:`, e)
         props.setLists(previous_lists => {
-          delete previous_lists.map[props.list.id].tasks[temp_id]
+          delete previous_lists.map[props.list.id].tasks[id]
           return previous_lists.clone()
         })
       })

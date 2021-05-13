@@ -27,6 +27,7 @@ interface IAPI {
   createTask: (list: TodoList, properties: {
     title: string,
     description?: string,
+    id: string,
   }) => Promise<Task>
   editTask: (task: Task) => Promise<void>
 
