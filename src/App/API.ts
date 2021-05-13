@@ -125,7 +125,7 @@ API = class API {
       DEBUG.log(`Didn't find user in cache, getting from storage...`)
       API.cache.users[id] = await API.getUser(id)
     }
-    else DEBUG.log(`Found cached user ${API.cache.users[id].username}`)
+    else DEBUG.log(`Found cached user ${API.cache.users[id].username} with image ${API.cache.users[id].image}`)
 
     return API.cache.users[id]
   }
@@ -162,10 +162,16 @@ API = class API {
       Key: { id },
       UpdateExpression: update_query.expression,
       ExpressionAttributeValues: update_query.values,
-      ReturnValues: DEBUG.enabled ? 'UPDATED_NEW' : 'NONE'
+      ReturnValues: 'ALL_NEW'
     }).promise())
 
-    DEBUG.log(`Updated user ${id} with values`, response.Attributes)
+    DEBUG.log(`Updating user in cache...`)
+    API.cache.users[id] = response.Attributes as User
+
+    if (user.image) // hack to force react-native to fetch the new image
+      API.cache.users[id].image += `?date=${Date.now()}` // this won't work with other users...
+
+    DEBUG.log(`Updated user ${id}`)
   }
 
   static getListsFrom = async (user: User) => {

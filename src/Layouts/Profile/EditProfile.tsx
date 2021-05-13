@@ -21,14 +21,10 @@ const EditProfile = () => {
   }
 
   const uploadChanges = async () => {
-    let uploaded_image_url
     if (changes.image)
-      uploaded_image_url = await API.uploadProfilePicture(changes.image)
+      changes.image = await API.uploadProfilePicture(changes.image)
 
-    await API.editUser(user.id, {
-      ...changes,
-      image: uploaded_image_url,
-    })
+    await API.editUser(user.id, changes)
   }
 
   return (
