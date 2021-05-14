@@ -1,8 +1,8 @@
 import { ComponentType } from "react"
-import { ListLayout } from "../Layouts"
+import { ListsLayout } from "../Layouts"
 import { Layout } from "../Layouts/types"
 
-const INITIAL_LAYOUT: Layout = ListLayout
+const INITIAL_LAYOUT: Layout = ListsLayout
 
 class Navigation {
   private static _current_layout = INITIAL_LAYOUT
