@@ -3,7 +3,7 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native'
 import { AppText, ProfilePicture } from '../../Components'
 import { TodoList, User } from '../../Models'
 import { colors, style } from '../../Styling'
-import { API, Navigation } from '../../App'
+import { API } from '../../App'
 
 export default (props: {list: TodoList, onPress: ()=>any}) => {
   const [members, setMembers] = useState<User[]>([])
@@ -13,10 +13,6 @@ export default (props: {list: TodoList, onPress: ()=>any}) => {
       API.getCachedUser(id).then(user =>
         setMembers(prev => [...prev, user])
       )
-    )
-
-    Navigation.header = () => (
-      <View />
     )
   }, [])
 

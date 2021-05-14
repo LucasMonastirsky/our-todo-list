@@ -1,4 +1,3 @@
-export { default as AppDrawer } from './AppDrawer'
 export { default as AppText } from './AppText'
 export { default as AppButton } from './AppButton'
 export { default as AppInput } from './AppInput'
