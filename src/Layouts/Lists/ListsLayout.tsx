@@ -49,7 +49,7 @@ const ListLayout = (props: LayoutProps) => {
 
   if (getting_lists) {
     return (
-      <View style={css.container}>
+      <View style={{flex: 1, justifyContent: 'center'}}>
         <Loading />
       </View>
     )

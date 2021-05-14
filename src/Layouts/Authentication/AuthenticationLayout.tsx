@@ -27,7 +27,9 @@ const AuthenticationLayout = (props: {onLoggedIn: ()=>any}) => {
   }, [])
 
   if (loading)
-    return <View style={{}}><Loading /></View>
+    return <View style={{flex: 1, justifyContent: 'center'}}>
+      <Loading />
+    </View>
 
   return (
     <Animated.View style={{top: transition}}>
