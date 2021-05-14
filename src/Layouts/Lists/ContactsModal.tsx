@@ -18,7 +18,6 @@ const ContactsModal = (props: PropTypes) => {
   const [editting_user, setEdittingUser] = useState<User>()
 
   useEffect(() => {
-    console.log(props.list.member_ids)
     props.list.member_ids.forEach(id => {
       API.getCachedUser(id).then(user => {
         setMembers(prev => [...prev ?? [], user])
@@ -86,7 +85,7 @@ const ContactsModal = (props: PropTypes) => {
       </TouchableOpacity>
     </>
   }
-  console.log(API.user.contact_ids)
+
   const content = inviting
     ? <>
       <AppText style={css.title}>Invite a Contact</AppText>

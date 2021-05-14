@@ -26,7 +26,7 @@ const AddTaskModal = (props: PropTypes) => {
 
   const addTask = async () => {
     const id = `${uuid.v4()}`
-    console.log(`got uuid ${id}`)
+
     props.setLists(previous_lists => {
       previous_lists.map[props.list.id].tasks[id] = {
         title,

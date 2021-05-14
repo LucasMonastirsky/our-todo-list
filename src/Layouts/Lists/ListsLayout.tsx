@@ -12,7 +12,7 @@ import ListAddModal from './ListAddModal'
 import { AppText, Loading } from '../../Components'
 import ContactsModal from './ContactsModal'
 import Icon from '../../Components/AppIcon'
-import { Dictionary } from '../../Utils'
+import { DEBUG, Dictionary } from '../../Utils'
 
 const ListLayout = (props: LayoutProps) => {
   const [lists, setLists] = useState<Dictionary<TodoList>>(new Dictionary<TodoList>({}))
@@ -28,6 +28,7 @@ const ListLayout = (props: LayoutProps) => {
 
   useEffect(()=>{ // get lists
     API.getListsFrom(API.user).then(result => {
+      DEBUG.log(result)
       setLists(result)
       setGettingLists(false)
     })

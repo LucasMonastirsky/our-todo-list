@@ -125,7 +125,7 @@ API = class API {
       DEBUG.log(`Didn't find user in cache, getting from storage...`)
       API.cache.users[id] = await API.getUser(id)
     }
-    else DEBUG.log(`Found cached user ${API.cache.users[id].username} with image ${API.cache.users[id].image}`)
+    else DEBUG.log(`Found cached user ${API.cache.users[id].username}`)
 
     return API.cache.users[id]
   }
@@ -213,7 +213,11 @@ API = class API {
       ...properties,
       user_id: API.user.id,
     })
-    DEBUG.log(`Created list successfully`)
+
+    DEBUG.log(`Updating user in cache...`)
+    API.cache.users[properties.owner_id].list_ids.push(list.id)
+
+    DEBUG.log(`Successfully created list ${list.title}`)
     return list
   }
 
