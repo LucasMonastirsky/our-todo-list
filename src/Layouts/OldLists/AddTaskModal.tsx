@@ -16,7 +16,7 @@ const default_task: Partial<Task> = {
 }
 
 type PropTypes = {
-  list: TodoList,
+  list: TodoList, 
   setLists: StateSetter<Dictionary<TodoList>>,
   close: AppModal.Close
 }

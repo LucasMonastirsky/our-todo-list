@@ -20,7 +20,7 @@ exports.handler = async (event) => {
     ExpressionAttributeNames: {
       '#id': event.task_id,
       '#status': 'status',
-      '#0': event.status === 'Claimed' ? 'completer_id' : 'claimed_by_id'
+      '#0': event.status === 'Done' ? 'completer_id' : 'claimed_by_id'
     },
     ExpressionAttributeValues: {
       ':0': event.status,

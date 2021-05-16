@@ -1,9 +1,9 @@
-import React from 'react'
-import { View, TextInput, StyleSheet, TextInputProps } from 'react-native'
+import React, { RefObject } from 'react'
+import { View, TextInput, StyleSheet, TextInputProps, ViewProps } from 'react-native'
 import { AppText } from '.'
 import { colors, style } from '../Styling'
 
-const AppInputMin = (props: TextInputProps & { title?: string }) => {
+const AppInputMin = (props: TextInputProps & { title?: string, ref?: RefObject<TextInput> }) => {
   return (
     <View style={css.input_container}>
       {props.title && <AppText style={css.title}>{props.title}</AppText>}
