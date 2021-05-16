@@ -11,7 +11,7 @@ import DEBUG from '../../Utils/DEBUG'
 type PropTypes = {
   task: Task
   index?: number
-  setLists?: StateSetter<Dictionary<TodoList>>
+  setList: StateSetter<TodoList>
   setScrollEnabled: (value: boolean) => any
 }
 const TaskView = (props: PropTypes) => {
@@ -31,36 +31,36 @@ const TaskView = (props: PropTypes) => {
   }, [])
 
   const claimTask = async () => {
-    props.setLists(previous_lists => {
-      previous_lists.map[task.list_id].tasks[task.id] = { ...task,
+    props.setList(list => {
+      list.tasks[task.id] = { ...task,
         claimed_by_id: API.user.id,
         status: 'Claimed',
       }
-      return previous_lists.clone()
+      return {...list}
     })
     API.updateTaskStatus(task, 'Claimed')
-      .catch(e => props.setLists(previous_lists => { // undo changes if the API fails
+      .catch(e => props.setList(list => { // undo changes if the API fails
         DEBUG.error(`Error while updating task status for ${task.title}:`, e)
-        previous_lists.map[task.list_id].tasks[task.id] = task
-        return previous_lists.clone()
+        list.tasks[task.id] = task
+        return {...list}
       })
     )
   }
 
   const finishTask = async () => {
-    props.setLists(previous_lists => {
-      previous_lists.map[task.list_id].tasks[task.id] = { ...task,
+    props.setList(list => {
+      list.tasks[task.id] = { ...task,
         completer_id: API.user.id,
         completion_date: Date.now(),
         status: 'Done',
       }
-      return previous_lists.clone()
+      return {...list}
     })
     API.updateTaskStatus(task, 'Done')
-      .catch(e => props.setLists(previous_lists => { // undo changes if the API fails
+      .catch(e => props.setList(list => { // undo changes if the API fails
         DEBUG.error(`Error while completing task ${task.title}:`, e)
-        previous_lists.map[task.list_id].tasks[task.id] = task
-        return previous_lists.clone()
+        list.tasks[task.id] = task
+        return {...list}
       }))
   }
 
@@ -202,6 +202,7 @@ const css = StyleSheet.create({
     justifyContent: 'center',
   }, 
   title: {
+    fontSize: style.font_size_med,
   },
   created_by: {
     fontSize: style.font_size_small,

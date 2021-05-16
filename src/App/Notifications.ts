@@ -42,7 +42,7 @@ PushNotification.configure({
   },
 
   onRegistrationError: function(err) {
-    console.error(err.message, err);
+    DEBUG.error(err.message, err);
   },
 });
 
