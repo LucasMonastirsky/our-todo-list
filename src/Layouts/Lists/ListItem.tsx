@@ -21,7 +21,11 @@ export default (props: {list: TodoList, onPress: ()=>any}) => {
     <TouchableOpacity style={css.container} onPress={props.onPress}>
       <AppText style={css.title}>{props.list.title}</AppText>
       <View style={css.members_container}>
-        {members?.map(user => <ProfilePicture user_id={user.id} size='medium' />)}
+        {members?.map(user =>
+          <View style={css.member_icon}>
+            <ProfilePicture user_id={user.id} size='small' />
+          </View>
+        )}
       </View>
     </TouchableOpacity>
   )
@@ -39,10 +43,9 @@ const css = StyleSheet.create({
   },
   members_container: {
     marginLeft: 'auto',
+    flexDirection: 'row',
   },
   member_icon: {
-    aspectRatio: 1,
-    flex: 1,
-    height: style.profile_pic_size_med,
+    marginLeft: style.padding,
   }
 })
