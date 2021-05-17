@@ -1,35 +1,43 @@
+import { container } from '@aws-amplify/ui'
 import React, { useEffect, useState } from 'react'
 import { Image, StyleSheet, View } from 'react-native'
 import { API } from '../App'
 import { User } from '../Models'
 import { colors, style } from '../Styling'
 
-const ProfilePicture = ({source, user_id}: {source?: string, user_id?: string}) => {
+const ProfilePicture = (props: {user_id: string, size?: 'small'|'medium'|'big'}) => {
   const [user, setUser] = useState<User>()
 
-  const source_or_default = user
-    ? { uri: user.image }
-    : source
-    ? { uri: source }
-    : require('../Media/Icons/profile_default.png')
-
   useEffect(() => {(async () => {
-    if (user_id) {
-      setUser(await API.getCachedUser(user_id))
-    }
+    setUser(await API.getCachedUser(props.user_id))
   })()}, [])
 
+  const size_map = {
+    'small': 30,
+    'medium': 45,
+    'big': 60,
+  }
+
+  const container_style = props.size
+  ? {...css.container_set_size, height: size_map[props.size]}
+  : css.container_flex
+
   return (
-    <View style={css.container}>
-      <Image source={source_or_default} style={css.image} />
+    <View style={container_style}>
+      <Image source={{uri: user?.image}} style={css.image} />
     </View>
   )
 }
 
 const css = StyleSheet.create({
-  container: {
+  container_flex: {
     flex: 1,
     padding: style.padding / 2,
+  },
+  container_set_size: {
+    aspectRatio: 1,
+    // height: 40,
+    // width: undefined,
   },
   image: {
     flex: 1,
