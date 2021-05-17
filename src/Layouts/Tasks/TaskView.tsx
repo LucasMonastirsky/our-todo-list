@@ -135,7 +135,7 @@ const TaskView = (props: PropTypes) => {
         <View style={{flexDirection: 'row'}}>
           <TouchableOpacity style={css.status_container} onPress={!done?claimTask:()=>{}}>
             {(props.task.status === 'Claimed' || done)
-            ? <ProfilePicture user_id={props.task.claimed_by_id} />
+            ? <ProfilePicture user_id={props.task.claimed_by_id!} />
             : <View style={css.status_unclaimed} />
             }
           </TouchableOpacity>

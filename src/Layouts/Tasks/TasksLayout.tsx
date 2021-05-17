@@ -7,6 +7,7 @@ import { ItemCreator } from '../../Components'
 import { Task, TodoList, User } from '../../Models'
 import { colors, style } from '../../Styling'
 import { DEBUG } from '../../Utils'
+import AddContactModal from './AddContactModal'
 import TaskView from './TaskView'
 
 type PropTypes = {
@@ -18,17 +19,23 @@ export default (props: PropTypes) => {
   const [list, setList] = useState(props.list)
   useEffect(()=>setList(props.list), [props.list])
 
-  const [scroll_enabled, setScrollEnabled] = useState(true)
   const [members, setMembers] = useState<User[]>()
+
+  const [scroll_enabled, setScrollEnabled] = useState(true)
   const [adding_task, setAddingTask] = useState(false)
+  const [members_extended, setMembersExtended] = useState(false)
+  const [add_contact_modal_active, setAddContactModalActive] = useState(false)
 
   useEffect(() => {
-    if (!members) list.member_ids.forEach(id =>
-      API.getCachedUser(id).then(user =>
-        setMembers(prev => [...prev??[], user])))
-
     return BackHandler.addEventListener('hardwareBackPress', props.goBack).remove
   }, []) 
+
+  useEffect(() => {
+    setMembers([])
+    list.member_ids.forEach(id =>
+      API.getCachedUser(id).then(user =>
+        setMembers(prev => [...prev??[], user])))
+  }, [list])
 
   const onSubmitTask = (title: string) => {
     const new_task: Task = {
@@ -54,9 +61,28 @@ export default (props: PropTypes) => {
           <AppText style={css.title}>{list.title}</AppText>
           <AppIcon style={css.list_edit_icon} source={require('../../Media/Icons/edit.png')} />
         </Horizontal>
-        <View style={css.members_container}>
-          {members?.map(user => <ProfilePicture user_id={user.id} size='medium' />)}
-        </View>
+        <TouchableOpacity onPress={()=>setMembersExtended(true)}>
+          {add_contact_modal_active && <AddContactModal {...{list, setList}} close={setAddContactModalActive} />}
+          <View style={members_extended ? css.members_container_extended : css.members_container}>
+            {members?.map(user => 
+              <TouchableOpacity style={css.member_item} disabled={!members_extended}>
+                <ProfilePicture user_id={user.id} size='medium' />
+                {members_extended &&
+                  <AppText style={css.member_name}>{user.nickname}</AppText>
+                }
+              </TouchableOpacity>
+            )}
+            {members_extended && <>
+              <TouchableOpacity style={css.member_add_button} onPress={()=>setAddContactModalActive(true)}>
+                <AppText style={css.member_add_text}>Add a contact...</AppText>
+              </TouchableOpacity>
+              <TouchableOpacity style={css.members_close} onPress={()=>setMembersExtended(false)}>
+                <View style={css.members_close_icon} />
+              </TouchableOpacity>
+            </>
+            }
+          </View>
+        </TouchableOpacity>
       </View>
       {/* this needs optimization */}
       {Object.values(list.tasks).length < 1 && !adding_task 
@@ -110,9 +136,32 @@ const css = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
   },
-  member_icon: {
-    height: style.font_size_big * 2,
-    aspectRatio: 1,
+  members_container_extended: {
+  },
+  member_item: {
+    marginBottom: style.padding,
+    flexDirection: 'row',
+  },
+  member_name: {
+    marginLeft: style.padding,
+  },
+  member_add_button: {
+    padding: style.padding,
+  },
+  member_add_text: {
+
+  },
+  members_close: {
+    marginTop: style.margin,
+    marginBottom: -style.padding,
+    padding: style.margin,
+  },
+  members_close_icon: {
+    height: style.padding,
+    width: style.margin * 3,
+    alignSelf: 'center',
+    borderRadius: style.border_radius_med,
+    backgroundColor: colors.light,
   },
   no_tasks_text_container: {
     flex: 1,
