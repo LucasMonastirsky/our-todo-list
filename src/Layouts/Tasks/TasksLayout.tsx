@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { BackHandler, Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import uuid from 'react-native-uuid'
 import { API } from '../../App'
-import { AppIcon, AppText, Horizontal, ProfilePicture } from '../../Components'
+import { AppButtonItem, AppIcon, AppText, Horizontal, ProfilePicture } from '../../Components'
 import { ItemCreator } from '../../Components'
 import { Task, TodoList, User } from '../../Models'
 import { colors, style } from '../../Styling'
@@ -94,11 +94,7 @@ export default (props: PropTypes) => {
           ))}
         </ScrollView>
       }
-      <TouchableOpacity style={css.add_task_container} onPress={() => setAddingTask(true)}>
-        <Image style={css.add_task_icon}
-          source={adding_task ? require('../../Media/Icons/edit.png') : require('../../Media/Icons/plus.png')}
-        />
-      </TouchableOpacity>
+      <AppButtonItem onPress={() => setAddingTask(true)} />
     </View>
   )
 }

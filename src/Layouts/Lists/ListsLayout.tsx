@@ -1,12 +1,12 @@
-import { API } from '../../App'
+import { API, Navigation } from '../../App'
 import React, { useEffect, useState } from 'react'
 import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import uuid from 'react-native-uuid'
 import { TodoList } from '../../Models'
 import { Dictionary } from '../../Utils'
 import ListItem from './ListItem'
-import TasksLayout from '../Tasks/TasksLayout'
-import { AppIcon, AppText, ProfilePicture } from '../../Components'
+import { TasksLayout, ContactsLayout } from '../'
+import { AppButtonItem, AppIcon, AppText, ProfilePicture } from '../../Components'
 import { colors, style } from '../../Styling'
 import { ItemCreator } from '../../Components'
 
@@ -57,16 +57,14 @@ export default (props: PropTypes) => {
       </View>
       <AppText style={css.title}>{API.user.nickname}</AppText>
       <View style={{flex: 1}} />
-      <AppIcon style={css.header_icon} source={require('../../Media/Icons/contacts.png')} />
+      <AppIcon style={css.header_icon} onPress={()=>Navigation.goTo(ContactsLayout)} source={require('../../Media/Icons/contacts.png')} />
       <AppIcon style={css.header_icon} source={require('../../Media/Icons/options.png')} />
     </View>
     <ScrollView>
       {adding_list && <ItemCreator placeholder='New List Title' onSubmit={onSubmitList} onCancel={setAddingList} />}
       {lists.values.map(list => <ListItem {...{list}} onPress={()=>setSelectedListId(list.id)} />)}
     </ScrollView>
-    <TouchableOpacity style={css.add_list_container} onPress={()=>setAddingList(true)}>
-      <Image style={css.add_list_icon} source={require('../../Media/Icons/plus.png')} />
-    </TouchableOpacity>
+    <AppButtonItem onPress={()=>setAddingList(true)} />
 </>
 }
 
@@ -82,16 +80,5 @@ const css = StyleSheet.create({
   },
   header_icon: {
     padding: style.padding / 2,
-  },
-  add_list_container: {
-    height: style.font_size_med * 2,
-    backgroundColor: colors.main,
-    padding: style.padding,
-    alignItems: 'center',
-    marginTop: style.border_width,
-  },
-  add_list_icon: {
-    flex: 1,
-    aspectRatio: 1,
   },
 })

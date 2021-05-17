@@ -1,6 +1,8 @@
 export { default as OldListLayout } from './OldLists/OldListsLayout'
 export { default as ListsLayout } from './Lists/ListsLayout'
+export { default as TasksLayout } from './Tasks/TasksLayout'
 export { default as OptionsLayout } from './Options/OptionsLayout'
 export { default as ProfileLayout } from './Profile/ProfileLayout'
 export { default as AuthenticationLayout } from './Authentication/AuthenticationLayout'
 export { default as ContactsLayout } from './Contacts/ContactsLayout'
+export { default as OldContactsLayout } from './OldContacts/OldContactsLayout'

@@ -139,7 +139,7 @@ API = class API {
     }).promise()
 
     if (result.Item === undefined)
-      throw `Could not find user with id ${id}`
+      throw new Error(`Could not find user with id ${id}`)
     else DEBUG.log(`Found data for user ${result.Item.username}`)
 
     const user = {
@@ -334,6 +334,8 @@ API = class API {
       throw new Error(`Users can't add themselves (user id: ${user_id})`)
     if ((await API.getCachedUser(user_id)).contact_ids.includes(contact_id))
       throw new Error(`User ${user_id} has already added user ${contact_id}`)
+    if (!(await API.getCachedUser(contact_id)))
+      throw new Error(`User ${contact_id} doesn't exist`)
 
     const result = await dynamo_client.update({
       TableName: 'Users',
