@@ -39,10 +39,8 @@ export default (props: LayoutProps) => {
   const MemberItem = (user: User) => {
     return (
       <View style={css.member_item}>
-        <View style={css.member_item_image}>
-          <ProfilePicture user_id={user.id} />
-        </View>
-        <AppText>{user.nickname}</AppText>
+        <ProfilePicture user_id={user.id} size='medium' />
+        <AppText style={css.member_item_name}>{user.nickname}</AppText>
       </View>
     )
   }
@@ -83,6 +81,7 @@ const css = StyleSheet.create({
   },
   member_item_name: {
     fontSize: style.font_size_med,
+    marginLeft: style.margin,
   },
   member_item_image: {
     height: 40,

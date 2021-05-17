@@ -47,14 +47,6 @@ export default (props: PropTypes) => {
     API.createTask(list, new_task).then(data => DEBUG.log(`Uploaded task ${data.title}`))
   }
 
-  const MemberIcon = ({user}: {user: User}) => {
-    return (
-      <View style={css.member_icon}>
-        <ProfilePicture user_id={user.id}/>
-      </View>
-    )
-  }
-
   return (
     <View style={css.container}>
       <View style={css.header}>
@@ -63,7 +55,7 @@ export default (props: PropTypes) => {
           <AppIcon style={css.list_edit_icon} source={require('../../Media/Icons/edit.png')} />
         </Horizontal>
         <View style={css.members_container}>
-          {members?.map(user => <MemberIcon {...{user}} />)}
+          {members?.map(user => <ProfilePicture user_id={user.id} size='medium' />)}
         </View>
       </View>
       {/* this needs optimization */}

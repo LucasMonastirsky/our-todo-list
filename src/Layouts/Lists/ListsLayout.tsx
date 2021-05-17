@@ -52,9 +52,7 @@ export default (props: PropTypes) => {
 
   return <>
     <View style={css.header}>
-      <View style={{aspectRatio: 1}}>
-        <ProfilePicture user_id={API.user.id} />
-      </View>
+      <ProfilePicture user_id={API.user.id} size='medium' />
       <AppText style={css.title}>{API.user.nickname}</AppText>
       <View style={{flex: 1}} />
       <AppIcon style={css.header_icon} onPress={()=>Navigation.goTo(ContactsLayout)} source={require('../../Media/Icons/contacts.png')} />
@@ -79,6 +77,8 @@ const css = StyleSheet.create({
     marginLeft: style.padding,
   },
   header_icon: {
+    alignSelf: 'center',
+    height: 35,
     padding: style.padding / 2,
   },
 })

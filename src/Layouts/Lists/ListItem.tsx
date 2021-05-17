@@ -16,17 +16,12 @@ export default (props: {list: TodoList, onPress: ()=>any}) => {
     )
   }, [])
 
-  const MemberIcon = ({user}: {user: User}) => (
-    <View style={css.member_icon}>
-      <ProfilePicture user_id={user.id} />
-    </View>
-  )
 
   return (
     <TouchableOpacity style={css.container} onPress={props.onPress}>
       <AppText style={css.title}>{props.list.title}</AppText>
       <View style={css.members_container}>
-        {members?.map(user => <MemberIcon {...{user}} />)}
+        {members?.map(user => <ProfilePicture user_id={user.id} size='medium' />)}
       </View>
     </TouchableOpacity>
   )
@@ -48,5 +43,6 @@ const css = StyleSheet.create({
   member_icon: {
     aspectRatio: 1,
     flex: 1,
+    height: style.profile_pic_size_med,
   }
 })
