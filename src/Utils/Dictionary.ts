@@ -1,6 +1,6 @@
 export default class Dictionary<T> {
-  constructor(initial_values: { [id: string]: T }) {
-    this.map = initial_values
+  constructor(initial_values?: { [id: string]: T }) {
+    this.map = initial_values ?? {}
   }
 
   map: { [id: string]: T }
@@ -11,6 +11,10 @@ export default class Dictionary<T> {
 
   set (id: string, value: T): void {
     this.map[id] = value
+  }
+
+  delete (id: string): void {
+    delete this.map[id]
   }
 
   get values(): T[] {

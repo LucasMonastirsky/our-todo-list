@@ -7,10 +7,10 @@ const INITIAL_LAYOUT: Layout = ListsLayout
 class Navigation {
   private static _current_layout = INITIAL_LAYOUT
   static get current_layout() { return Navigation._current_layout }
-  static onChangeLayout = (layout: Layout) => {}
-  static goTo = (layout: Layout) => {  
+  static onChangeLayout = (layout: Layout, props: any) => {}
+  static goTo = (layout: Layout, props?: any) => {
     Navigation._current_layout = layout
-    Navigation.onChangeLayout(layout)
+    Navigation.onChangeLayout(layout, props)
   }
 
   private static _header: ComponentType

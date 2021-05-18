@@ -1,7 +1,10 @@
 import PushNotificationIOS from '@react-native-community/push-notification-ios'
 import PushNotification from 'react-native-push-notification'
+import { Task } from '../Models';
 import DEBUG from '../Utils/DEBUG';
 import API from './API';
+import uuid from 'react-native-uuid'
+import { Dictionary } from '../Utils';
 
 const channel_id = 'our_todo_main_channel'
 
@@ -50,9 +53,9 @@ type NotificationHandler = { foreground: (data:any)=>any, background: (data:any)
 const notification_handlers: { [index: string]: NotificationHandler } = {
   task_created: {
     foreground: async data => {
-
+      Notifications.triggerTaskCreatedListeners(data.task)
     },
-    background: async data => {
+    background: async data => {DEBUG.log(`got background`)
       PushNotification.localNotification({
         title: `New task in ${data.list_title}`,
         channelId: channel_id,
@@ -62,7 +65,7 @@ const notification_handlers: { [index: string]: NotificationHandler } = {
   },
   task_claimed: {
     foreground: async data => {
-
+      Notifications.triggerTaskUpdatedListeners(data.task)
     },
     background: async data => {
       PushNotification.localNotification({
@@ -74,7 +77,7 @@ const notification_handlers: { [index: string]: NotificationHandler } = {
   },
   task_completed: {
     foreground: async data => {
-
+      Notifications.triggerTaskUpdatedListeners(data.task)
     },
     background: async data => {
       PushNotification.localNotification({
@@ -104,7 +107,34 @@ type NotificationType =
   'task_completed' |
   'added_to_list'
 
+type TaskCreatedCallback = (task: Task)=>any
+type TaskUpdatedCallback = (task: Task)=>any
+
 export default class Notifications {
   private static _token: string
   static get token() { return Notifications._token }
+
+  private static task_created_listeners = new Dictionary<TaskCreatedCallback>()
+  static addTaskCreatedListener = (callback: TaskCreatedCallback) =>
+    addListener(callback, Notifications.task_created_listeners)
+  static triggerTaskCreatedListeners = (task: Task) =>
+    triggerListeners(Notifications.task_created_listeners, task)
+
+  private static task_updated_listeners = new Dictionary<TaskUpdatedCallback>()
+  static addTaskUpdatedListener = (callback: TaskUpdatedCallback) =>
+    addListener(callback, Notifications.task_updated_listeners)
+  static triggerTaskUpdatedListeners = (task: Task) =>
+    triggerListeners(Notifications.task_updated_listeners, task)
+}
+
+function addListener<T> (callback: T, listeners: Dictionary<T>) {
+  const id = `${uuid.v4()}`
+  listeners.set(id, callback)
+  return {
+    remove: () => {listeners.delete(id)}
+  }
+}
+
+function triggerListeners (listeners: Dictionary<Function>, data: any) {
+  listeners.values.forEach(cb => cb(data))
 }

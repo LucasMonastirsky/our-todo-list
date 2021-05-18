@@ -7,11 +7,13 @@ import { screen, useAsyncState } from '../Utils';
 
 const App = () => {
   const [logged_in, setLoggedIn] = useState(false)
-  const [layout_stack, getLayoutStack, setLayoutStack] = useAsyncState([Navigation.current_layout])
+  const [layout_stack, setLayoutStack] = useState([Navigation.current_layout])
+  const [layout_props, setLayoutProps] = useState<any[]>([{}]) // TODO: this is dirty
 
   useEffect(() => {
-    Navigation.onChangeLayout = (new_layout) => {
-      setLayoutStack((prev => [ ...prev, new_layout]))
+    Navigation.onChangeLayout = (new_layout, props) => {
+      setLayoutStack(prev => [ ...prev, new_layout])
+      setLayoutProps(prev => [...prev, props])
     }
 
     return BackHandler.addEventListener('hardwareBackPress', backHandler).remove
@@ -27,20 +29,14 @@ const App = () => {
     return length > 1
   }
 
-  const signOut = async () => {
-    await API.signOut()
-    setLoggedIn(false)
-  }
-
-  const content = () => !logged_in
-  ? <AuthenticationLayout onLoggedIn={()=>setLoggedIn(true)} />
-  : <Navigation.current_layout />
-
   return (
     <View style={css.app}>
       {!logged_in
       ? <AuthenticationLayout onLoggedIn={()=>setLoggedIn(true)} />
-      : layout_stack.map((Layout, index) => index === layout_stack.length - 1 ? <Layout active={true} /> : null)}
+      : layout_stack.map((Layout, index) => index === layout_stack.length - 1
+        ? <Layout active={true} {...layout_props[index]} />
+        : null
+      )}
     </View>
   )
 }
