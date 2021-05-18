@@ -7,15 +7,10 @@ import { ItemCreator } from '../../Components'
 import { Task, TodoList, User } from '../../Models'
 import { colors, style } from '../../Styling'
 import { DEBUG } from '../../Utils'
-import { LayoutProps } from '../types'
 import AddContactModal from './AddContactModal'
 import TaskView from './TaskView'
 
-type PropTypes = {
-  list: TodoList,
-}
-
-export default (props: LayoutProps & PropTypes) => {
+export default (props: { list: TodoList }) => {
   const [list, setList] = useState(props.list)
   useEffect(()=>setList(props.list), [props.list])
   const setTaskInState = (task: Task) =>

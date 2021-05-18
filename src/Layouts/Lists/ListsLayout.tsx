@@ -5,11 +5,10 @@ import uuid from 'react-native-uuid'
 import { TodoList } from '../../Models'
 import { Dictionary } from '../../Utils'
 import ListItem from './ListItem'
-import { TasksLayout, ContactsLayout } from '../'
+import { TasksLayout, ContactsLayout, ProfileLayout } from '../'
 import { AppButtonItem, AppIcon, AppText, ProfilePicture } from '../../Components'
 import { colors, style } from '../../Styling'
 import { ItemCreator } from '../../Components'
-import { Layout } from '../types'
 
 type PropTypes = {
   
@@ -42,7 +41,7 @@ export default (props: PropTypes) => {
   }
 
   const onListSelected = (id: string) => {
-    Navigation.goTo(TasksLayout as Layout, {list: lists!.map[id]})
+    Navigation.goTo(TasksLayout, {list: lists!.map[id]})
   }
 
   if (lists === undefined) return ( // TODO: add message when user has no lists
@@ -53,8 +52,10 @@ export default (props: PropTypes) => {
 
   return <>
     <View style={css.header}>
-      <ProfilePicture user_id={API.user.id} size='medium' />
-      <AppText style={css.title}>{API.user.nickname}</AppText>
+      <TouchableOpacity style={{flexDirection: 'row'}} onPress={()=>Navigation.goTo(ProfileLayout)}>
+        <ProfilePicture user_id={API.user.id} size='medium' />
+        <AppText style={css.title}>{API.user.nickname}</AppText>
+      </TouchableOpacity>
       <View style={{flex: 1}} />
       <AppIcon style={css.header_icon} onPress={()=>Navigation.goTo(ContactsLayout)} source={require('../../Media/Icons/contacts.png')} />
       <AppIcon style={css.header_icon} source={require('../../Media/Icons/options.png')} />
