@@ -8,12 +8,10 @@ import { screen, useAsyncState } from '../Utils';
 const App = () => {
   const [logged_in, setLoggedIn] = useState(false)
   const [layout_stack, setLayoutStack] = useState([Navigation.current_layout])
-  const [layout_props, setLayoutProps] = useState<any[]>([{}]) // TODO: this is dirty
 
   useEffect(() => {
-    Navigation.onChangeLayout = (new_layout, props) => {
+    Navigation.onChangeLayout = (new_layout) => {
       setLayoutStack(prev => [ ...prev, new_layout])
-      setLayoutProps(prev => [...prev, props])
     }
 
     return BackHandler.addEventListener('hardwareBackPress', backHandler).remove
@@ -33,10 +31,12 @@ const App = () => {
     <View style={css.app}>
       {!logged_in
       ? <AuthenticationLayout onLoggedIn={()=>setLoggedIn(true)} />
-      : layout_stack.map((Layout, index) => index === layout_stack.length - 1
-        ? <Layout active={true} {...layout_props[index]} />
-        : null
-      )}
+      : layout_stack.map((layout, index) => {
+          if (index !== layout_stack.length - 1)
+            return null // this can be used for transition animations
+          const LayoutView = layout.view
+          return <LayoutView {...layout.props} />
+      })}
     </View>
   )
 }

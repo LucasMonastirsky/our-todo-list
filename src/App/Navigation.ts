@@ -1,16 +1,20 @@
 import { ComponentType } from "react"
 import { ListsLayout } from "../Layouts"
-import { Layout } from "../Layouts/types"
 
-const INITIAL_LAYOUT: Layout = ListsLayout
+export type LayoutProps = { active?: boolean } // LayoutViews have to use this
+export type LayoutView = (props: LayoutProps) => JSX.Element
+export type Layout = { view: LayoutView, props?: any }
+
+const INITIAL_LAYOUT: Layout = { view: ListsLayout, props: {} }
 
 class Navigation {
   private static _current_layout = INITIAL_LAYOUT
   static get current_layout() { return Navigation._current_layout }
-  static onChangeLayout = (layout: Layout, props: any) => {}
-  static goTo = (layout: Layout, props?: any) => {
+  static onChangeLayout = (layout: Layout) => {}
+  static goTo = (view: LayoutView, props?: any) => {
+    const layout = {view, props}
     Navigation._current_layout = layout
-    Navigation.onChangeLayout(layout, props)
+    Navigation.onChangeLayout(layout)
   }
 
   private static _header: ComponentType

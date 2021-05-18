@@ -3,14 +3,13 @@ import { BackHandler, StyleSheet, View } from 'react-native'
 import { AppButton, AppInput, AppText, Loading } from '../../Components'
 import { colors, style } from '../../Styling'
 import { screen } from '../../Utils'
-import { LayoutProps } from '../types'
 import { Auth } from 'aws-amplify'
 import { API } from '../../App'
 
 const USERNAME_MIN_LENGTH = 3
 const PASSWORD_MIN_LENGTH = 8
 
-const RegisterLayout = (props: LayoutProps & {onCancel: ()=>any, onRegister: (username: string)=>void}) => {
+const RegisterLayout = (props: {onCancel: ()=>any, onRegister: (username: string)=>void}) => {
   const [loading, setLoading] = useState(false)
   const [username, _setUsername] = useState('')
   const [email, _setEmail] = useState('')
