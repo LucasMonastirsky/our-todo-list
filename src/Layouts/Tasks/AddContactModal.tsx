@@ -28,7 +28,7 @@ export default (props: {list: TodoList, setList: StateSetter<TodoList>, close: A
     })
     props.close(false)
   }
-  
+
   return (
     <AppModal close={props.close}>
       <View style={css.container}>

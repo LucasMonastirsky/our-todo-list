@@ -1,4 +1,4 @@
-import { API, Navigation } from '../../App'
+import { API, Navigation, Notifications } from '../../App'
 import React, { useEffect, useState } from 'react'
 import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import uuid from 'react-native-uuid'
@@ -9,6 +9,7 @@ import { TasksLayout, ContactsLayout } from '../'
 import { AppButtonItem, AppIcon, AppText, ProfilePicture } from '../../Components'
 import { colors, style } from '../../Styling'
 import { ItemCreator } from '../../Components'
+import { Layout } from '../types'
 
 type PropTypes = {
   
@@ -16,7 +17,6 @@ type PropTypes = {
 
 export default (props: PropTypes) => {
   const [lists, setLists] = useState<Dictionary<TodoList>>()
-  const [selected_list_id, setSelectedListId] = useState<string>()
 
   const [adding_list, setAddingList] = useState(false)
 
@@ -41,10 +41,11 @@ export default (props: PropTypes) => {
     API.createTodoList({...new_list})
   }
 
-  if (selected_list_id !== undefined)
-    return <TasksLayout list={lists!.map[selected_list_id]} goBack={()=>{setSelectedListId(undefined);return true}} />
+  const onListSelected = (id: string) => {
+    Navigation.goTo(TasksLayout as Layout, {list: lists!.map[id]})
+  }
 
-  if (lists === undefined) return (
+  if (lists === undefined) return ( // TODO: add message when user has no lists
     <View>
 
     </View>
@@ -60,7 +61,7 @@ export default (props: PropTypes) => {
     </View>
     <ScrollView>
       {adding_list && <ItemCreator placeholder='New List Title' onSubmit={onSubmitList} onCancel={setAddingList} />}
-      {lists.values.map(list => <ListItem {...{list}} onPress={()=>setSelectedListId(list.id)} />)}
+      {lists.values.map(list => <ListItem {...{list}} onPress={()=>onListSelected(list.id)} />)}
     </ScrollView>
     <AppButtonItem onPress={()=>setAddingList(true)} />
 </>

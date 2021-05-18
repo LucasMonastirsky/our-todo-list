@@ -1,23 +1,28 @@
 import React, { useEffect, useState } from 'react'
-import { BackHandler, Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import uuid from 'react-native-uuid'
-import { API } from '../../App'
+import { API, Notifications } from '../../App'
 import { AppButtonItem, AppIcon, AppText, Horizontal, ProfilePicture } from '../../Components'
 import { ItemCreator } from '../../Components'
 import { Task, TodoList, User } from '../../Models'
 import { colors, style } from '../../Styling'
 import { DEBUG } from '../../Utils'
+import { LayoutProps } from '../types'
 import AddContactModal from './AddContactModal'
 import TaskView from './TaskView'
 
 type PropTypes = {
   list: TodoList,
-  goBack: any,
 }
 
-export default (props: PropTypes) => {
+export default (props: LayoutProps & PropTypes) => {
   const [list, setList] = useState(props.list)
   useEffect(()=>setList(props.list), [props.list])
+  const setTaskInState = (task: Task) =>
+    setList(prev => {
+      prev.tasks[task.id] = task
+      return {...prev}
+  })
 
   const [members, setMembers] = useState<User[]>()
 
@@ -27,7 +32,9 @@ export default (props: PropTypes) => {
   const [add_contact_modal_active, setAddContactModalActive] = useState(false)
 
   useEffect(() => {
-    return BackHandler.addEventListener('hardwareBackPress', props.goBack).remove
+    const removers: Function[] = []
+    removers.push(Notifications.addTaskCreatedListener(onRemoteTaskCreated).remove)
+    removers.push(Notifications.addTaskUpdatedListener(onRemoteTaskUpdated).remove)
   }, []) 
 
   useEffect(() => {
@@ -36,6 +43,17 @@ export default (props: PropTypes) => {
       API.getCachedUser(id).then(user =>
         setMembers(prev => [...prev??[], user])))
   }, [list])
+
+  //#region Remote Listeners
+  // TODO: add sounds to remote events
+  const onRemoteTaskCreated = (task: Task) => {
+    setTaskInState(task)
+  }
+
+  const onRemoteTaskUpdated = (task: Task) => {
+    setTaskInState(task)
+  }
+  //#endregion
 
   const onSubmitTask = (title: string) => {
     const new_task: Task = {
