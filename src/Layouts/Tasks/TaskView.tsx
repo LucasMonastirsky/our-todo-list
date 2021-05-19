@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { TouchableOpacity, StyleSheet, Animated, View, TextInput } from 'react-native'
+import { TouchableOpacity, StyleSheet, Animated, View, TextInput, Platform, UIManager, LayoutAnimation } from 'react-native'
 import { Task, TodoList } from '../../Models'
 import { colors, style } from '../../Styling'
 import { createAnimation, Dictionary, screen, timeAgo } from '../../Utils'
@@ -28,6 +28,9 @@ const TaskView = (props: PropTypes) => {
     if (task.status === 'Done')
       API.getCachedUser(task.completer_id!)
         .then(user => setCompleterName(user.nickname))
+
+    if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental)
+      UIManager.setLayoutAnimationEnabledExperimental(true)
   }, [])
 
   const claimTask = async () => {
@@ -93,6 +96,7 @@ const TaskView = (props: PropTypes) => {
           setGestureAnim('canceled')
         }
       } else {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
         setDetailsActive(x => !x)
       }
 

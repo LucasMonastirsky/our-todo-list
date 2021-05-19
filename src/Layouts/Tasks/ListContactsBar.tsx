@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { StyleSheet, TouchableOpacity, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { LayoutAnimation, Platform, StyleSheet, TouchableOpacity, UIManager, View } from 'react-native'
 import { ProfilePicture, AppText, Loading } from '../../Components'
 import { TodoList, User } from '../../Models'
 import { style, colors } from '../../Styling'
@@ -11,11 +11,21 @@ export default (props: PropTypes) => {
   const [extended, setExtended] = useState(false)
   const [modal_active, setModalActive] = useState(false)
 
+  useEffect(() => {
+    if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental)
+      UIManager.setLayoutAnimationEnabledExperimental(true)
+  }, [])
+
+  const toggleExtended = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+    setExtended(x => !x)
+  }
+
   if (props.members === undefined)
     return <Loading />
 
   return (
-    <TouchableOpacity onPress={()=>setExtended(true)}>
+    <TouchableOpacity onPress={toggleExtended}>
       {modal_active && <AddContactModal {...{list: props.list, setList: props.setList}} close={setModalActive} />}
       <View style={extended ? css.members_container_extended : css.members_container}>
         {props.members?.map(user => 
@@ -30,7 +40,7 @@ export default (props: PropTypes) => {
           <TouchableOpacity style={css.member_add_button} onPress={()=>setModalActive(true)}>
             <AppText style={css.member_add_text}>Add a contact...</AppText>
           </TouchableOpacity>
-          <TouchableOpacity style={css.members_close} onPress={()=>setExtended(false)}>
+          <TouchableOpacity style={css.members_close} onPress={toggleExtended}>
             <View style={css.members_close_icon} />
           </TouchableOpacity>
         </>
