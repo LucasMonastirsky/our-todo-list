@@ -8,9 +8,11 @@ import { Task, TodoList, User } from '../../Models'
 import { colors, style } from '../../Styling'
 import { DEBUG } from '../../Utils'
 import AddContactModal from './AddContactModal'
+import ListContactsBar from './ListContactsBar'
 import TaskView from './TaskView'
 
 export default (props: { list: TodoList }) => {
+  //#region Lifecycle
   const [list, setList] = useState(props.list)
   useEffect(()=>setList(props.list), [props.list])
   const setTaskInState = (task: Task) =>
@@ -24,8 +26,6 @@ export default (props: { list: TodoList }) => {
 
   const [scroll_enabled, setScrollEnabled] = useState(true)
   const [adding_task, setAddingTask] = useState(false)
-  const [members_extended, setMembersExtended] = useState(false)
-  const [add_contact_modal_active, setAddContactModalActive] = useState(false)
 
   useEffect(() => {
     const removers: Function[] = []
@@ -39,6 +39,7 @@ export default (props: { list: TodoList }) => {
       API.getCachedUser(id).then(user =>
         setMembers(prev => [...prev??[], user])))
   }, [list])
+  //#endregion
 
   //#region Remote Listeners
   // TODO: add sounds to remote events
@@ -51,6 +52,7 @@ export default (props: { list: TodoList }) => {
   }
   //#endregion
 
+  //#region Actions
   const uploadChanges = async () => {
     setList(prev => ({...prev, ...changes}))
     await API.editTodoList(list.id, changes)
@@ -72,7 +74,9 @@ export default (props: { list: TodoList }) => {
     setAddingTask(false)
     API.createTask(list, new_task).then(data => DEBUG.log(`Uploaded task ${data.title}`))
   }
+  //#endregion
 
+  //#region Render
   const inputProps = (property: keyof TodoList & keyof typeof css) => ({
     style: css[property],
     value: changes[property] || list[property],
@@ -85,36 +89,25 @@ export default (props: { list: TodoList }) => {
     })
   })
 
+  const mapTask = (task: Task, index: number) => (
+    <TaskView {...{
+      key: task.id,
+      task: task,
+      index,
+      setScrollEnabled,
+      setList,
+    }} />
+  )
+
   return (
     <View style={css.container}>
       <View style={css.header}>
         <Horizontal>
           <TextInput  {...inputProps('title')} />
         </Horizontal>
-        <TouchableOpacity onPress={()=>setMembersExtended(true)}>
-          {add_contact_modal_active && <AddContactModal {...{list, setList}} close={setAddContactModalActive} />}
-          <View style={members_extended ? css.members_container_extended : css.members_container}>
-            {members?.map(user => 
-              <TouchableOpacity style={css.member_item} disabled={!members_extended}>
-                <ProfilePicture user_id={user.id} size='small' />
-                {members_extended &&
-                  <AppText style={css.member_name}>{user.nickname}</AppText>
-                }
-              </TouchableOpacity>
-            )}
-            {members_extended && <>
-              <TouchableOpacity style={css.member_add_button} onPress={()=>setAddContactModalActive(true)}>
-                <AppText style={css.member_add_text}>Add a contact...</AppText>
-              </TouchableOpacity>
-              <TouchableOpacity style={css.members_close} onPress={()=>setMembersExtended(false)}>
-                <View style={css.members_close_icon} />
-              </TouchableOpacity>
-            </>
-            }
-          </View>
-        </TouchableOpacity>
+        <ListContactsBar {...{members, list, setList}} />
       </View>
-      {/* this needs optimization */}
+      {/* TODO: this needs optimization */}
       {Object.values(list.tasks).length < 1 && !adding_task 
       ? <View style={css.no_tasks_text_container}>
           <AppText style={css.no_tasks_text}>This list has no tasks</AppText>
@@ -122,29 +115,14 @@ export default (props: { list: TodoList }) => {
         </View>
       : <ScrollView scrollEnabled={scroll_enabled}>
           {adding_task && <ItemCreator onSubmit={onSubmitTask} onCancel={setAddingTask} />}
-          {Object.values(list.tasks).filter(x=>x.status !== 'Done').map((item, index)=>(
-            <TaskView {...{
-              key: item.id,
-              task: item,
-              index,
-              setScrollEnabled,
-              setList,
-            }} />
-          ))}
-          {Object.values(list.tasks).filter(x=>x.status === 'Done').map((item, index)=>(
-            <TaskView {...{
-              key: item.id,
-              task: item,
-              index,
-              setScrollEnabled,
-              setList,
-            }} />
-          ))}
+          {Object.values(list.tasks).filter(x=>x.status !== 'Done').map(mapTask)}
+          {Object.values(list.tasks).filter(x=>x.status === 'Done').map(mapTask)}
         </ScrollView>
       }
       <AppButtonItem onPress={() => setAddingTask(true)} />
     </View>
   )
+  //#endregion
 }
 
 const css = StyleSheet.create({
@@ -165,41 +143,6 @@ const css = StyleSheet.create({
   list_edit_icon: {
     marginLeft: 'auto',
     padding: style.padding / 1.5,
-  },
-  members_container: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  members_container_extended: {
-  },
-  member_item: {
-    marginRight: style.padding,
-    marginBottom: style.padding,
-    flexDirection: 'row',
-  },
-  member_icon: {
-    marginRight: style.margin,
-  },
-  member_name: {
-    marginLeft: style.padding,
-  },
-  member_add_button: {
-    padding: style.padding,
-  },
-  member_add_text: {
-
-  },
-  members_close: {
-    marginTop: style.margin,
-    marginBottom: -style.padding,
-    padding: style.margin,
-  },
-  members_close_icon: {
-    height: style.padding,
-    width: style.margin * 3,
-    alignSelf: 'center',
-    borderRadius: style.border_radius_med,
-    backgroundColor: colors.light,
   },
   no_tasks_text_container: {
     flex: 1,
