@@ -1,12 +1,12 @@
-import { API, Navigation, Notifications } from '../../App'
+import { API, Navigation } from '../../App'
 import React, { useEffect, useState } from 'react'
-import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import uuid from 'react-native-uuid'
 import { TodoList } from '../../Models'
 import { Dictionary } from '../../Utils'
 import ListItem from './ListItem'
 import { TasksLayout, ContactsLayout, ProfileLayout } from '../'
-import { AppButtonItem, AppIcon, AppText, ProfilePicture } from '../../Components'
+import { AppButtonItem, AppIcon, AppText, Loading, ProfilePicture } from '../../Components'
 import { colors, style } from '../../Styling'
 import { ItemCreator } from '../../Components'
 
@@ -16,7 +16,6 @@ type PropTypes = {
 
 export default (props: PropTypes) => {
   const [lists, setLists] = useState<Dictionary<TodoList>>()
-
   const [adding_list, setAddingList] = useState(false)
 
   useEffect(() => {
@@ -45,8 +44,8 @@ export default (props: PropTypes) => {
   }
 
   if (lists === undefined) return ( // TODO: add message when user has no lists
-    <View>
-
+    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+      <Loading />
     </View>
   )
 

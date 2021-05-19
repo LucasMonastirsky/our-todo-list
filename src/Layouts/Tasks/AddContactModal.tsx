@@ -8,26 +8,34 @@ import { StateSetter } from '../../Types'
 
 export default (props: {list: TodoList, setList: StateSetter<TodoList>, close: AppModal.Close}) => {
   const [users, setUsers] = useState<User[]>()
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (users === undefined) // TODO: this should wait for all promises
-      API.user.contact_ids.forEach(id => {
-        if (!props.list.member_ids.includes(id))
-          API.getCachedUser(id).then(user =>
-            setUsers(prev => [...prev??[], user]))
-        else setUsers(prev => prev??[])
-    })
+    if (users === undefined) {
+      const available_user_ids = API.user.contact_ids.filter(id =>
+        props.list.member_ids.includes(id))
+
+      if (available_user_ids.length < 1)
+        setUsers([])
+      else available_user_ids.forEach(id => API.getCachedUser(id)
+        .then(user => setUsers(prev => [...prev??[], user])))
+    }
   }, [])
 
-  const onSelect = async (user: User) => { // TODO: do this properly
+  const onSelect = async (user: User) => {
+    setLoading(true)
     await API.addUserToList(user.id, props.list)
     props.setList(prev => {
       const new_list = {...prev}
       new_list.member_ids.push(user.id)
       return new_list
     })
+    setLoading(false)
     props.close(false)
   }
+
+  // if (loading)
+  //   return <Loading />
 
   return (
     <AppModal close={props.close}>

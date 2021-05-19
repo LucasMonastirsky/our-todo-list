@@ -2,7 +2,7 @@ import { ComponentType } from "react"
 import { ListsLayout } from "../Layouts"
 
 export type LayoutProps = { active?: boolean } // LayoutViews have to use this
-export type LayoutView = (props: LayoutProps) => JSX.Element
+export type LayoutView = (props: LayoutProps & any) => JSX.Element
 export type Layout = { view: LayoutView, props?: any }
 
 const INITIAL_LAYOUT: Layout = { view: ListsLayout, props: {} }
