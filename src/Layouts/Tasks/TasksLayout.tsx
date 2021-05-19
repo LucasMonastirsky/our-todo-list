@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native'
 import uuid from 'react-native-uuid'
 import { API, Notifications } from '../../App'
 import { AppButtonItem, AppIcon, AppText, Horizontal, ProfilePicture } from '../../Components'
@@ -20,6 +20,7 @@ export default (props: { list: TodoList }) => {
   })
 
   const [members, setMembers] = useState<User[]>()
+  const [changes, setChanges] = useState<Partial<TodoList>>({})
 
   const [scroll_enabled, setScrollEnabled] = useState(true)
   const [adding_task, setAddingTask] = useState(false)
@@ -50,6 +51,11 @@ export default (props: { list: TodoList }) => {
   }
   //#endregion
 
+  const uploadChanges = async () => {
+    setList(prev => ({...prev, ...changes}))
+    await API.editTodoList(list.id, changes)
+  }
+
   const onSubmitTask = (title: string) => {
     const new_task: Task = {
       title: title,
@@ -67,19 +73,30 @@ export default (props: { list: TodoList }) => {
     API.createTask(list, new_task).then(data => DEBUG.log(`Uploaded task ${data.title}`))
   }
 
+  const inputProps = (property: keyof TodoList & keyof typeof css) => ({
+    style: css[property],
+    value: changes[property] || list[property],
+    spellCheck: false,
+    onChangeText: (text: string) => setChanges(prev => ({...prev, [property]: text})),
+    onSubmitEditing: uploadChanges,
+    onEndEditing: () => setChanges(prev => {
+      delete prev[property]
+      return {...prev}
+    })
+  })
+
   return (
     <View style={css.container}>
       <View style={css.header}>
         <Horizontal>
-          <AppText style={css.title}>{list.title}</AppText>
-          <AppIcon style={css.list_edit_icon} source={require('../../Media/Icons/edit.png')} />
+          <TextInput  {...inputProps('title')} />
         </Horizontal>
         <TouchableOpacity onPress={()=>setMembersExtended(true)}>
           {add_contact_modal_active && <AddContactModal {...{list, setList}} close={setAddContactModalActive} />}
           <View style={members_extended ? css.members_container_extended : css.members_container}>
             {members?.map(user => 
               <TouchableOpacity style={css.member_item} disabled={!members_extended}>
-                <ProfilePicture user_id={user.id} size='medium' />
+                <ProfilePicture user_id={user.id} size='small' />
                 {members_extended &&
                   <AppText style={css.member_name}>{user.nickname}</AppText>
                 }
@@ -139,7 +156,11 @@ const css = StyleSheet.create({
     backgroundColor: colors.main,
   },
   title: {
+    width: '100%',
+    textAlign: 'center',
     fontSize: style.font_size_big,
+    color: colors.light,
+    padding: style.padding,
   },
   list_edit_icon: {
     marginLeft: 'auto',
@@ -152,8 +173,12 @@ const css = StyleSheet.create({
   members_container_extended: {
   },
   member_item: {
+    marginRight: style.padding,
     marginBottom: style.padding,
     flexDirection: 'row',
+  },
+  member_icon: {
+    marginRight: style.margin,
   },
   member_name: {
     marginLeft: style.padding,
