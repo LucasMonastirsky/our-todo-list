@@ -1,51 +1,42 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, TextInput, View } from 'react-native'
-import { API, Navigation } from '../../App'
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { launchImageLibrary } from 'react-native-image-picker'
+import { API } from '../../App'
 import { AppButton, AppText, Loading, ProfilePicture } from '../../Components'
-import Icon from '../../Components/AppIcon'
 import { TodoList, User } from '../../Models'
 import { colors, style } from '../../Styling'
 import { Dictionary } from '../../Utils'
-import { LayoutProps } from '../types'
-import EditProfile from './EditProfile'
 
-const ProfileLayout = (props: LayoutProps) => {
+const ProfileLayout = () => {
   const [user, setUser] = useState<User>(API.user)
   const [user_changes, setUserChanges] = useState<Partial<User>>({})
   const [lists, setLists] = useState<Dictionary<TodoList>|undefined>()
   const [loading, setLoading] = useState(false)
-
-  useEffect(() => {if (props.active) Navigation.header = ()=><Header />}, [props.active])
   
   useEffect(() => {
     API.getListsFrom(user).then(setLists)
   }, [])
 
-  const saveChanges = () => {
-    setLoading(true)
-    API.editUser(user.id, user_changes)
-      .then(() => {
-        setUser({...user, ...user_changes})
-        setUserChanges({})
-      }).catch(() => {
-
-      }).finally(() => setLoading(false))
-  }
-  
-  const Header = () => {
-    return (
-      <View style={css.header}>
-        <Icon source={require('../../Media/Icons/edit.png')} onPress={()=>Navigation.goTo(EditProfile)} />
-      </View>
+  const onPressImage = () => {
+    launchImageLibrary({ mediaType: 'photo' },
+      response => {
+        if (response.uri)
+          setUserChanges(prev => ({...prev, image: response.uri}))
+      }
     )
   }
+  const saveChanges = async () => {
+    setLoading(true)
 
-  const Item = ({label, value}: {label: string, value: string}) => (
-    <View style={css.item_container}>
-      <AppText style={css.item_label}>{label}:</AppText>
-      <AppText style={css.item_value}>{value}</AppText>
-    </View>
-  )
+    if (user_changes.image)
+      user_changes.image = await API.uploadProfilePicture(user_changes.image)
+
+    await API.editUser(user.id, user_changes)
+
+    setUser({...user, ...user_changes})
+    setUserChanges({})
+    setLoading(false)
+  }
 
   const ListItem = (list: TodoList) => (
     <View style={css.list_container} key={list.id}>
@@ -56,13 +47,23 @@ const ProfileLayout = (props: LayoutProps) => {
     </View>
   )
 
+  const createInputProps = (property: keyof Omit<Omit<User, 'list_ids'>, 'contact_ids'>) => ({
+    style: css.item_value,
+    defaultValue: user[property],
+    onChangeText: (text: string)=>setUserChanges(prev => ({...prev, [property]: text}))
+  })
+
   return (
     <View style={css.container}>
-      <View style={css.pfp_container}>
-        <ProfilePicture source={user.image} />
+      <TouchableOpacity style={css.pfp_container} onPress={onPressImage}>
+        <ProfilePicture uri={user_changes.image} user_id={user.id} />
+      </TouchableOpacity>
+      
+      <View style={css.item_container}>
+        <Text style={css.item_label}>Nickname</Text>
+        <TextInput {...createInputProps('nickname')} />
       </View>
-      <TextInput style={css.name} onChangeText={text=>setUserChanges({nickname: text})}>{user.nickname}</TextInput>
-      <Item label='Username' value={user.username} />
+
 
       {loading
       ? <Loading />
@@ -105,19 +106,31 @@ const css = StyleSheet.create({
     color: colors.light,
   },
   item_container: {
+    padding: style.padding,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
-    padding: style.padding,
+    // padding: style.padding,
   },
   item_label: {
-    textAlign: 'right',
-    flex: 1,
+    color: colors.light,
     marginRight: style.margin,
+    fontSize: style.font_size_med,
+    paddingRight: style.margin,
+    borderRightWidth: style.border_width,
+    borderRightColor: colors.light_dark,
   },
   item_value: {
-    textAlign: 'left',
+    color: colors.light,
     flex: 1,
-    marginLeft: style.margin,
+    fontSize: style.font_size_med,
+    padding: 0,
+    paddingBottom: style.padding,
+    borderColor: colors.light,
+    borderBottomWidth: style.border_width,
+  },
+  item_icon: {
+    height: 20,
+    alignSelf: 'center',
   },
   list_section: {
     marginTop: style.margin,

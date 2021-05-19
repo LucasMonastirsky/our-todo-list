@@ -5,7 +5,7 @@ import { API } from '../App'
 import { User } from '../Models'
 import { colors, style } from '../Styling'
 
-const ProfilePicture = (props: {user_id: string, size?: 'small'|'medium'|'big'}) => {
+const ProfilePicture = (props: {uri?: string, user_id: string, size?: 'small'|'medium'|'big'}) => {
   const [user, setUser] = useState<User>()
 
   useEffect(() => {(async () => {
@@ -24,7 +24,7 @@ const ProfilePicture = (props: {user_id: string, size?: 'small'|'medium'|'big'})
 
   return (
     <View style={container_style}>
-      <Image source={{uri: user?.image}} style={css.image} />
+      <Image source={{uri: props.uri ?? user?.image}} style={css.image} />
     </View>
   )
 }
