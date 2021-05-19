@@ -4,7 +4,7 @@ import { style } from '../Styling'
 
 const Icon = ({source, onPress, style}: {
   source: ImageSourcePropType,
-  onPress: (...args: any[])=>any,
+  onPress?: (...args: any[])=>any,
   style?: ViewStyle
 }) => (
   <TouchableOpacity style={[css.header_icon_container, style]}  {...{onPress}}>

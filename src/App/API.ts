@@ -171,6 +171,7 @@ API = class API {
     if (user.image) // hack to force react-native to fetch the new image
       API.cache.users[id].image += `?date=${Date.now()}` // this won't work with other users...
 
+    API._user = API.cache.users[id]
     DEBUG.log(`Updated user ${id}`)
   }
 
