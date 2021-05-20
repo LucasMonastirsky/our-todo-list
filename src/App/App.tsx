@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { BackHandler, StyleSheet, View } from 'react-native'
 import { API, Navigation } from '.';
-import { AuthenticationLayout } from '../Layouts';
+import { AuthenticationLayout, ListsLayout } from '../Layouts';
 import { colors } from '../Styling';
 import { screen, useAsyncState } from '../Utils';
+import { Layout } from './Navigation';
 
 const App = () => {
   const [logged_in, setLoggedIn] = useState(false)
-  const [layout_stack, setLayoutStack] = useState([Navigation.current_layout])
+  const [layout_stack, setLayoutStack] = useState<Layout[]>([{view: ListsLayout}])
 
   useEffect(() => {
     Navigation.onChangeLayout = (new_layout) => {
