@@ -5,11 +5,12 @@ import { API } from '../App'
 import { User } from '../Models'
 import { colors, style } from '../Styling'
 
-const ProfilePicture = (props: {uri?: string, user_id: string, size?: 'small'|'medium'|'big'}) => {
+const ProfilePicture = (props: {uri?: string, user_id?: string, size?: 'small'|'medium'|'big'}) => {
   const [user, setUser] = useState<User>()
 
   useEffect(() => {(async () => {
-    setUser(await API.getCachedUser(props.user_id))
+    if (props.user_id)
+      setUser(await API.getCachedUser(props.user_id))
   })()}, [])
 
   const size_map = {
@@ -36,8 +37,6 @@ const css = StyleSheet.create({
   },
   container_set_size: {
     aspectRatio: 1,
-    // height: 40,
-    // width: undefined,
   },
   image: {
     flex: 1,

@@ -25,11 +25,13 @@ const ProfileLayout = () => {
       }
     )
   }
+
   const saveChanges = async () => {
     setLoading(true)
 
+    const new_user = {...user_changes}
     if (user_changes.image)
-      user_changes.image = await API.uploadProfilePicture(user_changes.image)
+      new_user.image = await API.uploadProfilePicture(user_changes.image)
 
     await API.editUser(user.id, user_changes)
 
@@ -56,7 +58,7 @@ const ProfileLayout = () => {
   return (
     <View style={css.container}>
       <TouchableOpacity style={css.pfp_container} onPress={onPressImage}>
-        <ProfilePicture uri={user_changes.image} user_id={user.id} />
+        <ProfilePicture uri={user_changes.image ?? user.image} />
       </TouchableOpacity>
       
       <View style={css.item_container}>
