@@ -113,9 +113,11 @@ API = class API {
 
   //#region Cache
   private static cache: {
-    users: { [id: string]: User }
+    users: { [id: string]: User },
+    lists: { [id: string]: TodoList },
   } = {
-    users: {}
+    users: {},
+    lists: {},
   }
   //#endregion
 
@@ -125,7 +127,12 @@ API = class API {
       DEBUG.log(`Didn't find user in cache, getting from storage...`)
       API.cache.users[id] = await API.getUser(id)
     }
-    else DEBUG.log(`Found cached user ${API.cache.users[id].username}`)
+
+    /*
+    If multiple calls are made for the same user that is not cached,
+    then the user will be fetched from the DB multiple times.
+    TODO: Implement fetch flags to wait for first fetch
+    */
 
     return API.cache.users[id]
   }
@@ -175,6 +182,20 @@ API = class API {
     DEBUG.log(`Updated user ${id}`)
   }
 
+  static getCachedListsFrom = async (user: User) => {
+    DEBUG.log(`Getting cached lists from user ${user.username}...`)
+
+    const lists = new Dictionary<TodoList>()
+    user.list_ids.forEach(id => {
+      if (API.cache.lists[id])
+        lists.set(id, API.cache.lists[id])
+    })
+
+    DEBUG.log(`Found ${lists.values.length}/${user.list_ids.length} lists in cache from user ${user.username}`)
+
+    return lists
+  }
+
   static getListsFrom = async (user: User) => {
     DEBUG.log(`Getting lists from user ${user.username}...`)
 
@@ -198,8 +219,9 @@ API = class API {
     query.Responses.Lists.forEach(list => {
       list.member_ids = arrayFromSet(list.member_ids)
       list_map.set(list.id, list as TodoList)
+      API.cache.lists[list.id] = list as TodoList
     })
-    DEBUG.log(`Got ${Object.keys(list_map).length} lists from user ${user.username}`)
+    DEBUG.log(`Got ${list_map.values.length} lists from user ${user.username}`)
 
     return list_map
   }
@@ -213,10 +235,11 @@ API = class API {
     const list = await invokeLambda('create_todo_list', {
       ...properties,
       user_id: API.user.id,
-    })
+    }) as TodoList
 
-    DEBUG.log(`Updating user in cache...`)
+    DEBUG.log(`Updating cache...`)
     API.cache.users[properties.owner_id].list_ids.push(list.id)
+    API.cache.lists[list.id] = list
 
     DEBUG.log(`Successfully created list ${list.title}`)
     return list
@@ -231,8 +254,10 @@ API = class API {
       Key: { id },
       UpdateExpression: update_query.expression,
       ExpressionAttributeValues: update_query.values,
-      ReturnValues: DEBUG.enabled ? 'UPDATED_NEW' : 'NONE'
+      ReturnValues: 'UPDATED_NEW',
     }).promise()
+
+    API.cache.lists[id] = {...API.cache.lists[id], ...response.Attributes}
 
     DEBUG.log(`Updated list ${id} with values`, response.Attributes )
   }
@@ -244,6 +269,8 @@ API = class API {
       id,
       user_id: API.user.id,
     })
+
+    delete API.cache.lists[id]
 
     DEBUG.log(`Deleted list ${id}`)
   }
@@ -261,7 +288,9 @@ API = class API {
       user_id: API.user.id,
     })
 
-    DEBUG.log(`Created task ${properties.title}`)
+    DEBUG.log(`Created task ${properties.title}, storing in cache...`)
+
+    API.cache.lists[list.id].tasks[task.id] = task
 
     return task
   }
@@ -281,6 +310,8 @@ API = class API {
       },
       ReturnValues: DEBUG.enabled ? 'UPDATED_OLD' : 'NONE'
     }).promise()
+
+    API.cache.lists[task.list_id].tasks[task.id] = task
 
     if (DEBUG.enabled && response) {
       const old_task = response.Attributes!.tasks[task.id]
@@ -307,6 +338,8 @@ API = class API {
       invited_user_id: user_id,
       list_id: list.id,
     })
+ 
+    API.cache.lists[list.id].member_ids.push(user_id)
 
     DEBUG.log(`Updated user ${user_id}`)
   }
@@ -324,6 +357,10 @@ API = class API {
       ExpressionAttributeValues: { ':user_id': arrayToSet([user_id]) },
       ReturnValues: DEBUG.enabled ? 'UPDATED_NEW' : 'NONE',
     }).promise()
+
+    DEBUG.log(`Updating cache...`)
+    const index = API.cache.lists[list.id].member_ids.indexOf(user_id)
+    API.cache.lists[list.id].member_ids.splice(index, 1)
 
     DEBUG.log(`Removed user ${user_id} from list ${list.title}`)
   }
@@ -362,6 +399,10 @@ API = class API {
       ReturnValues: DEBUG.enabled ? 'UPDATED_NEW' : 'NONE',
     }).promise()
 
+    DEBUG.log(`Updating cache...`)
+    const index = API.cache.users[user_id].contact_ids.indexOf(contact_id)
+    API.cache.users[user_id].contact_ids.splice(index, 1)
+
     DEBUG.log(`Removed user ${contact_id} from contacts of ${user_id}`)
   }
 
@@ -394,6 +435,9 @@ API = class API {
       list_id: task.list_id,
       status,
     })
+
+    DEBUG.log(`Updating cache...`)
+    API.cache.lists[task.list_id].tasks[task.id] = updated_task
 
     DEBUG.log(`Updated status of task '${task.title}' to ${status}`)
 

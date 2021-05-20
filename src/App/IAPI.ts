@@ -16,6 +16,7 @@ interface IAPI {
   getCachedUser: (id: string) => Promise<User>
   getUser: (id: string) => Promise<User>
   editUser: (id: string, user: Partial<User>) => Promise<void>
+  getCachedListsFrom: (user: User) => Promise<Dictionary<TodoList>>
   getListsFrom: (user: User) => Promise<Dictionary<TodoList>>
   createTodoList: (properties: {
     title: string,

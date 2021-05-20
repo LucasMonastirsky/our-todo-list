@@ -22,7 +22,7 @@ export default (props: {list: TodoList, onPress: ()=>any}) => {
       <AppText style={css.title}>{props.list.title}</AppText>
       <View style={css.members_container}>
         {members?.map(user =>
-          <View style={css.member_icon}>
+          <View style={css.member_icon} key={user.id}>
             <ProfilePicture user_id={user.id} size='small' />
           </View>
         )}

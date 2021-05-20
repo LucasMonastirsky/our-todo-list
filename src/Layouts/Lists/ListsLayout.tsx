@@ -20,6 +20,7 @@ export default (props: PropTypes) => {
   const [new_list_title, setNewListTitle] = useState('')
 
   useEffect(() => {
+    API.getCachedListsFrom(API.user).then(setLists)
     API.getListsFrom(API.user).then(setLists)
   }, [])
 
@@ -71,7 +72,7 @@ export default (props: PropTypes) => {
         onSubmit={submitList}
         onCancel={setAddingList}
       />}
-      {lists.values.map(list => <ListItem {...{list}} onPress={()=>onListSelected(list.id)} />)}
+      {lists.values.map(list => <ListItem key={list.id} {...{list}} onPress={()=>onListSelected(list.id)} />)}
     </ScrollView>
     <AppButtonItem icon={adding_list?'done':'plus'} onPress={adding_list?submitList:()=>setAddingList(true)} />
 </>
