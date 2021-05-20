@@ -13,7 +13,7 @@ export default (props: {list: TodoList, setList: StateSetter<TodoList>, close: A
   useEffect(() => {
     if (users === undefined) {
       const available_user_ids = API.user.contact_ids.filter(id =>
-        props.list.member_ids.includes(id))
+        !props.list.member_ids.includes(id))
 
       if (available_user_ids.length < 1)
         setUsers([])
@@ -34,25 +34,28 @@ export default (props: {list: TodoList, setList: StateSetter<TodoList>, close: A
     props.close(false)
   }
 
-  // if (loading)
-  //   return <Loading />
-
   return (
     <AppModal close={props.close}>
-      <View style={css.container}>
-        { users === undefined && <Loading />}
-        { users && users.length < 1 && <AppText style={css.no_contacts_text}>No contacts to add</AppText>}
-        { users && users.length >= 1 &&
-          <ScrollView>
-            {users.map(user =>
-              <TouchableOpacity style={css.user_item} onPress={()=>onSelect(user)}>
-                <ProfilePicture user_id={user.id} size='medium' />
-                <AppText style={css.user_name}>{user.nickname}</AppText>
-              </TouchableOpacity>  
-            )}
-          </ScrollView>
-        }
-      </View>
+      {loading
+      ? <Loading />
+      : <>
+        <View style={css.container}>
+          { users === undefined && <Loading />}
+          { users && users.length < 1 && <AppText style={css.no_contacts_text}>No contacts to add</AppText>}
+          { users && users.length >= 1 &&
+            <ScrollView>
+              {users.map(user =>
+                <TouchableOpacity style={css.user_item} onPress={()=>onSelect(user)}>
+                  <ProfilePicture user_id={user.id} size='medium' />
+                  <AppText style={css.user_name}>{user.nickname}</AppText>
+                </TouchableOpacity>  
+              )}
+            </ScrollView>
+          }
+        </View>
+      </>
+      }
+      
     </AppModal>
   )
 }
