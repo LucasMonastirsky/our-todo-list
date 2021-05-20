@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { Image, StyleSheet, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { API } from '../../App'
 import { AppButtonItem, AppText, ItemCreator, Loading, ProfilePicture } from '../../Components'
 import { User } from '../../Models'
 import { colors, style } from '../../Styling'
-import { DEBUG } from '../../Utils'
-import { LayoutProps } from '../types'
 
-export default (props: LayoutProps) => {
+export default () => {
   const [contacts, setContacts] = useState<User[]>([])
   const [adding_contact, setAddingContact] = useState(false)
+  const [new_contact_id, setNewContactId] = useState('')
   const [loading_new_contact, setLoadingNewContact] = useState(false)
 
   useEffect(() => {
@@ -21,18 +20,23 @@ export default (props: LayoutProps) => {
       })
   }, [])
 
-  const onSubmitContact = async (id: string) => {
+  const submitContact = async () => {
+    if (new_contact_id.length < 1
+    || API.user.contact_ids.includes(new_contact_id))
+      return
+
     setLoadingNewContact(true)
 
     try {
-      await API.addContact(id, API.user.id)
-      const new_contact = await API.getCachedUser(id)
-
+      await API.addContact(new_contact_id, API.user.id)
+      const new_contact = await API.getCachedUser(new_contact_id)
       setContacts(x => [...x, new_contact])
-    }
-    finally { // TODO: display error message or something...
+    } catch {
+      // TODO: handle errors
+    } finally {
       setLoadingNewContact(false)
       setAddingContact(false) 
+      setNewContactId('')
     }
   }
 
@@ -52,11 +56,11 @@ export default (props: LayoutProps) => {
       </View>
       {adding_contact &&
       (!loading_new_contact
-      ? <ItemCreator placeholder="Contact's ID" onCancel={setAddingContact} onSubmit={onSubmitContact} />
+      ? <ItemCreator placeholder="Contact's ID" onCancel={setAddingContact} onSubmit={submitContact} />
       : <Loading />)}
       {contacts.map(MemberItem)}
       <View style={{flex: 1}} />
-      <AppButtonItem onPress={()=>setAddingContact(true)} />
+      <AppButtonItem icon={adding_contact?'done':'plus'} onPress={adding_contact?submitContact:()=>setAddingContact(true)} />
     </View>
   )
 }
