@@ -346,6 +346,9 @@ API = class API {
       ReturnValues: DEBUG.enabled ? 'UPDATED_NEW' : 'NONE',
     }).promise()
 
+    API.cache.users[user_id].contact_ids.push(contact_id)
+    API._user = API.cache.users[API.user.id]
+
     DEBUG.log(`Added user ${contact_id} to contacts of ${user_id}`)
   }
 
