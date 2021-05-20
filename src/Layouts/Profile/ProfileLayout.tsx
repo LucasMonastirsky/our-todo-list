@@ -33,7 +33,7 @@ const ProfileLayout = () => {
     if (user_changes.image)
       new_user.image = await API.uploadProfilePicture(user_changes.image)
 
-    await API.editUser(user.id, user_changes)
+    await API.editUser(user.id, new_user)
 
     setUser({...user, ...user_changes})
     setUserChanges({})
