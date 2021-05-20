@@ -3,7 +3,13 @@ import { BackHandler, Keyboard, View, StyleSheet } from 'react-native'
 import { AppInputMin } from '.'
 import { colors, style } from '../Styling'
 
-export default (props: { placeholder?: string, onCancel: (x?:any)=>any, onSubmit: (value:string)=>any }) => {
+type PropTypes = {
+  placeholder?: string,
+  onCancel: (x?:any)=>any,
+  onSubmit: (value?:string)=>any,
+  onChange?: (text:string)=>any,
+}
+export default (props: PropTypes) => {
   useEffect(() => {
     const listeners = [
       BackHandler.addEventListener('hardwareBackPress', ()=>props.onCancel(false)),
@@ -20,6 +26,7 @@ export default (props: { placeholder?: string, onCancel: (x?:any)=>any, onSubmit
         placeholder={props.placeholder}
         autoFocus
         autoCapitalize='words'
+        onChangeText={props.onChange}
         onSubmitEditing={({nativeEvent})=>props.onSubmit(nativeEvent.text)}
         onEndEditing={()=>props.onCancel(false)}
       />

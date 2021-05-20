@@ -2,10 +2,13 @@ import React from 'react'
 import { TouchableOpacity, Image, StyleSheet } from 'react-native'
 import { style, colors } from '../Styling'
 
-export default ({onPress}: {onPress: ()=>any}) => {
+export default ({icon, onPress}: {icon?: 'plus'|'done', onPress: ()=>any}) => {
   return (
     <TouchableOpacity style={css.container} onPress={onPress}>
-      <Image style={css.icon} source={require('../Media/Icons/plus.png')} />
+      <Image style={css.icon} source={icon === 'done'
+        ? require('../Media/Icons/done.png')
+        : require('../Media/Icons/plus.png')}
+      />
     </TouchableOpacity>
   )
 }

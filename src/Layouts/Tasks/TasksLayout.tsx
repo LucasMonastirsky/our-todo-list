@@ -23,6 +23,7 @@ export default (props: { list: TodoList }) => {
 
   const [members, setMembers] = useState<User[]>()
   const [changes, setChanges] = useState<Partial<TodoList>>({})
+  const [new_task_title, setNewTaskTitle] = useState('')
 
   const [scroll_enabled, setScrollEnabled] = useState(true)
   const [adding_task, setAddingTask] = useState(false)
@@ -58,9 +59,12 @@ export default (props: { list: TodoList }) => {
     await API.editTodoList(list.id, changes)
   }
 
-  const onSubmitTask = (title: string) => {
+  const submitNewTask = () => {
+    if (new_task_title.length < 1)
+      return
+
     const new_task: Task = {
-      title: title,
+      title: new_task_title!,
       description: '',
       id: `${uuid.v4()}`,
       status: 'Pending',
@@ -72,6 +76,7 @@ export default (props: { list: TodoList }) => {
     list.tasks[new_task.id] = new_task
     setList({...list})
     setAddingTask(false)
+    setNewTaskTitle('')
     API.createTask(list, new_task).then(data => DEBUG.log(`Uploaded task ${data.title}`))
   }
   //#endregion
@@ -114,12 +119,12 @@ export default (props: { list: TodoList }) => {
           <AppText style={css.no_tasks_text}>Add a task by pressing the button at the bottom of the screen</AppText>
         </View>
       : <ScrollView scrollEnabled={scroll_enabled}>
-          {adding_task && <ItemCreator onSubmit={onSubmitTask} onCancel={setAddingTask} />}
+          {adding_task && <ItemCreator onChange={setNewTaskTitle} onSubmit={submitNewTask} onCancel={setAddingTask} />}
           {Object.values(list.tasks).filter(x=>x.status !== 'Done').map(mapTask)}
           {Object.values(list.tasks).filter(x=>x.status === 'Done').map(mapTask)}
         </ScrollView>
       }
-      <AppButtonItem onPress={() => setAddingTask(true)} />
+      <AppButtonItem icon={adding_task?'done':'plus'} onPress={adding_task?submitNewTask:()=>setAddingTask(true)} />
     </View>
   )
   //#endregion

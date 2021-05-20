@@ -17,20 +17,25 @@ type PropTypes = {
 export default (props: PropTypes) => {
   const [lists, setLists] = useState<Dictionary<TodoList>>()
   const [adding_list, setAddingList] = useState(false)
+  const [new_list_title, setNewListTitle] = useState('')
 
   useEffect(() => {
     API.getListsFrom(API.user).then(setLists)
   }, [])
 
-  const onSubmitList = (title: string) => {
+  const submitList = () => {
+    if (new_list_title.length < 1)
+      return
+
     const new_list: TodoList = {
-      title,
+      title: new_list_title,
       description: '',
       id: `${uuid.v4()}`,
       tasks: {},
       owner_id: API.user.id,
       member_ids: [API.user.id]
     }
+    setNewListTitle('')
     setAddingList(false)
     setLists(prev => {
       prev!.map[new_list.id] = new_list
@@ -60,10 +65,15 @@ export default (props: PropTypes) => {
       <AppIcon style={css.header_icon} source={require('../../Media/Icons/options.png')} />
     </View>
     <ScrollView>
-      {adding_list && <ItemCreator placeholder='New List Title' onSubmit={onSubmitList} onCancel={setAddingList} />}
+      {adding_list && <ItemCreator
+        placeholder='New List Title'
+        onChange={setNewListTitle}
+        onSubmit={submitList}
+        onCancel={setAddingList}
+      />}
       {lists.values.map(list => <ListItem {...{list}} onPress={()=>onListSelected(list.id)} />)}
     </ScrollView>
-    <AppButtonItem onPress={()=>setAddingList(true)} />
+    <AppButtonItem icon={adding_list?'done':'plus'} onPress={adding_list?submitList:()=>setAddingList(true)} />
 </>
 }
 
