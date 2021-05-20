@@ -56,7 +56,7 @@ export default () => {
       </View>
       {adding_contact &&
       (!loading_new_contact
-      ? <ItemCreator placeholder="Contact's ID" onCancel={setAddingContact} onSubmit={submitContact} />
+      ? <ItemCreator placeholder="Contact's ID" onChange={setNewContactId} onCancel={setAddingContact} onSubmit={submitContact} />
       : <Loading />)}
       {contacts.map(MemberItem)}
       <View style={{flex: 1}} />
