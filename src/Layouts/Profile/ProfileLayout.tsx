@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { launchImageLibrary } from 'react-native-image-picker'
+import ImageResizer from 'react-native-image-resizer';
 import { API } from '../../App'
 import { AppButton, AppText, Loading, ProfilePicture } from '../../Components'
 import { TodoList, User } from '../../Models'
@@ -17,13 +18,11 @@ const ProfileLayout = () => {
     API.getListsFrom(user).then(setLists)
   }, [])
 
-  const onPressImage = () => {
-    launchImageLibrary({ mediaType: 'photo' },
-      response => {
-        if (response.uri)
-          setUserChanges(prev => ({...prev, image: response.uri}))
-      }
-    )
+  const onPressImage = async () => {
+    launchImageLibrary({ mediaType: 'photo' }, async response => {
+      const resized = await ImageResizer.createResizedImage(response.uri!, 64, 64, 'JPEG', 100)
+      setUserChanges(prev => ({...prev, image: resized.uri}))
+    })
   }
 
   const saveChanges = async () => {
@@ -65,7 +64,6 @@ const ProfileLayout = () => {
         <Text style={css.item_label}>Nickname</Text>
         <TextInput {...createInputProps('nickname')} />
       </View>
-
 
       {loading
       ? <Loading />
