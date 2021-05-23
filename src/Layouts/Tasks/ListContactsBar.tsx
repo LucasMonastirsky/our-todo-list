@@ -50,7 +50,7 @@ export default (props: PropTypes) => {
   )
 }
 
-const css = StyleSheet.create({
+export const css = StyleSheet.create({
   members_container: {
     flexDirection: 'row',
     justifyContent: 'center',

@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native'
+import { ScrollView, StyleSheet, TextInput, View } from 'react-native'
 import uuid from 'react-native-uuid'
 import { API, Notifications } from '../../App'
-import { AppButtonItem, AppIcon, AppText, Horizontal, ProfilePicture } from '../../Components'
+import { AppButtonItem, AppText } from '../../Components'
 import { ItemCreator } from '../../Components'
 import { Task, TodoList, User } from '../../Models'
 import { colors, style } from '../../Styling'
 import { DEBUG } from '../../Utils'
-import AddContactModal from './AddContactModal'
 import ListContactsBar from './ListContactsBar'
 import TaskView from './TaskView'
 
@@ -107,9 +106,7 @@ export default (props: { list: TodoList }) => {
   return (
     <View style={css.container}>
       <View style={css.header}>
-        <Horizontal>
-          <TextInput  {...inputProps('title')} />
-        </Horizontal>
+        <TextInput  {...inputProps('title')} />
         <ListContactsBar {...{members, list, setList}} />
       </View>
       {/* TODO: this needs optimization */}
@@ -130,7 +127,7 @@ export default (props: { list: TodoList }) => {
   //#endregion
 }
 
-const css = StyleSheet.create({
+export const css = StyleSheet.create({
   container: {
     flex: 1,
   },

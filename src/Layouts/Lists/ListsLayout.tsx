@@ -1,20 +1,16 @@
 import { API, Navigation } from '../../App'
 import React, { useEffect, useState } from 'react'
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { Animated, LayoutChangeEvent, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import uuid from 'react-native-uuid'
 import { TodoList } from '../../Models'
-import { Dictionary } from '../../Utils'
+import { createAnimation, Dictionary } from '../../Utils'
 import ListItem from './ListItem'
 import { TasksLayout, ContactsLayout, ProfileLayout } from '../'
 import { AppButtonItem, AppIcon, AppText, Loading, ProfilePicture } from '../../Components'
 import { colors, style } from '../../Styling'
 import { ItemCreator } from '../../Components'
 
-type PropTypes = {
-  
-}
-
-export default (props: PropTypes) => {
+export default () => {
   const [lists, setLists] = useState<Dictionary<TodoList>>()
   const [adding_list, setAddingList] = useState(false)
   const [new_list_title, setNewListTitle] = useState('')
@@ -45,9 +41,39 @@ export default (props: PropTypes) => {
     API.createTodoList({...new_list})
   }
 
-  const onListSelected = (id: string) => {
-    Navigation.goTo(TasksLayout, {list: lists!.map[id]})
+  //#region Animation
+  const [animating, setAnimating] = useState(false)
+  const [selected_list_index, setSelectedListIndex] = useState(0)
+  const [header_height, setHeaderHeight] = useState(0)  
+  const [item_height, setItemHeight] = useState(0)
+
+  const onListSelected = (id: string, index: number) => {
+    setAnimating(true)
+    setSelectedListIndex(index)
   }
+
+  const onAnimationDone = () => {
+    if (animating) {
+      Navigation.goTo(TasksLayout, {list: lists!.values[selected_list_index!]})
+    }
+  }
+
+  const onHeaderLayout = ({nativeEvent: {layout}}: LayoutChangeEvent) =>
+    setHeaderHeight(layout.height)
+
+  const onItemLayout = ({nativeEvent: {layout}}: LayoutChangeEvent) =>
+    setItemHeight(layout.height)
+
+  const header_animation = {
+    marginTop: createAnimation({
+      from: 0,
+      to: -header_height - item_height * selected_list_index,
+      condition: animating,
+      onDone: onAnimationDone,
+    })
+  }
+
+  //#endregion
 
   if (lists === undefined) return ( // TODO: add message when user has no lists
     <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
@@ -56,7 +82,7 @@ export default (props: PropTypes) => {
   )
 
   return <>
-    <View style={css.header}>
+    <Animated.View style={[css.header, animating?header_animation:{}]} onLayout={onHeaderLayout}>
       <TouchableOpacity style={{flexDirection: 'row'}} onPress={()=>Navigation.goTo(ProfileLayout)}>
         <ProfilePicture user_id={API.user.id} size='medium' />
         <AppText style={css.title}>{API.user.nickname}</AppText>
@@ -64,7 +90,7 @@ export default (props: PropTypes) => {
       <View style={{flex: 1}} />
       <AppIcon style={css.header_icon} onPress={()=>Navigation.goTo(ContactsLayout)} source={require('../../Media/Icons/contacts.png')} />
       <AppIcon style={css.header_icon} source={require('../../Media/Icons/options.png')} />
-    </View>
+    </Animated.View>
     <ScrollView>
       {adding_list && <ItemCreator
         placeholder='New List Title'
@@ -72,7 +98,16 @@ export default (props: PropTypes) => {
         onSubmit={submitList}
         onCancel={setAddingList}
       />}
-      {lists.values.map(list => <ListItem key={list.id} {...{list}} onPress={()=>onListSelected(list.id)} />)}
+      {lists.values.map((list, index) =>
+        <ListItem {...{
+          key: list.id,
+          list,
+          slide_out: animating && index > selected_list_index,
+          slide_duration: (lists.values.length - selected_list_index - index) * style.anim_duration,
+          onPress: ()=>onListSelected(list.id, index),
+          onLayout: index === 0 ? onItemLayout : undefined,
+        }}/>
+      )}
     </ScrollView>
     <AppButtonItem icon={adding_list?'done':'plus'} onPress={adding_list?submitList:()=>setAddingList(true)} />
 </>
