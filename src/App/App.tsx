@@ -36,7 +36,7 @@ const App = () => {
           if (index !== layout_stack.length - 1)
             return null // this can be used for transition animations
           const LayoutView = layout.view
-          return <LayoutView {...layout.props} />
+          return <LayoutView {...layout.props} key={index} />
       })}
     </View>
   )
