@@ -26,6 +26,7 @@ export default () => {
       return
 
     setLoadingNewContact(true)
+    setAddingContact(false)
 
     try {
       await API.addContact(new_contact_id, API.user.id)
@@ -54,10 +55,8 @@ export default () => {
       <View style={css.header}>
         <AppText style={css.header_title}>Contacts</AppText>
       </View>
-      {adding_contact &&
-      (!loading_new_contact
-      ? <ItemCreator placeholder="Contact's ID" onChange={setNewContactId} onCancel={setAddingContact} onSubmit={submitContact} />
-      : <Loading />)}
+      {adding_contact && <ItemCreator placeholder="Contact's ID" onChange={setNewContactId} onCancel={setAddingContact} onSubmit={submitContact} />}
+      {loading_new_contact && <Loading />}
       {contacts.map(MemberItem)}
       <View style={{flex: 1}} />
       <AppButtonItem icon={adding_contact?'done':'plus'} onPress={adding_contact?submitContact:()=>setAddingContact(true)} />
