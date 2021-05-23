@@ -5,10 +5,11 @@ import RegisterLayout from './RegisterLayout'
 import { style } from '../../Styling'
 import { useAsyncState, createAnimation, screen } from '../../Utils'
 import { Loading } from '../../Components'
-import { API } from '../../App'
+import { API, Navigation } from '../../App'
 import DEBUG from '../../Utils/DEBUG'
+import { ListsLayout } from '..'
 
-const AuthenticationLayout = (props: {onLoggedIn: ()=>any}) => {
+const AuthenticationLayout = () => {
   const [login_state, getLoginState, setLoginState] = useAsyncState<'login'|'register'|'confirm'|null>('login')
   const [loading, setLoading] = useState(true)
 
@@ -19,12 +20,16 @@ const AuthenticationLayout = (props: {onLoggedIn: ()=>any}) => {
 
   useEffect(() => {
     API.continuePreviousSession()
-      .then(() => props.onLoggedIn())
+      .then(onLoggedIn)
       .catch(error => {
         DEBUG.log(`Error while trying to continue session: '${error.message ?? error}', proceeding to login layout`)
         setLoading(false)
       })
   }, [])
+
+  const onLoggedIn = () => {
+    Navigation.goTo(ListsLayout)
+  }
 
   if (loading)
     return <View style={{flex: 1, justifyContent: 'center'}}>
@@ -35,7 +40,7 @@ const AuthenticationLayout = (props: {onLoggedIn: ()=>any}) => {
     <Animated.View style={{top: transition}}>
       <LoginLayout
         onRegister={()=>setLoginState('register')}
-        onLogin={props.onLoggedIn}
+        onLogin={onLoggedIn}
       />
       <RegisterLayout
         onCancel={()=>{
@@ -45,7 +50,7 @@ const AuthenticationLayout = (props: {onLoggedIn: ()=>any}) => {
           }
           else return false
         }}
-        onRegister={props.onLoggedIn}
+        onRegister={onLoggedIn}
       />
     </Animated.View>
   )

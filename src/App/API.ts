@@ -4,11 +4,12 @@ import { Task, TodoList } from "../Models"
 import User from "../Models/User"
 import AWS from 'aws-sdk'
 import { amplify_config, aws_sdk_config, secrets } from '../Secrets'
-import { IAPI } from '.'
+import { IAPI, Navigation } from '.'
 import DEBUG from "../Utils/DEBUG"
 import { RNS3 } from 'react-native-aws3'
 import Notifications from "./Notifications"
 import { Dictionary } from "../Utils"
+import { AuthenticationLayout } from "../Layouts"
 
 AWS.config.update(aws_sdk_config)
 Amplify.configure(amplify_config)
@@ -64,6 +65,7 @@ API = class API {
     await Auth.signOut()
     API._user = undefined
     DEBUG.log(`Signed out successfully`)
+    Navigation.goTo(AuthenticationLayout)
   }
 
   private static pending_registration_user?: { username: string, id: string }

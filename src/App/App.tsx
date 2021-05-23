@@ -8,7 +8,7 @@ import { Layout } from './Navigation';
 
 const App = () => {
   const [logged_in, setLoggedIn] = useState(false)
-  const [layout_stack, setLayoutStack] = useState<Layout[]>([{view: ListsLayout}])
+  const [layout_stack, setLayoutStack] = useState<Layout[]>([{view: AuthenticationLayout}])
 
   useEffect(() => {
     Navigation.onChangeLayout = (new_layout) => {
@@ -30,13 +30,11 @@ const App = () => {
 
   return (
     <View style={css.app}>
-      {!logged_in
-      ? <AuthenticationLayout onLoggedIn={()=>setLoggedIn(true)} />
-      : layout_stack.map((layout, index) => {
-          if (index !== layout_stack.length - 1)
-            return null // this can be used for transition animations
-          const LayoutView = layout.view
-          return <LayoutView {...layout.props} key={index} />
+      {layout_stack.map((layout, index) => {
+        if (index !== layout_stack.length - 1)
+          return null // this can be used for transition animations
+        const LayoutView = layout.view
+        return <LayoutView {...layout.props} key={index} />
       })}
     </View>
   )

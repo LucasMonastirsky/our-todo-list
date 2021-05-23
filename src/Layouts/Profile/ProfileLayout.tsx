@@ -3,7 +3,7 @@ import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-nativ
 import { launchImageLibrary } from 'react-native-image-picker'
 import ImageResizer from 'react-native-image-resizer';
 import { API } from '../../App'
-import { AppButton, AppText, Loading, ProfilePicture } from '../../Components'
+import { AppButton, AppText, Horizontal, Loading, ProfilePicture } from '../../Components'
 import { TodoList, User } from '../../Models'
 import { colors, style } from '../../Styling'
 import { Dictionary } from '../../Utils'
@@ -39,6 +39,12 @@ const ProfileLayout = () => {
     setLoading(false)
   }
 
+  const signOut = () => {
+    setLoading(true)
+    API.signOut()
+    setLoading(false)
+  }
+
   const ListItem = (list: TodoList) => (
     <View style={css.list_container} key={list.id}>
       <AppText style={css.list_title}>{list.title}</AppText>
@@ -69,6 +75,13 @@ const ProfileLayout = () => {
       ? <Loading />
       : Object.keys(user_changes).length > 0
       && <AppButton label='Save Changes' onPress={saveChanges} />
+      }
+
+      {!loading &&
+      <Horizontal style={css.bottom_buttons}>
+        <View style={{flex: 1}} />
+        <AppButton label='Sign Out' onPress={signOut} color={colors.alert} />
+      </Horizontal>
       }
 
       <View style={css.list_section}>
@@ -109,7 +122,6 @@ const css = StyleSheet.create({
     padding: style.padding,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
-    // padding: style.padding,
   },
   item_label: {
     color: colors.light,
@@ -131,6 +143,9 @@ const css = StyleSheet.create({
   item_icon: {
     height: 20,
     alignSelf: 'center',
+  },
+  bottom_buttons: {
+    padding: style.padding,
   },
   list_section: {
     marginTop: style.margin,
