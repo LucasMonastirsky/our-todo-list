@@ -1,6 +1,6 @@
 import PushNotificationIOS from '@react-native-community/push-notification-ios'
 import PushNotification from 'react-native-push-notification'
-import { Task } from '../Models';
+import { Task, TodoList } from '../Models';
 import DEBUG from '../Utils/DEBUG';
 import API from './API';
 import uuid from 'react-native-uuid'
@@ -89,7 +89,7 @@ const notification_handlers: { [index: string]: NotificationHandler } = {
   },
   added_to_list: {
     foreground: async data => {
-
+      Notifications.triggerAddedToListListeners(data.list)
     },
     background: async data => {
       PushNotification.localNotification({
@@ -109,6 +109,7 @@ type NotificationType =
 
 type TaskCreatedCallback = (task: Task)=>any
 type TaskUpdatedCallback = (task: Task)=>any
+type AddedToListCallback = (list: TodoList)=>any
 
 export default class Notifications {
   private static _token: string
@@ -125,6 +126,12 @@ export default class Notifications {
     addListener(callback, Notifications.task_updated_listeners)
   static triggerTaskUpdatedListeners = (task: Task) =>
     triggerListeners(Notifications.task_updated_listeners, task)
+
+  private static added_to_list_listeners = new Dictionary<AddedToListCallback>()
+  static addAddedToListListener = (callback: AddedToListCallback) =>
+    addListener(callback, Notifications.added_to_list_listeners)
+  static triggerAddedToListListeners: AddedToListCallback = list =>
+    triggerListeners(Notifications.added_to_list_listeners, list)
 }
 
 function addListener<T> (callback: T, listeners: Dictionary<T>) {

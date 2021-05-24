@@ -1,4 +1,4 @@
-import { API, Navigation } from '../../App'
+import { API, Navigation, Notifications } from '../../App'
 import React, { useEffect, useState } from 'react'
 import { Animated, LayoutChangeEvent, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import uuid from 'react-native-uuid'
@@ -18,7 +18,19 @@ export default () => {
   useEffect(() => {
     API.getCachedListsFrom(API.user).then(setLists)
     API.getListsFrom(API.user).then(setLists)
+
+    const removers: (()=>any)[] = []
+    removers.push(Notifications.addAddedToListListener(onAddedToList).remove)
+
+    return () => removers.forEach(fn => fn())
   }, [])
+
+  const onAddedToList = (list: TodoList) => {
+    setLists(prev => {
+      prev?.set(list.id, list)
+      return prev?.clone()
+    })
+  }
 
   const submitList = () => {
     if (new_list_title.length < 1)

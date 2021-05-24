@@ -56,7 +56,7 @@ exports.handler = async (event) => {
       sender_nickname: sender_user.nickname,
       list,
     })
-  })
+  }).promise()
 
   console.log(`Done`)
 
