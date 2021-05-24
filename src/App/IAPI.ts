@@ -21,7 +21,7 @@ interface IAPI {
   createTodoList: (properties: {
     title: string,
     description: string,
-    owner_id: string,
+    id: string,
   }) => Promise<TodoList>
   editTodoList: (id: string, changes: Partial<TodoList>) => Promise<void>
   deleteTodoList: (id: string) => Promise<void>

@@ -1,8 +1,7 @@
 const AWS = require('aws-sdk')
-const { v4: uuidv4 } = require('uuid');
 
 exports.handler = async (event) => {
-  ['title', 'owner_id'].forEach(key => {
+  ['title', 'id', 'user_id'].forEach(key => {
     if (!event[key])
       throw new Error(`${key} parameter is missing`)
   })
@@ -10,7 +9,6 @@ exports.handler = async (event) => {
   const list = {
     ...event,
     description: event.description ?? '',
-    id: `${uuidv4()}`,
     tasks: {},
     member_ids: [event.owner_id],
   }

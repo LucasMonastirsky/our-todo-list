@@ -11,6 +11,11 @@ import Notifications from "./Notifications"
 import { Dictionary } from "../Utils"
 import { AuthenticationLayout } from "../Layouts"
 
+//#region CONFIG
+const CACHE_RETRY_TIME = 1000
+const CACHE_MAX_RETRIES = 3
+//#endregion
+
 AWS.config.update(aws_sdk_config)
 Amplify.configure(amplify_config)
 
@@ -231,7 +236,7 @@ API = class API {
   static createTodoList = async (properties: {
     title: string,
     description: string,
-    owner_id: string,
+    id: string,
   }) => {
     DEBUG.log(`Creating list ${properties.title}...`)
     const list = await invokeLambda('create_todo_list', {
@@ -240,7 +245,7 @@ API = class API {
     }) as TodoList
 
     DEBUG.log(`Updating cache...`)
-    API.cache.users[properties.owner_id].list_ids.push(list.id)
+    API.cache.users[API.user.id].list_ids.push(list.id)
     API.cache.lists[list.id] = list
 
     DEBUG.log(`Successfully created list ${list.title}`)
@@ -480,6 +485,8 @@ function arrayToSet<Type> (arr: Type[]) { // @ts-ignore
 function arrayFromSet (set: any) {
   return set ? [...JSON.parse(JSON.stringify(set))].filter(x => x !== '') : []
 }
+
+const sleep = async (milliseconds: number) => new Promise(x => setTimeout(x, milliseconds))
 //#endregion
 
 export default API

@@ -26,9 +26,9 @@ export default (props: {list: TodoList, setList: StateSetter<TodoList>, close: A
     setLoading(true)
     await API.addUserToList(user.id, props.list)
     props.setList(prev => {
-      const new_list = {...prev}
-      new_list.member_ids.push(user.id)
-      return new_list
+      if (!prev.member_ids.includes(user.id))
+        prev.member_ids.push(user.id)
+      return {...prev}
     })
     setLoading(false)
     props.close(false)
