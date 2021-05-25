@@ -8,8 +8,9 @@ import { Loading } from '../../Components'
 import { API, Navigation } from '../../App'
 import DEBUG from '../../Utils/DEBUG'
 import { ListsLayout } from '..'
+import { Layout } from '../../App/Navigation'
 
-const AuthenticationLayout = () => {
+const view = () => {
   const [login_state, getLoginState, setLoginState] = useAsyncState<'login'|'register'|'confirm'|null>('login')
   const [loading, setLoading] = useState(true)
 
@@ -56,4 +57,7 @@ const AuthenticationLayout = () => {
   )
 }
 
-export default AuthenticationLayout
+export default {
+  name: 'Authentication',
+  view,
+} as Layout

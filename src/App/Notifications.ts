@@ -5,6 +5,8 @@ import DEBUG from '../Utils/DEBUG';
 import API from './API';
 import uuid from 'react-native-uuid'
 import { Dictionary } from '../Utils';
+import Navigation from './Navigation';
+import { TasksLayout } from '../Layouts';
 
 const channel_id = 'our_todo_main_channel'
 
@@ -33,7 +35,7 @@ PushNotification.configure({
     DEBUG.log(`Received ${data.type} notification in ${ground}`);
 
     if (data.user_id !== API.user) // ignore notifications created by self
-      await notification_handlers[data.type][ground](data)
+      await notification_handlers[data.type](data, ground === 'background')
     else DEBUG.log(`Ignored notification from self`)
 
     notification.finish(PushNotificationIOS.FetchResult.NoData);
@@ -49,56 +51,39 @@ PushNotification.configure({
   },
 });
 
-type NotificationHandler = { foreground: (data:any)=>any, background: (data:any)=>any}
-const notification_handlers: { [index: string]: NotificationHandler } = {
-  task_created: {
-    foreground: async data => {
-      Notifications.triggerTaskCreatedListeners(data.task)
-    },
-    background: async data => {DEBUG.log(`got background`)
+const notification_handlers: { [index: string]: (data: any, background: boolean) => any } = {
+  task_created: (data, background) => {
+    if (!Notifications.triggerTaskCreatedListeners(data.task))
       PushNotification.localNotification({
         title: `New task in ${data.list_title}`,
         channelId: channel_id,
         message: `${data.task.title} by ${data.user_nickname}`
       })
-    }
   },
-  task_claimed: {
-    foreground: async data => {
-      Notifications.triggerTaskUpdatedListeners(data.task)
-    },
-    background: async data => {
-      PushNotification.localNotification({
-        title: `${data.user_nickname} claimed ${data.task.title}`,
-        channelId: channel_id,
-        message: ``,
-      })
-    },
+  task_claimed: (data, background) => {
+    Notifications.triggerTaskUpdatedListeners(data.task)
+    if (background) PushNotification.localNotification({
+      title: `${data.user_nickname} claimed ${data.task.title}`,
+      channelId: channel_id,
+      message: ``,
+    })
   },
-  task_completed: {
-    foreground: async data => {
-      Notifications.triggerTaskUpdatedListeners(data.task)
-    },
-    background: async data => {
-      PushNotification.localNotification({
-        title: `${data.user_nickname} completed ${data.task.title}`,
-        channelId: channel_id,
-        message: ``,
-      })
-    },
+  task_completed: (data, background) => {
+    Notifications.triggerTaskUpdatedListeners(data.task)
+    if (background) PushNotification.localNotification({
+      title: `${data.user_nickname} completed ${data.task.title}`,
+      channelId: channel_id,
+      message: ``,
+    })
   },
-  added_to_list: {
-    foreground: async data => {
-      Notifications.triggerAddedToListListeners(data.list)
-    },
-    background: async data => {
-      PushNotification.localNotification({
-        title: `${data.sender_nickname} added you to ${data.list.title}`,
-        channelId: channel_id,
-        message: ``,
-      })
-    },
-  }
+  added_to_list: (data, background) => {
+    Notifications.triggerAddedToListListeners(data.list)
+    if (background) PushNotification.localNotification({
+      title: `${data.sender_nickname} added you to ${data.list.title}`,
+      channelId: channel_id,
+      message: ``,
+    })
+  },
 }
 
 type NotificationType =
@@ -142,6 +127,12 @@ function addListener<T> (callback: T, listeners: Dictionary<T>) {
   }
 }
 
+// if a handler returns true, the notification must be blocked (other handlers will still trigger)
 function triggerListeners (listeners: Dictionary<Function>, data: any) {
-  listeners.values.forEach(cb => cb(data))
+  let blocked = false
+  listeners.values.forEach(callback => {
+    if (callback(data))
+      blocked = true
+  })
+  return blocked
 }

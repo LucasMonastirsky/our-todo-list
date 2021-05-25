@@ -8,7 +8,7 @@ import { TodoList, User } from '../../Models'
 import { colors, style } from '../../Styling'
 import { Dictionary } from '../../Utils'
 
-const ProfileLayout = () => {
+const view = () => {
   const [user, setUser] = useState<User>(API.user)
   const [user_changes, setUserChanges] = useState<Partial<User>>({})
   const [lists, setLists] = useState<Dictionary<TodoList>|undefined>()
@@ -167,4 +167,7 @@ const css = StyleSheet.create({
   },
 })
 
-export default ProfileLayout
+export default {
+  name: 'Profile',
+  view,
+}

@@ -8,7 +8,7 @@ import { Layout } from './Navigation';
 
 const App = () => {
   const [logged_in, setLoggedIn] = useState(false)
-  const [layout_stack, setLayoutStack] = useState<Layout[]>([{view: AuthenticationLayout}])
+  const [layout_stack, setLayoutStack] = useState<Layout[]>([AuthenticationLayout])
 
   useEffect(() => {
     Navigation.onChangeLayout = (new_layout) => {

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native'
 import uuid from 'react-native-uuid'
 import { API, Notifications } from '../../App'
+import { Layout } from '../../App/Navigation'
 import { AppButtonItem, AppText } from '../../Components'
 import { ItemCreator } from '../../Components'
 import { Task, TodoList, User } from '../../Models'
@@ -10,7 +11,7 @@ import { DEBUG } from '../../Utils'
 import ListContactsBar from './ListContactsBar'
 import TaskView from './TaskView'
 
-export default (props: { list: TodoList }) => {
+const view = (props: { list: TodoList }) => {
   //#region Lifecycle
   const [list, setList] = useState(props.list)
   useEffect(()=>setList(props.list), [props.list])
@@ -44,11 +45,17 @@ export default (props: { list: TodoList }) => {
   //#region Remote Listeners
   // TODO: add sounds to remote events
   const onRemoteTaskCreated = (task: Task) => {
-    setTaskInState(task)
+    if (task.list_id === list.id) {
+      setTaskInState(task)
+      return true
+    }
   }
 
   const onRemoteTaskUpdated = (task: Task) => {
-    setTaskInState(task)
+    if (task.list_id === list.id) {
+      setTaskInState(task)
+      return true
+    }
   }
   //#endregion
 
@@ -165,3 +172,8 @@ export const css = StyleSheet.create({
     aspectRatio: 1,
   },
 })
+
+export default {
+  name: 'Tasks',
+  view,
+} as Layout

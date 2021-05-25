@@ -9,8 +9,9 @@ import { TasksLayout, ContactsLayout, ProfileLayout } from '../'
 import { AppButtonItem, AppIcon, AppText, Loading, ProfilePicture } from '../../Components'
 import { colors, style } from '../../Styling'
 import { ItemCreator } from '../../Components'
+import { Layout } from '../../App/Navigation'
 
-export default () => {
+const view = () => {
   const [lists, setLists] = useState<Dictionary<TodoList>>()
   const [adding_list, setAddingList] = useState(false)
   const [new_list_title, setNewListTitle] = useState('')
@@ -30,6 +31,7 @@ export default () => {
       prev?.set(list.id, list)
       return prev?.clone()
     })
+    return true
   }
 
   const submitList = () => {
@@ -141,3 +143,8 @@ const css = StyleSheet.create({
     padding: style.padding / 2,
   },
 })
+
+export default {
+  name: 'Lists',
+  view: view,
+} as Layout

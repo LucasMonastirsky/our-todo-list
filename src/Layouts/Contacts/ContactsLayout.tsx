@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { API } from '../../App'
+import { Layout } from '../../App/Navigation'
 import { AppButtonItem, AppText, ItemCreator, Loading, ProfilePicture } from '../../Components'
 import { User } from '../../Models'
 import { colors, style } from '../../Styling'
 
-export default () => {
+const view = () => {
   const [contacts, setContacts] = useState<User[]>([])
   const [adding_contact, setAddingContact] = useState(false)
   const [new_contact_id, setNewContactId] = useState('')
@@ -92,3 +93,8 @@ const css = StyleSheet.create({
     aspectRatio: 1,
   },
 })
+
+export default {
+  name: 'Contacts',
+  view,
+} as Layout
