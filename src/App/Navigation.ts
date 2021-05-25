@@ -1,4 +1,3 @@
-import { ComponentType } from "react"
 import { ListsLayout } from "../Layouts"
 
 export type LayoutProps = { active?: boolean } // LayoutViews have to use this

@@ -11,11 +11,6 @@ import Notifications from "./Notifications"
 import { Dictionary } from "../Utils"
 import { AuthenticationLayout } from "../Layouts"
 
-//#region CONFIG
-const CACHE_RETRY_TIME = 1000
-const CACHE_MAX_RETRIES = 3
-//#endregion
-
 AWS.config.update(aws_sdk_config)
 Amplify.configure(amplify_config)
 
@@ -485,8 +480,6 @@ function arrayToSet<Type> (arr: Type[]) { // @ts-ignore
 function arrayFromSet (set: any) {
   return set ? [...JSON.parse(JSON.stringify(set))].filter(x => x !== '') : []
 }
-
-const sleep = async (milliseconds: number) => new Promise(x => setTimeout(x, milliseconds))
 //#endregion
 
 export default API

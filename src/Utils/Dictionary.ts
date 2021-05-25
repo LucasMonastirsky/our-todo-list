@@ -29,5 +29,3 @@ export default class Dictionary<T> {
     return new Dictionary<T>(this.map)
   }
 }
-
-// export const createDict = (obj: )
