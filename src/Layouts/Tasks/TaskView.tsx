@@ -10,7 +10,8 @@ import DEBUG from '../../Utils/DEBUG'
 
 type PropTypes = {
   task: Task
-  index?: number
+  index: number
+  total: number
   setList: StateSetter<TodoList>
   setScrollEnabled: (value: boolean) => any
 }
@@ -19,7 +20,6 @@ const TaskView = (props: PropTypes) => {
   const [details_active, setDetailsActive] = useState(false)
   const [creator_name, setCreatorName] = useState<string>()
   const [completer_name, setCompleterName] = useState<string>()
-  const anim = createAnimation({duration: style.anim_duration / 5 * ((props.index ?? 0) + 1)})
 
   useEffect(() => {
     API.getCachedUser(task.creator_id)
@@ -107,6 +107,7 @@ const TaskView = (props: PropTypes) => {
         setGestureAnim('canceled')
     }
   }
+  //#endregion
 
   const slide_anim = task.status === 'Done' ? undefined : createAnimation({
     from: gesture_delta_x,
@@ -128,8 +129,11 @@ const TaskView = (props: PropTypes) => {
       }
     }
   })
-  //#endregion
 
+  const anim = createAnimation({duration: style.anim_duration / props.total * (props.index + 1)})
+  const [test, setTest] = useState(0)
+  anim.addListener(({value})=>setTest(value))
+  
   const done = props.task.status === 'Done'
   return (
     <Animated.View style={{opacity: anim, left: done ? 0 : slide_anim }}>

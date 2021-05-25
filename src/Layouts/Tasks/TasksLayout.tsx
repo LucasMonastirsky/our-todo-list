@@ -105,6 +105,7 @@ const view = (props: { list: TodoList }) => {
       key: task.id,
       task: task,
       index,
+      total: Object.values(list.tasks).length,
       setScrollEnabled,
       setList,
     }} />
