@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Modal, StyleSheet, TouchableWithoutFeedback, Animated, View } from 'react-native'
 import { colors, style } from '../Styling'
 import { createAnimation } from '../Utils'
@@ -8,9 +8,15 @@ type Props = {
   close: (value: boolean)=>any,
   clear?: boolean,
   onRequestClose?: ()=>any,
+  active?: boolean,
 }
 const AppModal = (props: Props) => {
   const [active, setActive] = useState(true)
+
+  useEffect(() => {
+    if (props.active === false)
+      close()
+  }, [props.active])
 
   const close = () => {
     if (!props.onRequestClose || !props.onRequestClose())

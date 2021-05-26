@@ -6,26 +6,21 @@ import { style, colors } from '../../Styling'
 import { StateSetter } from '../../Types'
 import AddContactModal from './AddContactModal'
 
-type PropTypes = { members?: User[], list: TodoList, setList: StateSetter<TodoList> }
+type PropTypes = { members?: User[], list: TodoList, setList: StateSetter<TodoList>, extended: boolean }
 export default (props: PropTypes) => {
-  const [extended, setExtended] = useState(false)
   const [modal_active, setModalActive] = useState(false)
+  const [extended, setExtended] = useState(props.extended)
 
   useEffect(() => {
-    if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental)
-      UIManager.setLayoutAnimationEnabledExperimental(true)
-  }, [])
-
-  const toggleExtended = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
-    setExtended(x => !x)
-  }
+    setExtended(props.extended)
+  }, [props.extended])
 
   if (props.members === undefined)
     return <Loading />
 
   return (
-    <TouchableOpacity onPress={toggleExtended}>
+    <View>
       {modal_active && <AddContactModal {...{list: props.list, setList: props.setList}} close={setModalActive} />}
       <View style={extended ? css.members_container_extended : css.members_container}>
         {props.members?.map(user => 
@@ -40,13 +35,10 @@ export default (props: PropTypes) => {
           <TouchableOpacity style={css.member_add_button} onPress={()=>setModalActive(true)}>
             <AppText style={css.member_add_text}>Add a contact...</AppText>
           </TouchableOpacity>
-          <TouchableOpacity style={css.members_close} onPress={toggleExtended}>
-            <View style={css.members_close_icon} />
-          </TouchableOpacity>
         </>
         }
       </View>
-    </TouchableOpacity>
+    </View>
   )
 }
 
@@ -73,17 +65,5 @@ export const css = StyleSheet.create({
   },
   member_add_text: {
 
-  },
-  members_close: {
-    marginTop: style.margin,
-    marginBottom: -style.padding,
-    padding: style.margin,
-  },
-  members_close_icon: {
-    height: style.padding,
-    width: style.margin * 3,
-    alignSelf: 'center',
-    borderRadius: style.border_radius_med,
-    backgroundColor: colors.light,
   },
 })
