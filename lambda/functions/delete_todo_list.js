@@ -1,10 +1,18 @@
 const AWS = require('aws-sdk')
+const jwt_verifier = require('./jwt_verifier')
 
 exports.handler = async (event) => {
-  if (!event.id)
-    throw new Error(`id parameter is missing`)
+  if (!event.id) return {
+    statusCode: 400,
+    body: { error: `id parameter is missing` }
+  }
 
-  console.log(`List ID: ${event.id}`)
+  const { user_id, error } = jwt_verifier.verify(event.jwt)
+  if (error) return {
+    statusCode: 401,
+    body: { error }
+  }
+
   console.log(`Deleting list in DB...`)
 
   const db = new AWS.DynamoDB.DocumentClient()

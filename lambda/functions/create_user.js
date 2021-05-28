@@ -1,15 +1,26 @@
 const AWS = require('aws-sdk')
+const jwt_verifier = require('./jwt_verifier')
 
 exports.handler = async (event) => {
-  ['username', 'user_id', 'notification_token'].forEach(key => {
-    if (!event[key])
-      throw new Error(`${key} parameter is missing`)
+  ['username', 'notification_token'].forEach(key => {
+    if (!event[key]) return {
+      statusCode: 400,
+      body: { error: `${key} parameter is missing` }
+    }
   })
+
+  const { user_id, error } = jwt_verifier.verify(event.jwt)
+  if (error) return {
+    statusCode: 401,
+    body: { error }
+  }
+
+  // TODO: validate user_id against Cognito user pool
 
   const user = {
     nickname: event.username,
     username: event.username,
-    id: event.user_id,
+    id: user_id,
     image: `https://i.stack.imgur.com/l60Hf.png`,
     list_ids: [],
   }

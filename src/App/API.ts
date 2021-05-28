@@ -23,10 +23,13 @@ API = class API {
   //#region Auth
   private static _user?: User
   static get user() { return API._user! }
+  private static _access_token?: string
+  static get access_token() { return API._access_token! }
 
   static continuePreviousSession = async () => {
     DEBUG.log(`Continuing previous session...`)
     const cognito_user = await Auth.currentAuthenticatedUser()
+    API._access_token = cognito_user.signInUserSession.accessToken.jwtToken
   
     DEBUG.log(`Getting user from storage...`)
     API._user = await API.getUser(cognito_user.attributes.sub)
@@ -46,6 +49,7 @@ API = class API {
 
     DEBUG.log(`Authenticated user ${username}, getting user data...`)
     const cognito_user = await Auth.currentAuthenticatedUser()
+    API._access_token = cognito_user.signInUserSession.accessToken.jwtToken
 
     DEBUG.log(`Updating notification token...`)
     await invokeLambda('update_user_notification_token', {
@@ -54,28 +58,37 @@ API = class API {
     })
 
     DEBUG.log(`Getting user from storage...`)
-    const user = await API.getUser(cognito_user.attributes.sub)
-    API._user = user
+    try {
+      API._user = await API.getUser(cognito_user.attributes.sub)
+    } catch (e) {
+      if (e.message === `Could not find user with id ${cognito_user.attributes.sub}`) {
+        DEBUG.log(`User not found in storage, creating user ${username}...`)
 
-    DEBUG.log(`Signed in user ${user.username}`)
+        API._user = await invokeLambda('create_user', {
+          username,
+          notification_token: Notifications.token,
+        })
+
+        DEBUG.log(`Created user ${API.user.username} with id ${cognito_user.attributes.sub}`)
+      }
+      else throw e
+    }
+
+    DEBUG.log(`Signed in user ${API.user.username}`)
   }
 
   static signOut = async () => {
     DEBUG.log(`Signing out user ${API.user.username}...`)
     await Auth.signOut()
     API._user = undefined
+    API._access_token = undefined
     DEBUG.log(`Signed out successfully`)
     Navigation.goTo(AuthenticationLayout)
   }
 
-  private static pending_registration_user?: { username: string, id: string }
   static registerUser = async (username: string, password: string, email: string) => {
     try {
       const result = await Auth.signUp({username, password, attributes: { email }})
-      API.pending_registration_user = {
-        username: result.user.getUsername(),
-        id: result.userSub,
-      }
     }
     catch (error) {
       DEBUG.error(`Error while registering user ${username}`)
@@ -86,24 +99,7 @@ API = class API {
   static confirmUser = async (username: string, confirmation_code: string) => {
     DEBUG.log(`Confirming user ${username}...`)
     await Auth.confirmSignUp(username, confirmation_code)
-    DEBUG.log(`Confirmation returned successfully`)
-
-    if (!API.pending_registration_user)
-      throw new Error('No user pending registration in API')
-    if (API.pending_registration_user.username !== username)
-      throw new Error('User pending registration differs from requested user')
-
-    DEBUG.log(`Creating user ${username} in storage...`)
-
-    const user = await invokeLambda('create_user', {
-      username,
-      user_id: API.pending_registration_user.id,
-      notification_token: Notifications.token,
-    })
-
-    API.pending_registration_user = undefined
-
-    DEBUG.log(`Created user ${user.username} with id ${user.id}`)
+    DEBUG.log(`Confirmed user successfully`)
   }
 
   static resendConfirmationCode = async (username: string) => {
@@ -241,6 +237,7 @@ API = class API {
 
     DEBUG.log(`Updating cache...`)
     API.cache.users[API.user.id].list_ids.push(list.id)
+    API._user = API.cache.users[API.user.id]
     API.cache.lists[list.id] = list
 
     DEBUG.log(`Successfully created list ${list.title}`)
@@ -452,11 +449,8 @@ API = class API {
 async function invokeLambda(function_name: string, params: any) {
   const response = await lambda_client.invoke({
     FunctionName: function_name,
-    Payload: JSON.stringify(params)
+    Payload: JSON.stringify({...params, jwt: API.access_token})
   }).promise()
-
-  if (response.StatusCode !== 200)
-    throw new Error(`Lambda returned status code ${response.StatusCode}`)
 
   return JSON.parse(response.Payload as string).body
 }

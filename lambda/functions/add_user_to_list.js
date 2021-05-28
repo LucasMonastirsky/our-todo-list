@@ -1,10 +1,18 @@
 const AWS = require('aws-sdk')
 
 exports.handler = async (event) => {
-  ['user_id', 'invited_user_id', 'list_id'].forEach(key => {
-    if (!event[key])
-      throw new Error(`${key} parameter is missing`)
+  ['invited_user_id', 'list_id'].forEach(key => {
+    if (!event[key]) return {
+      statusCode: 400,
+      body: { error: `${key} parameter is missing` }
+    }
   })
+
+  const { user_id, error } = jwt_verifier.verify(event.jwt)
+  if (error) return {
+    statusCode: 401,
+    body: { error }
+  }
 
   // TODO: updates should be batched together and cancelled if an error is thrown in either one
 
@@ -33,7 +41,7 @@ exports.handler = async (event) => {
 
   const { Item: sender_user } = await db.get({
     TableName: 'Users',
-    Key: { id: event.user_id },
+    Key: { id: user_id },
     AttributesToGet: [ 'nickname' ]
   }).promise()
 
@@ -52,7 +60,7 @@ exports.handler = async (event) => {
     TargetArn: invited_user.notification_arn,
     Message: JSON.stringify({
       type: 'added_to_list',
-      user_id: event.user_id,
+      user_id: user_id,
       sender_nickname: sender_user.nickname,
       list,
     })

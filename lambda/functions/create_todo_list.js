@@ -1,16 +1,24 @@
 const AWS = require('aws-sdk')
+const jwt_verifier = require('./jwt_verifier')
 
 exports.handler = async (event) => {
-  ['title', 'id', 'user_id'].forEach(key => {
+  ['title', 'id'].forEach(key => {
     if (!event[key])
       throw new Error(`${key} parameter is missing`)
   })
+
+  const { user_id, error } = jwt_verifier.verify(event.jwt)
+  if (error) return {
+    statusCode: 401,
+    body: { error }
+  }
 
   const list = {
     ...event,
     description: event.description ?? '',
     tasks: {},
-    member_ids: [event.owner_id],
+    member_ids: [user_id],
+    owner_id: user_id,
   }
 
   console.log(`Formatted list: `, list)
@@ -33,7 +41,7 @@ exports.handler = async (event) => {
 
   const { Attributes: user } = await db.update({
     TableName: 'Users',
-    Key: { id: event.owner_id },
+    Key: { id: user_id },
     UpdateExpression: 'SET #list_ids = list_append(#list_ids, :new_list_id)',
     ExpressionAttributeNames: { '#list_ids': 'list_ids' },
     ExpressionAttributeValues: { ':new_list_id': [list.id] },

@@ -1,17 +1,26 @@
 const AWS = require('aws-sdk')
+const jwt_verifier = require('./jwt_verifier')
 
 exports.handler = async (event) => {
-  ['title', 'user_id', 'list_id'].forEach(key => {
-    if (!event[key])
-      throw new Error(`${key} parameter is missing`)
+  ['title', 'list_id'].forEach(key => {
+    if (!event[key]) return {
+      statusCode: 400,
+      body: { error: `${key} parameter is missing` }
+    }
   })
+  
+  const { user_id, error } = jwt_verifier.verify(event.jwt)
+  if (error) return {
+    statusCode: 401,
+    body: { error }
+  }
 
   const task = {
     title: event.title,
     description: event.description ?? '',
     id: event.id,
     list_id: event.list_id,
-    creator_id: event.user_id,
+    creator_id: user_id,
     creation_date: Date.now(),
     status: 'Pending',
     position: 0,
@@ -39,7 +48,7 @@ exports.handler = async (event) => {
 
   const { Item: user } = await db.get({
     TableName: 'Users',
-    Key: { id: event.user_id },
+    Key: { id: user_id },
     AttributesToGet: [ 'id', 'nickname' ]
   }).promise()
 

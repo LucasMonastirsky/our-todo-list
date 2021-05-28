@@ -4,6 +4,7 @@ import { Dictionary } from "../Utils";
 interface IAPI {
   //#region Auth
   user: User
+  access_token: string
   continuePreviousSession: () => Promise<void>
   signIn: (username: string, password: string) => Promise<void>
   signOut: () => Promise<void>
