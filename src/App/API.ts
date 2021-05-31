@@ -21,8 +21,8 @@ let API: IAPI
 API = class API {
 
   //#region Auth
-  private static _user?: User
-  static get user() { return API._user! }
+  private static current_user_id?: string
+  static get user() { return API.cache.users[API.current_user_id!] }
   private static _access_token?: string
   static get access_token() { return API._access_token! }
 
@@ -32,7 +32,9 @@ API = class API {
     API._access_token = cognito_user.signInUserSession.accessToken.jwtToken
   
     DEBUG.log(`Getting user from storage...`)
-    API._user = await API.getUser(cognito_user.attributes.sub)
+    const user = await API.getUser(cognito_user.attributes.sub)
+    API.current_user_id = user.id
+    API.cache.users[user.id] = user
 
     DEBUG.log(`Updating notification token...`)
     await invokeLambda('update_user_notification_token', {
@@ -40,7 +42,7 @@ API = class API {
       notification_token: Notifications.token,
     })
 
-    DEBUG.log(`Continuing session from user ${API._user.username}`)
+    DEBUG.log(`Continuing session from user ${API.user.username}`)
   }
 
   static signIn = async (username: string, password: string) => {
@@ -58,21 +60,27 @@ API = class API {
     })
 
     DEBUG.log(`Getting user from storage...`)
+
+    let user: User
+
     try {
-      API._user = await API.getUser(cognito_user.attributes.sub)
+      user = await API.getUser(cognito_user.attributes.sub)
     } catch (e) {
       if (e.message === `Could not find user with id ${cognito_user.attributes.sub}`) {
         DEBUG.log(`User not found in storage, creating user ${username}...`)
 
-        API._user = await invokeLambda('create_user', {
+        user = await invokeLambda('create_user', {
           username,
           notification_token: Notifications.token,
         })
 
-        DEBUG.log(`Created user ${API.user.username} with id ${cognito_user.attributes.sub}`)
+        DEBUG.log(`Created user ${user.username} with id ${user.id}`)
       }
       else throw e
     }
+
+    API.current_user_id = user.id
+    API.cache.users[user.id] = user
 
     DEBUG.log(`Signed in user ${API.user.username}`)
   }
@@ -80,7 +88,7 @@ API = class API {
   static signOut = async () => {
     DEBUG.log(`Signing out user ${API.user.username}...`)
     await Auth.signOut()
-    API._user = undefined
+    API.current_user_id = undefined
     API._access_token = undefined
     DEBUG.log(`Signed out successfully`)
     Navigation.goTo(AuthenticationLayout)
@@ -176,7 +184,6 @@ API = class API {
     if (user.image) // hack to force react-native to fetch the new image
       API.cache.users[id].image += `?date=${Date.now()}` // this won't work with other users...
 
-    API._user = API.cache.users[id]
     DEBUG.log(`Updated user ${id}`)
   }
 
@@ -237,7 +244,6 @@ API = class API {
 
     DEBUG.log(`Updating cache...`)
     API.cache.users[API.user.id].list_ids.push(list.id)
-    API._user = API.cache.users[API.user.id]
     API.cache.lists[list.id] = list
 
     DEBUG.log(`Successfully created list ${list.title}`)
@@ -383,7 +389,6 @@ API = class API {
     }).promise()
 
     API.cache.users[user_id].contact_ids.push(contact_id)
-    API._user = API.cache.users[API.user.id]
 
     DEBUG.log(`Added user ${contact_id} to contacts of ${user_id}`)
   }
