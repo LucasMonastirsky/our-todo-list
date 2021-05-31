@@ -24,7 +24,7 @@ export default (props: PropTypes) => {
       {modal_active && <AddContactModal {...{list: props.list, setList: props.setList}} close={setModalActive} />}
       <View style={extended ? css.members_container_extended : css.members_container}>
         {props.members?.map(user => 
-          <TouchableOpacity style={css.member_item} disabled={!extended}>
+          <TouchableOpacity style={css.member_item} disabled={!extended} key={user.id}>
             <ProfilePicture user_id={user.id} size='small' />
             {extended &&
               <AppText style={css.member_name}>{user.nickname}</AppText>
