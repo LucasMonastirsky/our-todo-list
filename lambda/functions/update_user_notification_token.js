@@ -5,14 +5,14 @@ exports.handler = async (event) => {
   ['notification_token'].forEach(key => {
     if (!event[key]) return {
       statusCode: 400,
-      body: { error: `${key} parameter is missing` }
+      error: `${key} parameter is missing`
     }
   })
 
   const { user_id, error } = jwt_verifier.verify(event.jwt)
   if (error) return {
     statusCode: 401,
-    body: { error }
+    error: error.message,
   }
 
   console.log(`Getting user's ARN from DynamoDB...`)
@@ -30,7 +30,7 @@ exports.handler = async (event) => {
     EndpointArn: user_result.Item.notification_arn,
     Attributes: {
       Token: event.notification_token,
-      Enabled: true,
+      Enabled: 'true',
     }
   }).promise()
 

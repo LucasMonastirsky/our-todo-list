@@ -3,14 +3,16 @@ const jwt_verifier = require('./jwt_verifier')
 
 exports.handler = async (event) => {
   ['title', 'id'].forEach(key => {
-    if (!event[key])
-      throw new Error(`${key} parameter is missing`)
+    if (!event[key]) return {
+      statusCode: 400,
+      error: `${key} parameter is missing`
+    }
   })
 
   const { user_id, error } = jwt_verifier.verify(event.jwt)
   if (error) return {
     statusCode: 401,
-    body: { error }
+    error: error.message,
   }
 
   const list = {

@@ -38,9 +38,8 @@ API = class API {
 
     DEBUG.log(`Updating notification token...`)
     await invokeLambda('update_user_notification_token', {
-      user_id: API.user.id,
       notification_token: Notifications.token,
-    })
+    }).catch(e => DEBUG.warn(`Error while updating notification:`, e.message))
 
     DEBUG.log(`Continuing session from user ${API.user.username}`)
   }
@@ -55,9 +54,8 @@ API = class API {
 
     DEBUG.log(`Updating notification token...`)
     await invokeLambda('update_user_notification_token', {
-      user_id: cognito_user.attributes.sub,
       notification_token: Notifications.token,
-    })
+    }).catch(e => DEBUG.warn(`Error while updating notification:`, e.message))
 
     DEBUG.log(`Getting user from storage...`)
 
@@ -271,8 +269,7 @@ API = class API {
     DEBUG.log(`Deleting list ${id}...`)
     
     await invokeLambda('delete_todo_list', {
-      id,
-      user_id: API.user.id,
+      list_id: id,
     })
 
     delete API.cache.lists[id]
@@ -457,7 +454,15 @@ async function invokeLambda(function_name: string, params: any) {
     Payload: JSON.stringify({...params, jwt: API.access_token})
   }).promise()
 
-  return JSON.parse(response.Payload as string).body
+  const payload = JSON.parse(response.Payload as string)
+
+  if (payload.statusCode !== 200) {
+    if (payload.error)
+      throw new Error(payload.error)
+    else throw new Error(`Unfamiliar error in lambda ${function_name}, payload: ${JSON.stringify(payload)}`)
+  }
+
+  return payload.body
 }
 
 function buildUpdateQuery (changes: any) {

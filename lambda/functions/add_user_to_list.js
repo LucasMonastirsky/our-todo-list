@@ -1,17 +1,18 @@
 const AWS = require('aws-sdk')
+const jwt_verifier = require('./jwt_verifier')
 
 exports.handler = async (event) => {
   ['invited_user_id', 'list_id'].forEach(key => {
     if (!event[key]) return {
       statusCode: 400,
-      body: { error: `${key} parameter is missing` }
+      error: `${key} parameter is missing`,
     }
   })
 
   const { user_id, error } = jwt_verifier.verify(event.jwt)
   if (error) return {
     statusCode: 401,
-    body: { error }
+    error: error.message,
   }
 
   // TODO: updates should be batched together and cancelled if an error is thrown in either one

@@ -5,14 +5,14 @@ exports.handler = async (event) => {
   ['task_id', 'list_id'].forEach(key => {
     if (!event[key]) return {
       statusCode: 400,
-      body: { error: `${key} parameter is missing` }
+      error: `${key} parameter is missing`
     }
   })
 
   const { user_id, error } = jwt_verifier.verify(event.jwt)
   if (error) return {
     statusCode: 401,
-    body: { error }
+    error: error.message
   }
 
   if (event.status !== 'Claimed' || event.status !== 'Done')

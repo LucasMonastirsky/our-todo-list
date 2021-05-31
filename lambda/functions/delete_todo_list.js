@@ -2,31 +2,39 @@ const AWS = require('aws-sdk')
 const jwt_verifier = require('./jwt_verifier')
 
 exports.handler = async (event) => {
-  if (!event.id) return {
+  if (!event.list_id) return {
     statusCode: 400,
-    body: { error: `id parameter is missing` }
+    error: `list_id parameter is missing`
   }
 
+  console.log(`Verifying JWT...`)
+  
   const { user_id, error } = jwt_verifier.verify(event.jwt)
   if (error) return {
     statusCode: 401,
-    body: { error }
+    error: error.message,
   }
 
-  console.log(`Deleting list in DB...`)
+  console.log(`Fetching list...`)
 
   const db = new AWS.DynamoDB.DocumentClient()
-  const { Attributes: list } = await db.delete({
+  const { Item: list } = await db.get({
     TableName: 'Lists',
-    Key: { id: event.id },
-    ReturnValues: 'ALL_OLD',
+    Key: { id: event.list_id },
   }).promise()
 
-  const member_ids = [...JSON.parse(JSON.stringify(list.member_ids))].filter(x => x !== '')
+  console.log(`Verifying ownership...`)
+
+  if (list.owner_id !== user_id) return {
+    statusCode: 403,
+    error: 'The user does not own this list'
+  }
 
   console.log(`Getting members...`)
 
-  const { Responses } = await db.batchGet({
+  const member_ids = [...JSON.parse(JSON.stringify(list.member_ids))].filter(x => x !== '')
+
+  const { Responses: { Users: members } } = await db.batchGet({
     RequestItems: {
       'Users': {
         ConsistentRead: true,
@@ -34,9 +42,8 @@ exports.handler = async (event) => {
       }
     }
   }).promise()
-  const members = Responses.Users
 
-  console.log(`Updating members...`)
+  console.log(`Starting batch delete...`)
 
   const mapUser = (user) => {
     const i = user.list_ids.indexOf(list.id)
@@ -46,7 +53,8 @@ exports.handler = async (event) => {
 
   await db.batchWrite({
     RequestItems: {
-      'Users': members.map(mapUser)
+      'Lists': [{ DeleteRequest: { Key: { id: list.id } } }],
+      'Users': members.map(mapUser),
     }
   }).promise()
 
@@ -59,6 +67,5 @@ exports.handler = async (event) => {
 
   return {
     statusCode: 200,
-    body: {},
-  };
-};
+  }
+}
