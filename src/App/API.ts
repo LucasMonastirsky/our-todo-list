@@ -32,7 +32,7 @@ API = class API {
     API._access_token = cognito_user.signInUserSession.accessToken.jwtToken
   
     DEBUG.log(`Getting user from storage...`)
-    const user = await API.getUser(cognito_user.attributes.sub)
+    const user = await invokeLambda('get_user')
     API.current_user_id = user.id
     API.cache.users[user.id] = user
 
@@ -62,9 +62,10 @@ API = class API {
     let user: User
 
     try {
-      user = await API.getUser(cognito_user.attributes.sub)
+      user = await invokeLambda('get_user')
+      DEBUG.log(`user:`, user)
     } catch (e) {
-      if (e.message === `Could not find user with id ${cognito_user.attributes.sub}`) {
+      if (e.message === `User does not exist`) {
         DEBUG.log(`User not found in storage, creating user ${username}...`)
 
         user = await invokeLambda('create_user', {
@@ -448,10 +449,10 @@ API = class API {
 }
 
 //#region Utils
-async function invokeLambda(function_name: string, params: any) {
+async function invokeLambda(function_name: string, params?: any) {
   const response = await lambda_client.invoke({
     FunctionName: function_name,
-    Payload: JSON.stringify({...params, jwt: API.access_token})
+    Payload: JSON.stringify({...(params??{}), jwt: API.access_token})
   }).promise()
 
   const payload = JSON.parse(response.Payload as string)
