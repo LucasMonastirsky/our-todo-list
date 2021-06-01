@@ -194,6 +194,14 @@ API = class API {
     return contacts
   }
 
+  static getMembersFromList = async (list_id: string) => {
+    DEBUG.log(`Fetching members from list ${list_id}...`)
+    const members = await invokeLambda('get_list_members', { list_id })
+
+    DEBUG.log(`Found ${members.length} members`)
+    return members
+  }
+
   static getCachedListsFrom = async (user: User) => {
     DEBUG.log(`Getting cached lists from user ${user.username}...`)
 

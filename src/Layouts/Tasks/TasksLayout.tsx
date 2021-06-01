@@ -14,7 +14,7 @@ import DeletingMessage from './DeletingMessage'
 import ListContactsBar from './ListContactsBar'
 import TaskView from './TaskView'
 
-const view = (props: { list: TodoList }) => {
+const view = (props: { list: TodoList, members: User[] }) => {
   //#region Lifecycle
   const [list, setList] = useState(props.list)
   useEffect(()=>setList(props.list), [props.list])
@@ -24,7 +24,7 @@ const view = (props: { list: TodoList }) => {
       return {...prev}
   })
 
-  const [members, setMembers] = useState<User[]>()
+  const [members, setMembers] = useState(props.members)
   const [changes, setChanges] = useState<Partial<TodoList>>({})
   const [new_task_title, setNewTaskTitle] = useState('')
 
@@ -38,19 +38,12 @@ const view = (props: { list: TodoList }) => {
     const removers: Function[] = []
     removers.push(Notifications.addTaskCreatedListener(onRemoteTaskCreated).remove)
     removers.push(Notifications.addTaskUpdatedListener(onRemoteTaskUpdated).remove)
-  }, []) 
 
-  useEffect(() => {
     if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental)
       UIManager.setLayoutAnimationEnabledExperimental(true)
-  }, [])
 
-  useEffect(() => {
-    setMembers([])
-    list.member_ids.forEach(id =>
-      API.getCachedUser(id).then(user =>
-        setMembers(prev => [...prev??[], user])))
-  }, [list])
+    return () => removers.forEach(r => r())
+  }, [])
 
   const toggleExtended = () => {
     setExtended(x => !x)

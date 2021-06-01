@@ -10,7 +10,7 @@ type PropTypes = {
   list: TodoList,
   slide_out?: boolean,
   slide_duration?: number,
-  onPress: ()=>any,
+  onPress: (members: User[])=>any,
   onLayout?: (e: LayoutChangeEvent)=>any
 }
 export default (props: PropTypes) => {
@@ -18,11 +18,7 @@ export default (props: PropTypes) => {
   const [animating, setAnimating] = useState(false)
 
   useEffect(() => {
-    if (!members.length) props.list.member_ids.forEach(id =>
-      API.getCachedUser(id).then(user =>
-        setMembers(prev => [...prev, user])
-      )
-    )
+    API.getMembersFromList(props.list.id).then(setMembers)
 
     if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental)
       UIManager.setLayoutAnimationEnabledExperimental(true)
@@ -34,7 +30,7 @@ export default (props: PropTypes) => {
       LayoutAnimation.Types.easeInEaseOut,
       LayoutAnimation.Properties.scaleXY))
     setAnimating(true)
-    props.onPress()
+    props.onPress(members)
   }
 
   const slide_out_animation = {

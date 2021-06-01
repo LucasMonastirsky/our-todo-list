@@ -2,7 +2,7 @@ import { API, Navigation, Notifications } from '../../App'
 import React, { useEffect, useState } from 'react'
 import { Animated, LayoutChangeEvent, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 import uuid from 'react-native-uuid'
-import { TodoList } from '../../Models'
+import { TodoList, User } from '../../Models'
 import { createAnimation, Dictionary } from '../../Utils'
 import ListItem from './ListItem'
 import { TasksLayout, ContactsLayout, ProfileLayout } from '../'
@@ -60,15 +60,20 @@ const view = () => {
   const [selected_list_index, setSelectedListIndex] = useState(0)
   const [header_height, setHeaderHeight] = useState(0)  
   const [item_height, setItemHeight] = useState(0)
+  const [selected_list_members, setSelectedListMembers] = useState<User[]>([])
 
-  const onListSelected = (id: string, index: number) => {
+  const onListSelected = (id: string, index: number, members: User[]) => {
     setAnimating(true)
     setSelectedListIndex(index)
+    setSelectedListMembers(members)
   }
 
   const onAnimationDone = () => {
     if (animating) {
-      Navigation.goTo(TasksLayout, {list: lists!.values[selected_list_index!]})
+      Navigation.goTo(TasksLayout, {
+        list: lists!.values[selected_list_index!],
+        members: selected_list_members
+      })
     }
   }
 
@@ -118,7 +123,7 @@ const view = () => {
           list,
           slide_out: animating && index > selected_list_index,
           slide_duration: (lists.values.length - selected_list_index - index) * style.anim_duration,
-          onPress: ()=>onListSelected(list.id, index),
+          onPress: members=>onListSelected(list.id, index, members),
           onLayout: index === 0 ? onItemLayout : undefined,
         }}/>
       )}
