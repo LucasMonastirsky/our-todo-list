@@ -186,6 +186,14 @@ API = class API {
     DEBUG.log(`Updated user ${id}`)
   }
 
+  static getContacts = async () => {
+    DEBUG.log(`Fetching contacts...`)
+    const contacts = await invokeLambda('get_contacts')
+
+    DEBUG.log(`Found ${contacts.length} contacts`)
+    return contacts
+  }
+
   static getCachedListsFrom = async (user: User) => {
     DEBUG.log(`Getting cached lists from user ${user.username}...`)
 

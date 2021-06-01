@@ -11,15 +11,9 @@ export default (props: {list: TodoList, setList: StateSetter<TodoList>, close: A
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (users === undefined) {
-      const available_user_ids = API.user.contact_ids.filter(id =>
-        !props.list.member_ids.includes(id))
-
-      if (available_user_ids.length < 1)
-        setUsers([])
-      else available_user_ids.forEach(id => API.getCachedUser(id)
-        .then(user => setUsers(prev => [...prev??[], user])))
-    }
+    API.getContacts().then(all_contacts => {
+      setUsers(all_contacts.filter(x => !props.list.member_ids.includes(x.id)))
+    })
   }, [])
 
   const onSelect = async (user: User) => {

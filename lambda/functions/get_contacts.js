@@ -23,13 +23,28 @@ exports.handler = async (event) => {
     error: `User does not exist`,
   }
 
-  if (user.contact_ids === undefined)
-    user.contact_ids = []
+  user.contact_ids = user.contact_ids ? [...JSON.parse(JSON.stringify(user.contact_ids))] : []
 
-  console.log(`Found user:`, user)
+  if (user.contact_ids === undefined || user.contact_ids.length < 1) return {
+    statusCode: 200,
+    body: [],
+  }
+
+  console.log(`Fetching contacts...`)
+
+  const { Responses: { Users: contacts } } = await db.batchGet({
+    RequestItems: {
+      'Users': {
+        ConsistentRead: true,
+        Keys: user.contact_ids.map(id => ({id}))
+      }
+    }
+  }).promise()
+
+  console.log(`Found ${contacts.length} contacts`)
 
   return {
     statusCode: 200,
-    body: user,
+    body: contacts,
   }
 }

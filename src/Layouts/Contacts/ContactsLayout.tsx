@@ -13,12 +13,7 @@ const view = () => {
   const [loading_new_contact, setLoadingNewContact] = useState(false)
 
   useEffect(() => {
-    if (contacts.length < API.user.contact_ids.length) // this check is only necessary for live debugging
-      API.user.contact_ids.forEach(id => {
-        API.getCachedUser(id).then(user => {
-          setContacts(prev => [...prev, user])
-        })
-      })
+    API.getContacts().then(setContacts)
   }, [])
 
   const submitContact = async () => {
