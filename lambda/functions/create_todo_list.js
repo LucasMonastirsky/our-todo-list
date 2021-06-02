@@ -1,13 +1,23 @@
 const AWS = require('aws-sdk')
 const jwt_verifier = require('./jwt_verifier')
+const verify_parameters = require('./verify_parameters')
 
 exports.handler = async (event) => {
-  ['title', 'id'].forEach(key => {
-    if (!event[key]) return {
-      statusCode: 400,
-      error: `${key} parameter is missing`
-    }
-  })
+  console.log(`Verifying parameters...`)
+
+  const { missing_keys, unwanted_keys} = verify_parameters(event, ['title', 'id'])
+
+  if (missing_keys) return {
+    statusCode: 400,
+    error: `Missing parameters: ${missing_keys}`
+  }
+
+  if (unwanted_keys) return {
+    statusCode: 400,
+    error: `Invalid parameters: ${unwanted_keys}`
+  }
+
+  console.log(`Verifying JWT...`)
 
   const { user_id, error } = jwt_verifier.verify(event.jwt)
   if (error) return {

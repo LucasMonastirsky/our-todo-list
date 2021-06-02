@@ -1,36 +1,25 @@
 const AWS = require('aws-sdk')
 const jwt_verifier = require('./jwt_verifier')
+const verify_parameters = require('./verify_parameters')
 
 exports.handler = async (event) => {
-  ['list_id', 'changes'].forEach(key => {
-    if (!event[key]) return {
-      statusCode: 400,
-      error: `${key} parameter is missing`,
-    }
-  })
-
-  console.log(`Parameters:`, event)
   console.log(`Verifying parameters...`)
-  const allowed_keys = [
-    'title'
-  ]
-  const unwanted_parameters = Object.keys(event.changes).filter(key => {
-    if (!allowed_keys.includes(key))
-      return true
-    if (key === 'title' && event.changes[key].length > 64)
-      return true
-    return false
-  })
 
-  if (unwanted_parameters.length > 1) {
-    console.error(`Invalid parameters: `,
-      unwanted_parameters.map(key => ({key, value: event.changes[key]}))
-    )
+  const { missing_keys, unwanted_keys} = verify_parameters(event, ['list_id', 'changes'])
 
-    return {
-      statusCode: 400,
-      error: `Invalid parameters`
-    }
+  if (missing_keys) return {
+    statusCode: 400,
+    error: `Missing parameters: ${missing_keys}`
+  }
+
+  if (unwanted_keys) return {
+    statusCode: 400,
+    error: `Invalid parameters: ${unwanted_keys}`
+  }
+
+  if (event.changes.title?.length > 64) return {
+    statusCode: 400,
+    error: `Title is too long`
   }
 
   console.log(`Verifying JWT...`)
