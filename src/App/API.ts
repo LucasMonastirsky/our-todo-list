@@ -32,7 +32,7 @@ API = class API {
     API._access_token = cognito_user.signInUserSession.accessToken.jwtToken
   
     DEBUG.log(`Getting user from storage...`)
-    const user = await invokeLambda('get_user')
+    const user = await invokeLambda('get_own_user')
     API.current_user_id = user.id
     API.cache.users[user.id] = user
 
@@ -62,7 +62,7 @@ API = class API {
     let user: User
 
     try {
-      user = await invokeLambda('get_user')
+      user = await invokeLambda('get_own_user')
       DEBUG.log(`user:`, user)
     } catch (e) {
       if (e.message === `User does not exist`) {
@@ -130,39 +130,32 @@ API = class API {
   static getCachedUser = async (id: string) => {
     if (API.cache.users[id] === undefined) {
       DEBUG.log(`Didn't find user in cache, getting from storage...`)
-      API.cache.users[id] = await API.getUser(id)
+      await API.getUsers([id])
     }
+
+    return API.cache.users[id]
 
     /*
     If multiple calls are made for the same user that is not cached,
     then the user will be fetched from the DB multiple times.
     TODO: Implement fetch flags to wait for first fetch
     */
-
-    return API.cache.users[id]
   }
 
-  static getUser = async (id: string) => {
-    DEBUG.log(`Getting user data from id ${id}...`)
+  static getUsers = async (ids: string[]) => {
+    DEBUG.log(`Getting user data from ids ${ids}...`)
 
-    const result = await dynamo_client.get({
-      TableName: 'Users',
-      Key: { id },
-    }).promise()
+    const users: User[] = await invokeLambda('get_users', { ids })
 
-    if (result.Item === undefined)
-      throw new Error(`Could not find user with id ${id}`)
-    else DEBUG.log(`Found data for user ${result.Item.username}`)
+    if (users.length !== ids.length)
+      DEBUG.warn(`Could not find users with ids`,
+        users.filter(user => !ids.includes(user.id)).map(user => user.id))
 
-    const user = {
-      ...result.Item,
-      contact_ids: arrayFromSet(result.Item.contact_ids!)
-    } as User
+    users.forEach(user => API.cache.users[user.id] = user)
 
-    API.cache.users[user.id] = user
-
-    DEBUG.log(`Formatted user data successfully`,)
-    return user
+    DEBUG.log(`Found ${users.length} users`)
+    
+    return users
   }
 
   static editUser = async (id: string, user: Partial<User>) => {
@@ -196,9 +189,11 @@ API = class API {
 
   static getMembersFromList = async (list_id: string) => {
     DEBUG.log(`Fetching members from list ${list_id}...`)
-    const members = await invokeLambda('get_list_members', { list_id })
+    const members: User[] = await invokeLambda('get_list_members', { list_id })
 
     DEBUG.log(`Found ${members.length} members`)
+    members.forEach(user => API.cache.users[user.id] = user)
+
     return members
   }
 

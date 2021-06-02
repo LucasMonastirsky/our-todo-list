@@ -15,7 +15,7 @@ interface IAPI {
 
   //#region Storage
   getCachedUser: (id: string) => Promise<User>
-  getUser: (id: string) => Promise<User>
+  getUsers: (ids: string[]) => Promise<User[]>
   editUser: (id: string, user: Partial<User>) => Promise<void>
   getContacts: () => Promise<User[]>
   getMembersFromList: (list_id: string) => Promise<User[]>
