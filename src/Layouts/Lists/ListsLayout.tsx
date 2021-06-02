@@ -18,7 +18,7 @@ const view = () => {
 
   useEffect(() => {
     API.getCachedListsFrom(API.user).then(setLists)
-    API.getListsFrom(API.user).then(setLists)
+    API.getLists().then(setLists)
 
     const removers: (()=>any)[] = []
     removers.push(Notifications.addAddedToListListener(onAddedToList).remove)

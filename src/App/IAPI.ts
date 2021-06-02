@@ -20,7 +20,7 @@ interface IAPI {
   getContacts: () => Promise<User[]>
   getMembersFromList: (list_id: string) => Promise<User[]>
   getCachedListsFrom: (user: User) => Promise<Dictionary<TodoList>>
-  getListsFrom: (user: User) => Promise<Dictionary<TodoList>>
+  getLists: () => Promise<Dictionary<TodoList>>
   createTodoList: (properties: {
     title: string,
     description: string,

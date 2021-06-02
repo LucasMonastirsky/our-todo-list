@@ -211,34 +211,17 @@ API = class API {
     return lists
   }
 
-  static getListsFrom = async (user: User) => {
-    DEBUG.log(`Getting lists from user ${user.username}...`)
+  static getLists = async () => {
+    DEBUG.log(`Getting lists...`)
 
-    if (user.list_ids.length < 1) {
-      DEBUG.log('User has no lists')
-      return new Dictionary<TodoList>({})
-    }
+    const response: TodoList[] = await invokeLambda('get_own_lists')
 
-    const query = await dynamo_client.batchGet({
-      RequestItems: {
-        Lists: {
-          Keys: user.list_ids.map(id => ({ id }))
-        }
-      }
-    }).promise()
+    const lists: Dictionary<TodoList> = new Dictionary<TodoList>()
+    response.forEach(list => lists.set(list.id, list))
 
-    if (!query.Responses)
-      throw new Error(`Error while getting lists from user ${user.username}: no responses`)
+    DEBUG.log(`Got ${lists.keys.length} lists from user ${API.user.username}`)
 
-    const list_map: Dictionary<TodoList> = new Dictionary<TodoList>({})
-    query.Responses.Lists.forEach(list => {
-      list.member_ids = arrayFromSet(list.member_ids)
-      list_map.set(list.id, list as TodoList)
-      API.cache.lists[list.id] = list as TodoList
-    })
-    DEBUG.log(`Got ${list_map.values.length} lists from user ${user.username}`)
-
-    return list_map
+    return lists
   }
 
   static createTodoList = async (properties: {
@@ -260,29 +243,20 @@ API = class API {
     return list
   }
 
-  static editTodoList = async (id: string, new_list: Partial<TodoList>) => {
-    DEBUG.log(`Editting list ${id}...`)
-    const update_query = buildUpdateQuery(new_list)
+  static editTodoList = async (list_id: string, changes: Partial<TodoList>) => {
+    DEBUG.log(`Editting list ${list_id}...`)
 
-    const response = await dynamo_client.update({
-      TableName: 'Lists',
-      Key: { id },
-      UpdateExpression: update_query.expression,
-      ExpressionAttributeValues: update_query.values,
-      ReturnValues: 'UPDATED_NEW',
-    }).promise()
+    const list = await invokeLambda('edit_list', { list_id, changes })
 
-    API.cache.lists[id] = {...API.cache.lists[id], ...response.Attributes}
+    API.cache.lists[list_id] = list
 
-    DEBUG.log(`Updated list ${id} with values`, response.Attributes )
+    DEBUG.log(`Updated list ${list_id}` )
   }
 
   static deleteTodoList = async (id: string) => {
     DEBUG.log(`Deleting list ${id}...`)
     
-    await invokeLambda('delete_todo_list', {
-      list_id: id,
-    })
+    await invokeLambda('delete_todo_list', { list_id: id })
 
     delete API.cache.lists[id]
 
@@ -489,7 +463,7 @@ function buildUpdateQuery (changes: any) {
   return { expression, values }
 }
 
-function arrayToSet<Type> (arr: Type[]) { // @ts-ignore
+function arrayToSet<Type> (arr: Type[]) {
   return dynamo_client.createSet(arr)
 }
 

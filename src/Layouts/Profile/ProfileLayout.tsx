@@ -15,7 +15,7 @@ const view = () => {
   const [loading, setLoading] = useState(false)
   
   useEffect(() => {
-    API.getListsFrom(user).then(setLists)
+    API.getLists().then(setLists)
   }, [])
 
   const onPressImage = async () => {
