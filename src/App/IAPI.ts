@@ -36,7 +36,7 @@ interface IAPI {
 
   addUserToList: (user_id: string, list: TodoList) => Promise<void>
   addContact: (contact_id: string, user_id: string) => Promise<void>
-  removeContact: (contact_id: string, user_id: string) => Promise<void>
+  removeContact: (contact_id: string) => Promise<void>
 
   updateTaskStatus: (task: Task, status: 'Claimed'|'Done') => Promise<Task>
 

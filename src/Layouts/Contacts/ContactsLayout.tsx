@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { API } from '../../App'
 import { Layout } from '../../App/Navigation'
-import { AppButtonItem, AppText, ItemCreator, Loading, ProfilePicture } from '../../Components'
+import { AppButtonItem, AppIcon, AppText, ItemCreator, Loading, ProfilePicture } from '../../Components'
 import { User } from '../../Models'
 import { colors, style } from '../../Styling'
 
@@ -37,11 +37,16 @@ const view = () => {
     }
   }
 
+  const removeContact = async (contact_id: string) => {
+    await API.removeContact(contact_id)
+  }
+
   const MemberItem = (user: User) => {
     return (
       <View style={css.member_item}>
         <ProfilePicture user_id={user.id} size='medium' />
         <AppText style={css.member_item_name}>{user.nickname}</AppText>
+        <AppIcon style={css.member_remove_icon} onPress={()=>removeContact(user.id)} source={require('../../Media/Icons/remove.png')} />
       </View>
     )
   }
@@ -86,6 +91,10 @@ const css = StyleSheet.create({
     height: 40,
     marginRight: style.margin,
     aspectRatio: 1,
+  },
+  member_remove_icon: {
+    marginLeft: 'auto',
+    padding: style.margin,
   },
 })
 

@@ -316,21 +316,17 @@ API = class API {
     DEBUG.log(`Added user ${contact_id} to contacts of ${user_id}`)
   }
 
-  static removeContact = async (contact_id: string, user_id: string) => {
-    DEBUG.log(`Removing user ${contact_id} from contacts of ${user_id}`)
-    const result = await dynamo_client.update({
-      TableName: 'Users',
-      Key: { id: user_id },
-      UpdateExpression: 'DELETE contact_ids :contact_id',
-      ExpressionAttributeValues: { ':contact_id': arrayToSet([contact_id]) },
-      ReturnValues: DEBUG.enabled ? 'UPDATED_NEW' : 'NONE',
-    }).promise()
+  static removeContact = async (contact_id: string) => {
+    DEBUG.log(`Removing user ${contact_id} from contacts`)
+    
+    await invokeLambda('remove_contact', { contact_id })
 
     DEBUG.log(`Updating cache...`)
-    const index = API.cache.users[user_id].contact_ids.indexOf(contact_id)
-    API.cache.users[user_id].contact_ids.splice(index, 1)
 
-    DEBUG.log(`Removed user ${contact_id} from contacts of ${user_id}`)
+    const index = API.cache.users[API.user.id].contact_ids.indexOf(contact_id)
+    API.cache.users[API.user.id].contact_ids.splice(index, 1)
+
+    DEBUG.log(`Removed user ${contact_id} from contacts`)
   }
 
   static uploadProfilePicture = async (uri: string) => {
