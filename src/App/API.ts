@@ -162,22 +162,15 @@ API = class API {
     return users
   }
 
-  static editUser = async (id: string, user: Partial<User>) => {
+  static editUser = async (id: string, changes: Partial<User>) => {
     DEBUG.log(`Updating user ${id}...`)
-    const update_query = buildUpdateQuery(user)
 
-    const response = await (dynamo_client.update({
-      TableName: 'Users',
-      Key: { id },
-      UpdateExpression: update_query.expression,
-      ExpressionAttributeValues: update_query.values,
-      ReturnValues: 'ALL_NEW'
-    }).promise())
+    const response: User = await invokeLambda('edit_user', { changes })
 
     DEBUG.log(`Updating user in cache...`)
-    API.cache.users[id] = response.Attributes as User
+    API.cache.users[id] = response
 
-    if (user.image) // hack to force react-native to fetch the new image
+    if (changes.image) // hack to force react-native to fetch the new image
       API.cache.users[id].image += `?date=${Date.now()}` // this won't work with other users...
 
     DEBUG.log(`Updated user ${id}`)
@@ -397,14 +390,6 @@ function buildUpdateQuery (changes: any) {
     values[`:${index}`] = changes[key as keyof User]
   })
   return { expression, values }
-}
-
-function arrayToSet<Type> (arr: Type[]) {
-  return dynamo_client.createSet(arr)
-}
-
-function arrayFromSet (set: any) {
-  return set ? [...JSON.parse(JSON.stringify(set))].filter(x => x !== '') : []
 }
 //#endregion
 
