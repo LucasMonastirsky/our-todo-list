@@ -10,6 +10,7 @@ import { RNS3 } from 'react-native-aws3'
 import Notifications from "./Notifications"
 import { Dictionary } from "../Utils"
 import { AuthenticationLayout } from "../Layouts"
+import FS from 'react-native-fs'
 
 AWS.config.update(aws_sdk_config)
 Amplify.configure(amplify_config)
@@ -35,6 +36,7 @@ API = class API {
     const user = await invokeLambda('get_own_user')
     API.current_user_id = user.id
     API.cache.users[user.id] = user
+    API.cache.users[user.id].image += `?query=${Date.now()}` // this avoids RN's cache
 
     DEBUG.log(`Updating notification token...`)
     await invokeLambda('update_user_notification_token', {
@@ -323,23 +325,15 @@ API = class API {
   }
 
   static uploadProfilePicture = async (uri: string) => {
-    DEBUG.log(`Uploading new image...`)
-    const response = await RNS3.put({
-      name: API.user.id,
-      uri,
-      type: 'image/jpeg',
-    }, {
-      bucket: 'our-todo-profile-pictures',
-      region: secrets.region,
-      accessKey: secrets.access_key,
-      secretKey: secrets.secret_key,
-      successActionStatus: 201,
-    })
-    if (response.status !== 201) {
-      throw new Error(`S3 upload returned error: ${response.text}`)
-    }
-    DEBUG.log(`Uploaded new profile picture for user ${API.user.username} with uri: ${response.headers.Location}`)
-    return response.headers.Location
+    DEBUG.log(`Converting local image to blob...`)
+    const blob = await FS.readFile(uri, 'base64')
+
+    DEBUG.log(`Sending image to lambda...`)
+    await invokeLambda('upload_profile_picture', { blob })
+
+    API.cache.users[API.user.id].image += `?query=${Date.now()}` // this avoids RN's cache
+
+    DEBUG.log(`Uploaded new profile picture for user ${API.user.username}`)
   }
 
   static updateTaskStatus = async (task: Task, status: 'Claimed'|'Done') => {

@@ -27,12 +27,13 @@ const view = () => {
 
   const saveChanges = async () => {
     setLoading(true)
+    // TODO: wait for both tasks instead of awaiting one after the other
 
-    const new_user = {...user_changes}
     if (user_changes.image)
-      new_user.image = await API.uploadProfilePicture(user_changes.image)
+      await API.uploadProfilePicture(user_changes.image)
 
-    await API.editUser(user.id, new_user)
+    if (user_changes.nickname)
+      await API.editUser(user.id, user_changes)
 
     setUser({...user, ...user_changes})
     setUserChanges({})

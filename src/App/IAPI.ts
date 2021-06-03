@@ -40,7 +40,7 @@ interface IAPI {
 
   updateTaskStatus: (task: Task, status: 'Claimed'|'Done') => Promise<Task>
 
-  uploadProfilePicture: (uri: string) => Promise<string>
+  uploadProfilePicture: (uri: string) => Promise<void>
   //#endregion
 }
 
