@@ -33,10 +33,8 @@ interface IAPI {
     description?: string,
     id: string,
   }) => Promise<Task>
-  editTask: (task: Task) => Promise<void>
 
   addUserToList: (user_id: string, list: TodoList) => Promise<void>
-  removeUserFromList: (user_id: string, list: TodoList) => Promise<void>
   addContact: (contact_id: string, user_id: string) => Promise<void>
   removeContact: (contact_id: string, user_id: string) => Promise<void>
 

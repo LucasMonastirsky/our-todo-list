@@ -151,7 +151,11 @@ API = class API {
       DEBUG.warn(`Could not find users with ids`,
         users.filter(user => !ids.includes(user.id)).map(user => user.id))
 
-    users.forEach(user => API.cache.users[user.id] = user)
+    users.forEach(user => {
+      if (user.contact_ids === undefined)
+        user.contact_ids = []
+      API.cache.users[user.id] = user
+    })
 
     DEBUG.log(`Found ${users.length} users`)
     
@@ -283,36 +287,6 @@ API = class API {
     return task
   }
 
-  static editTask = async (task: Task) => {
-    DEBUG.log(`Editting task '${task.title}'...`)
-    const response = await dynamo_client.update({
-      TableName: 'Lists',
-      Key: { id: task.list_id },
-      UpdateExpression: 'SET #tasks.#id = :updated_task',
-      ExpressionAttributeNames: {
-        '#tasks': 'tasks',
-        '#id': task.id,
-      },
-      ExpressionAttributeValues: {
-        ':updated_task': task,
-      },
-      ReturnValues: DEBUG.enabled ? 'UPDATED_OLD' : 'NONE'
-    }).promise()
-
-    API.cache.lists[task.list_id].tasks[task.id] = task
-
-    if (DEBUG.enabled && response) {
-      const old_task = response.Attributes!.tasks[task.id]
-      const updated_values: { [key: string]: any } = {}
-      Object.keys(task).forEach(key => {
-        if (task[key as keyof Task] !== old_task[key as keyof Task])
-          updated_values[key] = task[key as keyof Task]
-      })
-      DEBUG.log(`Updated task ${task.title} with values`, updated_values)
-    }
-    else DEBUG.log(`Updated task ${task.title}`)
-  }
-
   static addUserToList = async (user_id: string, list: TodoList) => {
     DEBUG.log(`Adding user ${user_id} to list ${list.title}...`)
     if (list.member_ids.includes(user_id)) {
@@ -332,44 +306,10 @@ API = class API {
     DEBUG.log(`Updated user ${user_id}`)
   }
 
-  static removeUserFromList = async (user_id: string, list: TodoList) => {
-    DEBUG.log(`Removing user ${user_id} from list ${list.title}...`)
-
-    if (!list.member_ids.includes(user_id))
-      throw new Error(`User ${user_id} is not a member of list ${list.title}`)
-
-    const result = await dynamo_client.update({
-      TableName: 'Lists',
-      Key: { id: list.id },
-      UpdateExpression: 'DELETE member_ids :user_id',
-      ExpressionAttributeValues: { ':user_id': arrayToSet([user_id]) },
-      ReturnValues: DEBUG.enabled ? 'UPDATED_NEW' : 'NONE',
-    }).promise()
-
-    DEBUG.log(`Updating cache...`)
-    const index = API.cache.lists[list.id].member_ids.indexOf(user_id)
-    API.cache.lists[list.id].member_ids.splice(index, 1)
-
-    DEBUG.log(`Removed user ${user_id} from list ${list.title}`)
-  }
-
   static addContact = async (contact_id: string, user_id: string) => {
     DEBUG.log(`Adding user ${contact_id} to contacts of ${user_id}`)
 
-    if (contact_id === user_id)
-      throw new Error(`Users can't add themselves (user id: ${user_id})`)
-    if ((await API.getCachedUser(user_id)).contact_ids.includes(contact_id))
-      throw new Error(`User ${user_id} has already added user ${contact_id}`)
-    if (!(await API.getCachedUser(contact_id)))
-      throw new Error(`User ${contact_id} doesn't exist`)
-
-    const result = await dynamo_client.update({
-      TableName: 'Users',
-      Key: { id: user_id } ,
-      UpdateExpression: 'ADD contact_ids :contact_id',
-      ExpressionAttributeValues: { ':contact_id': arrayToSet([contact_id]) },
-      ReturnValues: DEBUG.enabled ? 'UPDATED_NEW' : 'NONE',
-    }).promise()
+    await invokeLambda('add_contact', { contact_id })
 
     API.cache.users[user_id].contact_ids.push(contact_id)
 

@@ -18,7 +18,7 @@ const view = () => {
 
   const submitContact = async () => {
     if (new_contact_id.length < 1
-    || API.user.contact_ids.includes(new_contact_id))
+    || API.user.contact_ids?.includes(new_contact_id))
       return
 
     setLoadingNewContact(true)
@@ -28,8 +28,8 @@ const view = () => {
       await API.addContact(new_contact_id, API.user.id)
       const new_contact = await API.getCachedUser(new_contact_id)
       setContacts(x => [...x, new_contact])
-    } catch {
-      // TODO: handle errors
+    } catch (e) {
+      throw e
     } finally {
       setLoadingNewContact(false)
       setAddingContact(false) 
