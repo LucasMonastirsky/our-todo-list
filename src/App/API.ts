@@ -3,10 +3,9 @@ import Amplify from 'aws-amplify'
 import { Task, TodoList } from "../Models"
 import User from "../Models/User"
 import AWS from 'aws-sdk'
-import { amplify_config, aws_sdk_config, secrets } from '../Secrets'
+import { amplify_config, aws_sdk_config } from '../Secrets'
 import { IAPI, Navigation } from '.'
 import DEBUG from "../Utils/DEBUG"
-import { RNS3 } from 'react-native-aws3'
 import Notifications from "./Notifications"
 import { Dictionary } from "../Utils"
 import { AuthenticationLayout } from "../Layouts"
@@ -15,7 +14,6 @@ import FS from 'react-native-fs'
 AWS.config.update(aws_sdk_config)
 Amplify.configure(amplify_config)
 
-const dynamo_client =  new AWS.DynamoDB.DocumentClient()
 const lambda_client = new AWS.Lambda()
 
 let API: IAPI
@@ -48,7 +46,7 @@ API = class API {
 
   static signIn = async (username: string, password: string) => {
     DEBUG.log(`Authenticating user ${username}...`)
-    await Auth.signIn(username, password).catch(e => { DEBUG.error(e); throw e })
+    await Auth.signIn(username, password)
 
     DEBUG.log(`Authenticated user ${username}, getting user data...`)
     const cognito_user = await Auth.currentAuthenticatedUser()
@@ -82,6 +80,7 @@ API = class API {
 
     API.current_user_id = user.id
     API.cache.users[user.id] = user
+    API.cache.users[user.id].image += `?query=${Date.now()}`
 
     DEBUG.log(`Signed in user ${API.user.username}`)
   }
@@ -173,16 +172,19 @@ API = class API {
     API.cache.users[id] = response
 
     if (changes.image) // hack to force react-native to fetch the new image
-      API.cache.users[id].image += `?date=${Date.now()}` // this won't work with other users...
+      API.cache.users[id].image += `?query=${Date.now()}` // this won't work with other users...
 
     DEBUG.log(`Updated user ${id}`)
   }
 
   static getContacts = async () => {
     DEBUG.log(`Fetching contacts...`)
-    const contacts = await invokeLambda('get_contacts')
+    const contacts: User[] = await invokeLambda('get_contacts')
 
     DEBUG.log(`Found ${contacts.length} contacts`)
+
+    contacts.forEach(user => API.cache.users[user.id] = user)
+
     return contacts
   }
 
@@ -216,7 +218,10 @@ API = class API {
     const response: TodoList[] = await invokeLambda('get_own_lists')
 
     const lists: Dictionary<TodoList> = new Dictionary<TodoList>()
-    response.forEach(list => lists.set(list.id, list))
+    response.forEach(list => {
+      lists.set(list.id, list)
+      API.cache.lists[list.id] = list
+    })
 
     DEBUG.log(`Got ${lists.keys.length} lists from user ${API.user.username}`)
 
@@ -229,10 +234,7 @@ API = class API {
     id: string,
   }) => {
     DEBUG.log(`Creating list ${properties.title}...`)
-    const list = await invokeLambda('create_todo_list', {
-      ...properties,
-      user_id: API.user.id,
-    }) as TodoList
+    const list: TodoList = await invokeLambda('create_todo_list', properties)
 
     DEBUG.log(`Updating cache...`)
     API.cache.users[API.user.id].list_ids.push(list.id)
@@ -257,6 +259,10 @@ API = class API {
     
     await invokeLambda('delete_todo_list', { list_id: id })
 
+    API.cache.lists[id].member_ids.forEach(member_id => {
+      const index = API.cache.users[member_id].list_ids.indexOf(id)
+      API.cache.users[member_id].list_ids.splice(index, 1)
+    })
     delete API.cache.lists[id]
 
     DEBUG.log(`Deleted list ${id}`)
@@ -272,7 +278,6 @@ API = class API {
     const task = await invokeLambda('create_task', {
       ...properties,
       list_id: list.id,
-      user_id: API.user.id,
     })
 
     DEBUG.log(`Created task ${properties.title}, storing in cache...`)
@@ -297,6 +302,7 @@ API = class API {
     })
  
     API.cache.lists[list.id].member_ids.push(user_id)
+    API.cache.users[user_id]?.list_ids.push(list.id)
 
     DEBUG.log(`Updated user ${user_id}`)
   }
@@ -340,7 +346,6 @@ API = class API {
     DEBUG.log(`Updating status of task '${task.title}'`)
     
     const updated_task = await invokeLambda('update_task_status', {
-      user_id: API.user.id,
       task_id: task.id,
       list_id: task.list_id,
       status,
@@ -372,18 +377,6 @@ async function invokeLambda(function_name: string, params?: any) {
   }
 
   return payload.body
-}
-
-function buildUpdateQuery (changes: any) {
-  let expression = 'SET '
-  let values: { [key: string]: any } = {}
-  Object.keys(changes).forEach((key, index) => {
-    if (index > 0)
-      expression += ', '
-    expression += `${key} = :${index}`
-    values[`:${index}`] = changes[key as keyof User]
-  })
-  return { expression, values }
 }
 //#endregion
 
