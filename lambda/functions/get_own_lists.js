@@ -46,15 +46,33 @@ exports.handler = async (event) => {
 
   console.log(`Formatting lists...`)
 
+  const user_ids = {}
   lists.forEach(list => {
     list.member_ids = list.member_ids ? [...JSON.parse(JSON.stringify(list.member_ids))] : []
     delete list.topic_arn
+    list.member_ids.forEach(id => user_ids[id] = true)
+  })
+
+  console.log(`Fetching users...`)
+
+  const { Responses: { Users: users } } = await db.batchGet({
+    RequestItems: { 'Users': { Keys: Object.keys(user_ids).map(id => ({id})) } }
+  }).promise()
+
+  console.log(`Formatting users...`)
+
+  users.forEach(user => {
+    user.contact_ids = user.contact_ids ?? []
+    delete user.notification_arn
   })
 
   console.log(`Done!`)
   
   return {
     statusCode: 200,
-    body: lists,
+    body: {
+      lists,
+      users
+    },
   }
 }

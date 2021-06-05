@@ -189,6 +189,19 @@ API = class API {
   }
 
   static getMembersFromList = async (list_id: string) => {
+    DEBUG.log(`Trying to get list members from cache...`)
+    const users: User[] = []
+    API.cache.lists[list_id].member_ids.some(id => {
+      if (API.cache.users[id] !== undefined)
+        users.push(API.cache.users[id])
+      else return true
+    })
+
+    if (users.length === API.cache.lists[list_id].member_ids.length) {
+      DEBUG.log(`Found all ${users.length} members in cache`)
+      return users
+    }
+
     DEBUG.log(`Fetching members from list ${list_id}...`)
     const members: User[] = await invokeLambda('get_list_members', { list_id })
 
@@ -215,15 +228,17 @@ API = class API {
   static getLists = async () => {
     DEBUG.log(`Getting lists...`)
 
-    const response: TodoList[] = await invokeLambda('get_own_lists')
+    const response: { lists: TodoList[], users: User[] } = await invokeLambda('get_own_lists')
 
     const lists: Dictionary<TodoList> = new Dictionary<TodoList>()
-    response.forEach(list => {
+    response.lists.forEach(list => {
       lists.set(list.id, list)
       API.cache.lists[list.id] = list
     })
 
-    DEBUG.log(`Got ${lists.keys.length} lists from user ${API.user.username}`)
+    response.users.forEach(user => API.cache.users[user.id] = user)
+
+    DEBUG.log(`Got ${lists.keys.length} lists from user ${API.user.username} and cached ${response.users.length} users`)
 
     return lists
   }
@@ -361,12 +376,16 @@ API = class API {
   //#endregion
 }
 
+let lambda_invokations = 0
 //#region Utils
 async function invokeLambda(function_name: string, params?: any) {
   const response = await lambda_client.invoke({
     FunctionName: function_name,
     Payload: JSON.stringify({...(params??{}), jwt: API.access_token})
   }).promise()
+
+  lambda_invokations++
+  DEBUG.log(`Lambda invokations: ${lambda_invokations}`)
 
   const payload = JSON.parse(response.Payload as string)
 
