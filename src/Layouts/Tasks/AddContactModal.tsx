@@ -39,7 +39,7 @@ export default (props: {list: TodoList, setList: StateSetter<TodoList>, close: A
           { users && users.length >= 1 &&
             <ScrollView>
               {users.map(user =>
-                <TouchableOpacity style={css.user_item} onPress={()=>onSelect(user)}>
+                <TouchableOpacity style={css.user_item} onPress={()=>onSelect(user)} key={user.id}>
                   <ProfilePicture user_id={user.id} size='medium' />
                   <AppText style={css.user_name}>{user.nickname}</AppText>
                 </TouchableOpacity>  

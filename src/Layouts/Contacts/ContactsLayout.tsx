@@ -43,7 +43,7 @@ const view = () => {
 
   const MemberItem = (user: User) => {
     return (
-      <View style={css.member_item}>
+      <View style={css.member_item} key={user.id}>
         <ProfilePicture user_id={user.id} size='medium' />
         <AppText style={css.member_item_name}>{user.nickname}</AppText>
         <AppIcon style={css.member_remove_icon} onPress={()=>removeContact(user.id)} source={require('../../Media/Icons/remove.png')} />
