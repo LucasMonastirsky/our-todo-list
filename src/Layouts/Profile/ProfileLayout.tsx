@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { launchImageLibrary } from 'react-native-image-picker'
 import ImageResizer from 'react-native-image-resizer';
-import { API } from '../../App'
+import { ListsLayout } from '..';
+import { API, Navigation } from '../../App'
 import { AppButton, AppText, Horizontal, Loading, ProfilePicture } from '../../Components'
 import { TodoList, User } from '../../Models'
 import { colors, style } from '../../Styling'
@@ -16,6 +17,8 @@ const view = () => {
   
   useEffect(() => {
     API.getLists().then(setLists)
+
+    return Navigation.setBackHandler(() => Navigation.goTo(ListsLayout))
   }, [])
 
   const onPressImage = async () => {

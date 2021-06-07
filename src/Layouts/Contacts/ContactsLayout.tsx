@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
+import { ListsLayout } from '..'
 import { API } from '../../App'
-import { Layout } from '../../App/Navigation'
+import Navigation, { Layout } from '../../App/Navigation'
 import { AppButtonItem, AppIcon, AppText, ItemCreator, Loading, ProfilePicture } from '../../Components'
 import { User } from '../../Models'
 import { colors, style } from '../../Styling'
@@ -14,6 +15,8 @@ const view = () => {
 
   useEffect(() => {
     API.getContacts().then(setContacts)
+
+    return Navigation.setBackHandler(() => Navigation.goTo(ListsLayout))
   }, [])
 
   const submitContact = async () => {

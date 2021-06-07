@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { LayoutAnimation, Platform, ScrollView, StyleSheet, TextInput, TouchableOpacity, UIManager, View } from 'react-native'
+import { Platform, ScrollView, StyleSheet, TextInput, TouchableOpacity, UIManager, View } from 'react-native'
 import uuid from 'react-native-uuid'
 import { ListsLayout } from '..'
 import { API, Notifications } from '../../App'
@@ -38,6 +38,8 @@ const view = (props: { list: TodoList, members: User[] }) => {
     const removers: Function[] = []
     removers.push(Notifications.addTaskCreatedListener(onRemoteTaskCreated).remove)
     removers.push(Notifications.addTaskUpdatedListener(onRemoteTaskUpdated).remove)
+
+    removers.push(Navigation.setBackHandler(() => Navigation.goTo(ListsLayout)))
 
     if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental)
       UIManager.setLayoutAnimationEnabledExperimental(true)

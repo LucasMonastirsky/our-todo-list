@@ -1,3 +1,4 @@
+import { BackHandler } from "react-native"
 import { ListsLayout } from "../Layouts"
 
 export type LayoutProps = { active?: boolean } // LayoutViews have to use this
@@ -20,6 +21,14 @@ class Navigation {
       layout.props = props
     Navigation._current_layout = layout
     Navigation.onChangeLayout(layout)
+  }
+
+  static setBackHandler = (handler: Function) => {
+    return BackHandler.addEventListener('hardwareBackPress', () => {
+      handler()
+
+      return true
+    }).remove
   }
 
   static reset() {

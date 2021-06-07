@@ -1,41 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { BackHandler, StyleSheet, View } from 'react-native'
-import { API, Navigation } from '.';
-import { AuthenticationLayout, ListsLayout } from '../Layouts';
+import { StyleSheet, View } from 'react-native'
+import { Navigation } from '.';
+import { AuthenticationLayout } from '../Layouts';
 import { colors } from '../Styling';
-import { screen, useAsyncState } from '../Utils';
-import { Layout } from './Navigation';
+import { screen } from '../Utils';
 
 const App = () => {
-  const [logged_in, setLoggedIn] = useState(false)
-  const [layout_stack, setLayoutStack] = useState<Layout[]>([AuthenticationLayout])
+  const [current_layout, setCurrentLayout] = useState(AuthenticationLayout)
 
   useEffect(() => {
-    Navigation.onChangeLayout = (new_layout) => {
-      setLayoutStack(prev => [ ...prev, new_layout])
-    }
-
-    return BackHandler.addEventListener('hardwareBackPress', backHandler).remove
+    Navigation.onChangeLayout = setCurrentLayout
   }, [])
 
-  const backHandler = () => {
-    let length = -1
-    setLayoutStack(previous => {
-      length = previous.length
-      previous.splice(previous.length - 1, 1)
-      return [...previous]
-    })
-    return length > 1
-  }
-
-  return (
+  const Layout = current_layout.view
+  return ( 
     <View style={css.app}>
-      {layout_stack.map((layout, index) => {
-        if (index !== layout_stack.length - 1)
-          return null // this can be used for transition animations
-        const LayoutView = layout.view
-        return <LayoutView {...layout.props} key={index} />
-      })}
+      <Layout {...current_layout.props} />
     </View>
   )
 }
@@ -46,16 +26,6 @@ const css = StyleSheet.create({
     backgroundColor: colors.background,
     width: screen.width,
   },
-  content: {
-    flexDirection: 'row',
-    height: '100%',
-  },
-  layout_container: {
-    width: screen.width,
-  },
-  hidden_layout: {
-    width: screen.width,
-  }
 })
 
 export default App
