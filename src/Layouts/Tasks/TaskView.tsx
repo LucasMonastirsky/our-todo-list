@@ -131,8 +131,6 @@ const TaskView = (props: PropTypes) => {
   })
 
   const anim = createAnimation({duration: style.anim_duration / props.total * (props.index + 1)})
-  const [test, setTest] = useState(0)
-  anim.addListener(({value})=>setTest(value))
   
   const done = props.task.status === 'Done'
   return (

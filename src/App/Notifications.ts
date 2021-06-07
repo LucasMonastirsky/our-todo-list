@@ -5,8 +5,6 @@ import DEBUG from '../Utils/DEBUG';
 import API from './API';
 import uuid from 'react-native-uuid'
 import { Dictionary } from '../Utils';
-import Navigation from './Navigation';
-import { TasksLayout } from '../Layouts';
 
 const channel_id = 'our_todo_main_channel'
 
