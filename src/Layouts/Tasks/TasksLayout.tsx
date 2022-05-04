@@ -104,11 +104,35 @@ const view = (props: { list: TodoList, members: User[] }) => {
   //#endregion
 
   //#region Render
+  if (deleting) // TODO: handle errors
+    return <DeletingMessage list_title={list.title} />
+
+  // TODO: memo this
+  const not_done: Task[] = []
+  const done: Task[] = []
+  for (const id in list.tasks) {
+    const task = list.tasks[id]
+    if (task.status === 'Done') done.push(task)
+    else not_done.push(task)
+  }
+  const tasks = [...not_done, ...done]
+
+  const mapTask = (task: Task, index: number) => (
+    <TaskView {...{
+      key: task.id,
+      task: task,
+      index,
+      total: tasks.length,
+      setScrollEnabled,
+      setList,
+    }} />
+  )
+
   const inputProps = (property: keyof TodoList & keyof typeof css) => ({
     style: css[property],
     value: changes[property] || list[property],
     spellCheck: false,
-    editable: extended,
+    editable: extended && list.owner_id === API.user.id,
     onChangeText: (text: string) => setChanges(prev => ({...prev, [property]: text})),
     onSubmitEditing: uploadChanges,
     onEndEditing: () => setChanges(prev => {
@@ -117,26 +141,12 @@ const view = (props: { list: TodoList, members: User[] }) => {
     })
   })
 
-  const mapTask = (task: Task, index: number) => (
-    <TaskView {...{
-      key: task.id,
-      task: task,
-      index,
-      total: Object.values(list.tasks).length,
-      setScrollEnabled,
-      setList,
-    }} />
-  )
-
-  if (deleting)
-    return <DeletingMessage list_title={list.title} />
-
   return (
     <View style={css.container}>
       <TouchableOpacity style={css.header} onPress={toggleExtended}>
         <Horizontal>
           <TextInput  {...inputProps('title')} />
-          {extended && <AppIcon
+          {extended && list.owner_id === API.user.id && <AppIcon
             style={css.header_delete_icon}
             source={require('../../Media/Icons/remove.png')}
             onPress={()=>setDeleteModalActive(true)}
@@ -150,16 +160,14 @@ const view = (props: { list: TodoList, members: User[] }) => {
           </TouchableOpacity>
         }
       </TouchableOpacity>
-      {/* TODO: this needs optimization */}
-      {Object.values(list.tasks).length < 1 && !adding_task 
+      {tasks.length < 1 && !adding_task 
       ? <View style={css.no_tasks_text_container}>
           <AppText style={css.no_tasks_text}>This list has no tasks</AppText>
           <AppText style={css.no_tasks_text}>Add a task by pressing the button at the bottom of the screen</AppText>
         </View>
       : <ScrollView scrollEnabled={scroll_enabled}>
           {adding_task && <ItemCreator onChange={setNewTaskTitle} onSubmit={submitNewTask} onCancel={setAddingTask} />}
-          {Object.values(list.tasks).filter(x=>x.status !== 'Done').map(mapTask)}
-          {Object.values(list.tasks).filter(x=>x.status === 'Done').map(mapTask)}
+          {tasks.map(mapTask)}
         </ScrollView>
       }
       <AppButtonItem icon={adding_task?'done':'plus'} onPress={adding_task?submitNewTask:()=>setAddingTask(true)} />
