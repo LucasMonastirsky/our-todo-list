@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const jwkToPem = require('jwk-to-pem')
 
-const keys = require('./jwk.json').keys.map(x => jwkToPem(x))
+const keys = JSON.parse(process.env.JWK).keys.map(x => jwkToPem(x))
 
 function verify (token) {
   let error

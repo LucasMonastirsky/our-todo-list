@@ -1,9 +1,10 @@
 const AWS = require('aws-sdk')
 const jwt_verifier = require('./jwt_verifier')
 const verify_parameters = require('./verify_parameters')
+const withLogBuffer = require('./log_buffer')
 
-exports.handler = async (event) => {
-  console.log(`Verifying parameters...`)
+exports.handler = withLogBuffer(async (buffer, event) => {
+  buffer.log(`Verifying parameters...`)
 
   const { missing_keys, unwanted_keys} = verify_parameters(event, ['username', 'notification_token'])
 
@@ -17,7 +18,7 @@ exports.handler = async (event) => {
     error: `Invalid parameters: ${unwanted_keys}`
   }
 
-  console.log(`Verifying JWT...`)
+  buffer.log(`Verifying JWT...`)
 
   const { user_id, error } = jwt_verifier.verify(event.jwt)
   if (error) return {
@@ -35,14 +36,14 @@ exports.handler = async (event) => {
     list_ids: [],
   }
 
-  console.log(`Creating Platform Application Endpoint...`)
+  buffer.log(`Creating Platform Application Endpoint...`)
   const sns = new AWS.SNS()
   const sns_result = await sns.createPlatformEndpoint({
     PlatformApplicationArn: process.env.PLATFORM_APPLICATION_ARN,
     Token: event.notification_token,
   }).promise()
 
-  console.log(`Adding user to database...`)
+  buffer.log(`Adding user to database...`)
   const db = new AWS.DynamoDB.DocumentClient()
   await db.put({
     TableName: 'Users',
@@ -53,4 +54,4 @@ exports.handler = async (event) => {
     statusCode: 200,
     body: user,
   }
-}
+})

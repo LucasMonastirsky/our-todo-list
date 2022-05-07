@@ -1,9 +1,10 @@
 const AWS = require('aws-sdk')
 const jwt_verifier = require('./jwt_verifier')
 const verify_parameters = require('./verify_parameters')
+const withLogBuffer = require('./log_buffer')
 
-exports.handler = async (event) => {
-  console.log(`Verifying parameters...`)
+exports.handler = withLogBuffer(async (buffer, event) => {
+  buffer.log(`Verifying parameters...`)
 
   const { missing_keys, unwanted_keys} = verify_parameters(event, ['task_id', 'list_id'])
 
@@ -17,7 +18,7 @@ exports.handler = async (event) => {
     error: `Invalid parameters: ${unwanted_keys}`
   }
 
-  console.log(`Verifying JWT...`)
+  buffer.log(`Verifying JWT...`)
 
   const { user_id, error } = jwt_verifier.verify(event.jwt)
   if (error) return {
@@ -27,7 +28,7 @@ exports.handler = async (event) => {
 
   if (event.status !== 'Claimed' || event.status !== 'Done')
 
-  console.log(`Updating list...`)
+  buffer.log(`Updating list...`)
 
   const db = new AWS.DynamoDB.DocumentClient()
 
@@ -50,8 +51,8 @@ exports.handler = async (event) => {
   }).promise()
   const task = list.tasks[event.task_id]
 
-  console.log(`Updated task ${task.title}`)
-  console.log(`Getting user data...`)
+  buffer.log(`Updated task ${task.title}`)
+  buffer.log(`Getting user data...`)
 
   const { Item: user } = await db.get({
     TableName: 'Users',
@@ -59,8 +60,8 @@ exports.handler = async (event) => {
     AttributesToGet: [ 'id', 'nickname' ]
   }).promise()
 
-  console.log(`Got user data:`, user)
-  console.log(`Publishing message to topic...`)
+  buffer.log(`Got user data:`, user)
+  buffer.log(`Publishing message to topic...`)
 
   const sns = new AWS.SNS()
   await sns.publish({
@@ -73,10 +74,10 @@ exports.handler = async (event) => {
     })
   }).promise()
   
-  console.log(`Published message to topic`)
+  buffer.log(`Published message to topic`)
 
   return {
     statusCode: 200,
     body: task
   }
-}
+})

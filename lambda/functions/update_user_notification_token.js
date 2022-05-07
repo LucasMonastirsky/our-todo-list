@@ -1,9 +1,10 @@
 const AWS = require('aws-sdk')
 const jwt_verifier = require('./jwt_verifier')
 const verify_parameters = require('./verify_parameters')
+const withLogBuffer = require('./log_buffer')
 
-exports.handler = async (event) => {
-  console.log(`Verifying parameters...`)
+exports.handler = withLogBuffer(async (buffer, event) => {
+  buffer.log(`Verifying parameters...`)
 
   const { missing_keys, unwanted_keys} = verify_parameters(event, ['notification_token'])
 
@@ -17,7 +18,7 @@ exports.handler = async (event) => {
     error: `Invalid parameters: ${unwanted_keys}`
   }
 
-  console.log(`Verifying JWT...`)
+  buffer.log(`Verifying JWT...`)
 
   const { user_id, error } = jwt_verifier.verify(event.jwt)
   if (error) return {
@@ -25,7 +26,7 @@ exports.handler = async (event) => {
     error: error.message,
   }
 
-  console.log(`Getting user's ARN from DynamoDB...`)
+  buffer.log(`Getting user's ARN from DynamoDB...`)
 
   const db = new AWS.DynamoDB.DocumentClient()
   const user_result = await db.get({
@@ -34,7 +35,7 @@ exports.handler = async (event) => {
     AttributesToGet: ['notification_arn']
   }).promise()
 
-  console.log(`Updating token...`)
+  buffer.log(`Updating token...`)
   const sns = new AWS.SNS()
   await sns.setEndpointAttributes({
     EndpointArn: user_result.Item.notification_arn,
@@ -47,4 +48,4 @@ exports.handler = async (event) => {
   return {
     statusCode: 200,
   }
-}
+})

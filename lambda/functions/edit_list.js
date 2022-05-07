@@ -1,9 +1,10 @@
 const AWS = require('aws-sdk')
 const jwt_verifier = require('./jwt_verifier')
 const verify_parameters = require('./verify_parameters')
+const withLogBuffer = require('./log_buffer')
 
-exports.handler = async (event) => {
-  console.log(`Verifying parameters...`)
+exports.handler = withLogBuffer(async (buffer, event) => {
+  buffer.log(`Verifying parameters...`)
 
   const { missing_keys, unwanted_keys} = verify_parameters(event, ['list_id', 'changes'])
 
@@ -22,7 +23,7 @@ exports.handler = async (event) => {
     error: `Title is too long`
   }
 
-  console.log(`Verifying JWT...`)
+  buffer.log(`Verifying JWT...`)
 
   const { user_id, error } = jwt_verifier.verify(event.jwt)
   if (error) return {
@@ -30,7 +31,7 @@ exports.handler = async (event) => {
     error: error.message
   }
 
-  console.log(`Verifying ownership...`)
+  buffer.log(`Verifying ownership...`)
 
   const db = new AWS.DynamoDB.DocumentClient()
   const { Item: original_list } = await db.get({
@@ -39,14 +40,14 @@ exports.handler = async (event) => {
   }).promise()
 
   if (original_list.owner_id !== user_id) {
-    console.error(`User does not own list`)
+    buffer.error(`User does not own list`)
     return {
       statusCode: 403,
       error: `User does not own list`
     }
   }
 
-  console.log(`Updating list...`)
+  buffer.log(`Updating list...`)
 
   const update_query = buildUpdateQuery(event.changes)
   const { Attributes: list } = await db.update({
@@ -57,18 +58,18 @@ exports.handler = async (event) => {
     ReturnValues: 'ALL_NEW',
   }).promise()
 
-  console.log(`Formatting list...`)
+  buffer.log(`Formatting list...`)
 
   list.member_ids = list.member_ids ? [...JSON.parse(JSON.stringify(list.member_ids))] : []
   delete list.topic_arn
 
-  console.log(`Done!`)
+  buffer.log(`Done!`)
   
   return {
     statusCode: 200,
     body: list,
   }
-}
+})
 
 function buildUpdateQuery (changes) {
   let expression = 'SET '

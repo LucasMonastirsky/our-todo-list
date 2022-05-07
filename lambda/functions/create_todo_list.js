@@ -1,9 +1,10 @@
 const AWS = require('aws-sdk')
 const jwt_verifier = require('./jwt_verifier')
 const verify_parameters = require('./verify_parameters')
+const withLogBuffer = require('./log_buffer')
 
-exports.handler = async (event) => {
-  console.log(`Verifying parameters...`)
+exports.handler = withLogBuffer(async (buffer, event) => {
+  buffer.log(`Verifying parameters...`)
 
   const { missing_keys, unwanted_keys} = verify_parameters(event, ['title', 'id'])
 
@@ -17,7 +18,7 @@ exports.handler = async (event) => {
     error: `Invalid parameters: ${unwanted_keys}`
   }
 
-  console.log(`Verifying JWT...`)
+  buffer.log(`Verifying JWT...`)
 
   const { user_id, error } = jwt_verifier.verify(event.jwt)
   if (error) return {
@@ -33,15 +34,15 @@ exports.handler = async (event) => {
     owner_id: user_id,
   }
 
-  console.log(`Formatted list: `, list)
-  console.log(`Creating topic...`)
+  buffer.log(`Formatted list: `, list)
+  buffer.log(`Creating topic...`)
 
   const sns = new AWS.SNS()
   const topic = await sns.createTopic({Name: list.id}).promise()
   list.topic_arn = topic.TopicArn
 
-  console.log(`Created topic with ARN ${topic.TopicArn}`)
-  console.log(`Putting list into DynamoDB...`)
+  buffer.log(`Created topic with ARN ${topic.TopicArn}`)
+  buffer.log(`Putting list into DynamoDB...`)
 
   let db = new AWS.DynamoDB.DocumentClient()
   await db.put({
@@ -49,7 +50,7 @@ exports.handler = async (event) => {
     Item: {...list, member_ids: db.createSet(list.member_ids)},
   }).promise()
 
-  console.log(`Updating user with new list id...`)
+  buffer.log(`Updating user with new list id...`)
 
   const { Attributes: user } = await db.update({
     TableName: 'Users',
@@ -60,8 +61,8 @@ exports.handler = async (event) => {
     ReturnValues: 'ALL_NEW',
   }).promise()
 
-  console.log(`Updated user:`, user)
-  console.log(`Creating subscription...`)
+  buffer.log(`Updated user:`, user)
+  buffer.log(`Creating subscription...`)
 
   const subscription = await sns.subscribe({
     Protocol: 'application',
@@ -69,10 +70,10 @@ exports.handler = async (event) => {
     Endpoint: user.notification_arn,
   }).promise()
 
-  console.log(`Created subscription`)
+  buffer.log(`Created subscription`)
 
   return {
     statusCode: 200,
     body: list,
-  };
-};
+  }
+})

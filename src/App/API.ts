@@ -13,6 +13,7 @@ import FS from 'react-native-fs'
 
 AWS.config.update(aws_sdk_config)
 Amplify.configure(amplify_config)
+Auth.configure({ authenticationFlowType: 'USER_PASSWORD_AUTH' })
 
 const lambda_client = new AWS.Lambda()
 
@@ -376,16 +377,12 @@ API = class API {
   //#endregion
 }
 
-let lambda_invokations = 0
 //#region Utils
 async function invokeLambda(function_name: string, params?: any) {
   const response = await lambda_client.invoke({
     FunctionName: function_name,
     Payload: JSON.stringify({...(params??{}), jwt: API.access_token})
   }).promise()
-
-  lambda_invokations++
-  DEBUG.log(`Lambda invokations: ${lambda_invokations}`)
 
   const payload = JSON.parse(response.Payload as string)
 

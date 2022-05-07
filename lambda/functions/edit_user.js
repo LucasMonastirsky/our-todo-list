@@ -1,9 +1,10 @@
 const AWS = require('aws-sdk')
 const jwt_verifier = require('./jwt_verifier')
 const verify_parameters = require('./verify_parameters')
+const withLogBuffer = require('./log_buffer')
 
-exports.handler = async (event) => {
-  console.log(`Verifying parameters...`)
+exports.handler = withLogBuffer(async (buffer, event) => {
+  buffer.log(`Verifying parameters...`)
 
   const { missing_keys, unwanted_keys} = verify_parameters(event, ['changes'])
 
@@ -20,7 +21,7 @@ exports.handler = async (event) => {
   const allowed_keys = ['nickname']
   for (const key in event.changes) {
     if (!allowed_keys.includes(key)) {
-      console.error(`Unwanted change: ${key}`)
+      buffer.error(`Unwanted change: ${key}`)
       return {
         statusCode: 400,
         error: `Invalid parameter: changes.${key}`
@@ -33,7 +34,7 @@ exports.handler = async (event) => {
     error: `Nickname is too long`
   }
 
-  console.log(`Verifying JWT...`)
+  buffer.log(`Verifying JWT...`)
 
   const { user_id, error } = jwt_verifier.verify(event.jwt)
   if (error) return {
@@ -41,7 +42,7 @@ exports.handler = async (event) => {
     error: error.message
   }
 
-  console.log(`Updating user...`)
+  buffer.log(`Updating user...`)
   const db = new AWS.DynamoDB.DocumentClient()
 
   const update_query = buildUpdateQuery(event.changes)
@@ -53,18 +54,18 @@ exports.handler = async (event) => {
     ReturnValues: 'ALL_NEW',
   }).promise()
 
-  console.log(`Formatting user...`)
+  buffer.log(`Formatting user...`)
 
   user.contact_ids = user.contact_ids ? [...JSON.parse(JSON.stringify(user.contact_ids))] : []
   delete user.notification_arn
 
-  console.log(`Done!`)
+  buffer.log(`Done!`)
   
   return {
     statusCode: 200,
     body: user,
   }
-}
+})
 
 function buildUpdateQuery (changes) {
   let expression = 'SET '

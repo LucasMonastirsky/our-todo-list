@@ -1,14 +1,15 @@
 const AWS = require('aws-sdk')
 const jwt_verifier = require('./jwt_verifier')
+const withLogBuffer = require('./log_buffer')
 
-exports.handler = async (event) => {
+exports.handler = withLogBuffer(async (buffer, event) => {
   if (!Array.isArray(event.ids) || event.ids.length < 1) return {
     statusCode: 400,
     error: `No user ids were provided`
   }
 
-  console.log(`Requested ids:`, event.ids)
-  console.log(`Verifying JWT...`)
+  buffer.log(`Requested ids:`, event.ids)
+  buffer.log(`Verifying JWT...`)
 
   const { user_id, error } = jwt_verifier.verify(event.jwt)
   if (error) return {
@@ -16,7 +17,7 @@ exports.handler = async (event) => {
     error: error.message
   }
 
-  console.log(`Fetching users...`)
+  buffer.log(`Fetching users...`)
 
   const db = new AWS.DynamoDB.DocumentClient()
   const { Responses: { Users: users } } = await db.batchGet({ RequestItems: {
@@ -26,7 +27,7 @@ exports.handler = async (event) => {
   }
   }).promise()
 
-  console.log(`Found ${users.length} users`)
+  buffer.log(`Found ${users.length} users`)
 
   if (users.length !== event.ids.length) {
     const missing_ids = []
@@ -34,10 +35,10 @@ exports.handler = async (event) => {
       if (!event.ids.includes(user.id))
         missing_ids.push(user.id)
     })
-    console.warn(`Could not find users with ids:`, missing_ids)
+    buffer.warn(`Could not find users with ids:`, missing_ids)
   }
 
-  console.log(`Formatting users...`)
+  buffer.log(`Formatting users...`)
 
   users.forEach(user => {
     if (user.contact_ids === undefined)
@@ -46,10 +47,10 @@ exports.handler = async (event) => {
     delete user.notification_arn
   })
 
-  console.log(`Done!`)
+  buffer.log(`Done!`)
 
   return {
     statusCode: 200,
     body: users,
   }
-}
+})

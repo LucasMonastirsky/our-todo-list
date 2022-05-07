@@ -1,9 +1,10 @@
 const AWS = require('aws-sdk')
 const jwt_verifier = require('./jwt_verifier')
 const verify_parameters = require('./verify_parameters')
+const withLogBuffer = require('./log_buffer')
 
-exports.handler = async (event) => {
-  console.log(`Verifying parameters...`)
+exports.handler = withLogBuffer(async (buffer, event) => {
+  buffer.log(`Verifying parameters...`)
 
   const { missing_keys, unwanted_keys} = verify_parameters(event, ['invited_user_id', 'list_id'])
 
@@ -17,7 +18,7 @@ exports.handler = async (event) => {
     error: `Invalid parameters: ${unwanted_keys}`
   }
 
-  console.log(`Verifying JWT...`)
+  buffer.log(`Verifying JWT...`)
 
   const { user_id, error } = jwt_verifier.verify(event.jwt)
   if (error) return {
@@ -27,7 +28,7 @@ exports.handler = async (event) => {
 
   // TODO: updates should be batched together and cancelled if an error is thrown in either one
 
-  console.log(`Updating list...`)
+  buffer.log(`Updating list...`)
 
   const db = new AWS.DynamoDB.DocumentClient()
   const { Attributes: list } = await db.update({
@@ -38,7 +39,7 @@ exports.handler = async (event) => {
     ReturnValues: 'ALL_NEW',
   }).promise()
 
-  console.log(`Updating user...`)
+  buffer.log(`Updating user...`)
 
   const { Attributes: invited_user } = await db.update({
     TableName: 'Users',
@@ -48,7 +49,7 @@ exports.handler = async (event) => {
     ReturnValues: 'ALL_NEW',
   }).promise()
 
-  console.log(`Getting sender user...`)
+  buffer.log(`Getting sender user...`)
 
   const { Item: sender_user } = await db.get({
     TableName: 'Users',
@@ -56,7 +57,7 @@ exports.handler = async (event) => {
     AttributesToGet: [ 'nickname' ]
   }).promise()
 
-  console.log(`Subscribing user to topic...`)
+  buffer.log(`Subscribing user to topic...`)
 
   const sns = new AWS.SNS()
   await sns.subscribe({
@@ -65,7 +66,7 @@ exports.handler = async (event) => {
     Endpoint: invited_user.notification_arn,
   }).promise()
 
-  console.log(`Sending notification to user...`)
+  buffer.log(`Sending notification to user...`)
 
   await sns.publish({
     TargetArn: invited_user.notification_arn,
@@ -77,7 +78,7 @@ exports.handler = async (event) => {
     })
   }).promise()
 
-  console.log(`Done`)
+  buffer.log(`Done`)
 
   return { statusCode: 200 }
-}
+})

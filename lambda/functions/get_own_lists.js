@@ -1,9 +1,10 @@
 const AWS = require('aws-sdk')
 const jwt_verifier = require('./jwt_verifier')
 const verify_parameters = require('./verify_parameters')
+const withLogBuffer = require('./log_buffer')
 
-exports.handler = async (event) => {
-  console.log(`Verifying parameters...`)
+exports.handler = withLogBuffer(async (buffer, event) => {
+  buffer.log(`Verifying parameters...`)
 
   const { unwanted_keys } = verify_parameters(event, [])
 
@@ -12,7 +13,7 @@ exports.handler = async (event) => {
     error: `Invalid parameters: ${unwanted_keys}`
   }
 
-  console.log(`Verifying JWT...`)
+  buffer.log(`Verifying JWT...`)
 
   const { user_id, error } = jwt_verifier.verify(event.jwt)
   if (error) return {
@@ -20,7 +21,7 @@ exports.handler = async (event) => {
     error: error.message,
   }
 
-  console.log(`Fetching user...`)
+  buffer.log(`Fetching user...`)
 
   const db = new AWS.DynamoDB.DocumentClient()
   const { Item: user } = await db.get({
@@ -28,7 +29,7 @@ exports.handler = async (event) => {
     Key: { id: user_id },
   }).promise()
 
-  console.log(`Fetching lists...`)
+  buffer.log(`Fetching lists...`)
 
   const { Responses: { Lists: lists } } = await db.batchGet({
     RequestItems: {
@@ -40,11 +41,11 @@ exports.handler = async (event) => {
   }).promise()
 
   if (lists.length !== user.list_ids.length) {
-    console.warn(`Number of found lists does not match number of list ids in user data; missing ids:`)
-    console.warn(lists.filter(list => !user.list_ids.includes(list.id)).map(list => list.id))
+    buffer.warn(`Number of found lists does not match number of list ids in user data; missing ids:`)
+    buffer.warn(lists.filter(list => !user.list_ids.includes(list.id)).map(list => list.id))
   }
 
-  console.log(`Formatting lists...`)
+  buffer.log(`Formatting lists...`)
 
   const user_ids = {}
   lists.forEach(list => {
@@ -53,20 +54,20 @@ exports.handler = async (event) => {
     list.member_ids.forEach(id => user_ids[id] = true)
   })
 
-  console.log(`Fetching users...`)
+  buffer.log(`Fetching users...`)
 
   const { Responses: { Users: users } } = await db.batchGet({
     RequestItems: { 'Users': { Keys: Object.keys(user_ids).map(id => ({id})) } }
   }).promise()
 
-  console.log(`Formatting users...`)
+  buffer.log(`Formatting users...`)
 
   users.forEach(user => {
     user.contact_ids = user.contact_ids ?? []
     delete user.notification_arn
   })
 
-  console.log(`Done!`)
+  buffer.log(`Done!`)
   
   return {
     statusCode: 200,
@@ -75,4 +76,4 @@ exports.handler = async (event) => {
       users
     },
   }
-}
+})
